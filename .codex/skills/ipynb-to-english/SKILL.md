@@ -21,6 +21,7 @@ Translate Korean text in a Jupyter notebook to natural English while preserving 
    - Give only the primary entry a `title:`.
    - Place the translated sibling immediately after it with `file:` and `hidden: true`.
    - This keeps language pair navigation available while avoiding duplicate visible sidebar titles.
+   - If the deployed sidebar still shows the secondary Korean page, also update `book/custom.css` with `a.myst-toc-item[href$=\"/...-ko/\"]` style selectors that match the built page slug under GitHub Pages.
 6. Preserve notebook structure, outputs, metadata, and execution counts unless the user asks otherwise.
 7. Report the input path, output path, whether `myst.yml` was updated, and how many cells were translated.
 
@@ -38,3 +39,4 @@ Translate Korean text in a Jupyter notebook to natural English while preserving 
 - When updating the first markdown cell, keep the original title and body content below the language switcher.
 - When editing `book/myst.yml`, preserve existing order unless the user asks to move the notebook elsewhere.
 - In this repo's MyST setup, a secondary language entry should use `hidden: true`; omitting `title:` alone is not enough to keep it out of the sidebar.
+- For this repo's deployed site, verify the hidden page is not still exposed by path-based sidebar links. If needed, patch `book/custom.css` with `href$=` selectors that include the final built slug such as `/intro-ko/` or `/why-causal-inference-ko/`.

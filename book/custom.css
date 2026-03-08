@@ -1,5 +1,7 @@
-/* Hide Korean pages from sidebar — accessible via in-page language links */
-a.myst-toc-item[href="/intro-ko"],
-a.myst-toc-item[href="/matching-ko"] {
+/* Hide Korean pages from sidebar; keep them reachable from in-page language links. */
+a.myst-toc-item[href$="/intro-ko"],
+a.myst-toc-item[href$="/intro-ko/"],
+a.myst-toc-item[href$="/why-causal-inference-ko"],
+a.myst-toc-item[href$="/why-causal-inference-ko/"] {
   display: none !important;
 }
