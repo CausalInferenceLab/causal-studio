@@ -6,7 +6,6 @@ on:
     paths:
       - 'book/**'
       - 'requirements.txt'
-      - 'requirements-book.txt'
       - '.github/workflows/deploy-book.yml'
 
   workflow_dispatch:
@@ -39,7 +38,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements-book.txt
+          pip install -r requirements.txt
 
       - name: Build book
         working-directory: book
