@@ -2,16 +2,25 @@
 
 렌더된 Manim 영상과 오디오 합성, 최종 합본을 위한 ffmpeg 레시피.
 
+기본 원칙:
+- Scene별 debug render와 mux 확인을 먼저 끝낸 뒤 다음 Scene으로 진행한다.
+- Manim이 자동 생성하는 중간 산출물은 항상 `build/manim/` 아래에 둔다.
+- scene별 code-only 산출물은 `preview/code/` 아래에 둔다.
+- scene별 mux 산출물은 `preview/mux/` 아래에 둔다.
+- scene별 hq 산출물은 `build/final/` 아래에 둔다.
+- 전체 합본은 여러 Scene이 검수된 뒤 마지막 단계에서만 수행한다.
+- `build/final/`은 scene별 hq와 전체 합본만 저장한다.
+
 ## 1. 렌더된 mp4 찾기
 
 ### 최신 렌더 파일 찾기
 ```bash
-find build/render/videos/ -name "*.mp4" -type f -printf '%T@ %p\n' 2>/dev/null | sort -n | tail -1 | cut -d' ' -f2-
+find build/manim/videos/ -name "*.mp4" -type f -printf '%T@ %p\n' 2>/dev/null | sort -n | tail -1 | cut -d' ' -f2-
 ```
 
 ### Scene 이름으로 찾기
 ```bash
-find build/render/videos/*{SCENE_NAME}* -name "*.mp4" | head -1
+find build/manim/videos/*{SCENE_NAME}* -name "*.mp4" | head -1
 ```
 
 ## 2. 오디오 합성 (Mux)
@@ -48,7 +57,7 @@ echo "Audio:" && ffprobe -v error -show_entries format=duration -of default=nopr
 
 ### Step 1: 파일 리스트 생성
 ```bash
-ls build/final/*_debug.mp4 build/final/*.mp4 2>/dev/null | sort -t'/' -k2 | uniq | while read f; do echo "file '$f'"; done > /tmp/filelist.txt
+ls build/final/*_hq.mp4 preview/mux/*_mux.mp4 preview/code/*_code.mp4 2>/dev/null | sort -t'/' -k2 | uniq | while read f; do echo "file '$f'"; done > /tmp/filelist.txt
 ```
 
 ### Step 2-A: 무손실 합치기 (동일 코덱/해상도)
@@ -84,10 +93,16 @@ ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:no
 
 ### 개별 영상 길이 합계
 ```bash
-for f in build/final/*_debug.mp4 build/final/*.mp4; do
+for f in build/final/*_hq.mp4 preview/mux/*_mux.mp4 preview/code/*_code.mp4; do
   ffprobe -v error -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 "$f"
 done | awk '{sum+=$1} END {print sum}'
 ```
+
+## 6.5 Scene별 저장 규칙
+
+- 코드만으로 생성한 480p 테스트 영상: `preview/code/{NN}_{scene_name}_code.mp4`
+- 코드+음성 480p 테스트 영상: `preview/mux/{NN}_{scene_name}_mux.mp4`
+- 사용자가 만족한 뒤 저장하는 고화질 scene 영상: `build/final/{NN}_{scene_name}_hq.mp4`
 
 ## 6. 길이 불일치 수정 전략
 

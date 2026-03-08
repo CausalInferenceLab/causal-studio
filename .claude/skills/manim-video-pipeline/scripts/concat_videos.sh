@@ -1,7 +1,7 @@
 #!/bin/bash
 # Concatenate multiple mp4 files into one
 # Usage: ./concat_videos.sh <input_dir> <output.mp4> [--reencode]
-# Example: ./concat_videos.sh build/final/ build/final/full_video.mp4
+# Example: ./concat_videos.sh build/final/ build/final/topic_full.mp4
 
 INPUT_DIR="$1"
 OUTPUT="$2"
