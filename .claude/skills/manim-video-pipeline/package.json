@@ -1,0 +1,16 @@
+{
+  "name": "manim-video-pipeline",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "elevenlabs-audio": "node scripts/generate_elevenlabs_audio.mjs"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.38.1"
+  }
+}
