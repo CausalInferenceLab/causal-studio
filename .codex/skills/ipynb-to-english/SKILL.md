@@ -18,8 +18,8 @@ Translate Korean text in a Jupyter notebook to natural English while preserving 
    - Korean notebook: `**🌐 언어:** [← English](./file_en.ipynb) | **한국어**`
    - English notebook: `**🌐 Language:** **English** | [한국어 →](./file_ko.ipynb)`
    - If the notebook is published in this repo's book, use the final built page slug instead of the source `.ipynb` path.
-   - English notebook in book: `**🌐 Language:** **English** | [한국어 →](/causal-studio/why-causal-inference-ko/)`
-   - Korean notebook in book: `**🌐 언어:** [← English](/causal-studio/why-causal-inference-en/) | **한국어**`
+   - English notebook in book: `**🌐 Language:** **English** | [한국어 →](/why-causal-inference-ko/)`
+   - Korean notebook in book: `**🌐 언어:** [← English](/why-causal-inference-en/) | **한국어**`
 5. If the notebook is part of the book, update `book/myst.yml` so the pair appears together in the TOC.
    - Follow the current `why_causal_inference` pattern used in this repo.
    - Give only the primary entry a `title:`.
@@ -44,4 +44,4 @@ Translate Korean text in a Jupyter notebook to natural English while preserving 
 - When editing `book/myst.yml`, preserve existing order unless the user asks to move the notebook elsewhere.
 - In this repo's MyST setup, a secondary language entry should use `hidden: true`; omitting `title:` alone is not enough to keep it out of the sidebar.
 - For this repo's deployed site, verify the hidden page is not still exposed by path-based sidebar links. If needed, patch `book/custom.css` with `href$=` selectors that include the final built slug such as `/intro-ko/` or `/why-causal-inference-ko/`.
-- For pages published in this repo's GitHub Pages site, do not leave language switcher links pointing at `.md` or `.ipynb` source files. Use final built routes such as `/causal-studio/`, `/causal-studio/intro-ko/`, or `/causal-studio/why-causal-inference-en/`.
+- For pages published in this repo's GitHub Pages site, do not leave language switcher links pointing at `.md` or `.ipynb` source files. Use root-based built routes such as `/`, `/intro-ko/`, or `/why-causal-inference-en/`.
