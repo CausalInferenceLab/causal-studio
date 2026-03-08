@@ -1,12 +1,12 @@
 # External references (local clone only)
 /3b1b/
 /videos/assets/tabler-icons/
-/videos/why_causal_inference/
 
 # Build outputs
 /_build/
 book/_build/
 videos/*/build/
+videos/*/preview/
 
 # Legacy output patterns (kept for compatibility)
 **/media/
@@ -31,6 +31,7 @@ __pycache__/
 env/
 venv/
 .venv/
+videos/*/src/__pycache__/
 
 # IDE
 .idea/
