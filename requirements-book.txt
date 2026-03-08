@@ -1,0 +1,8 @@
+# Dependencies for GitHub Pages book build (no system-level video stack)
+jupyter-book>=2.0.0
+numpy
+pandas
+matplotlib
+seaborn
+scikit-learn
+statsmodels

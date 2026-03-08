@@ -34,7 +34,8 @@ jupyter-book 설치해줘
 manim 패키지 설치해줘
 ```
 
-Python 의존성은 `requirements.txt` 하나만 사용합니다.
+일반 로컬 작업은 `requirements.txt`를 사용합니다.
+GitHub Pages book 배포처럼 video 스택이 필요 없는 환경은 `requirements-book.txt`를 사용합니다.
 
 ### 2) 로컬 전용 영상 자산 설치
 
