@@ -20,6 +20,7 @@ project:
   toc:
     - file: intro_en.md
     - file: intro_ko.md
+      hidden: true
     - title: Why Causal Inference?
       file: why_causal_inference/why_causal_inference_en.ipynb
     - file: why_causal_inference/why_causal_inference_ko.ipynb
