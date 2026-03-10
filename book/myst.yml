@@ -2,8 +2,6 @@ version: 1
 
 project:
   title: Causal Studio
-  authors:
-    - name: Causal Studio
   copyright: '2025'
   github: https://github.com/Funbucket/causal-studio
   license: CC-BY-4.0

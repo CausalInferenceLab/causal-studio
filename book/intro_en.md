@@ -1,6 +1,6 @@
 # Causal Studio
 
-**🌐 Language:** **English** | [한국어 →](/intro-ko/)
+**🌐 Language:** **English** | [한국어 →](/intro-ko)
 
 A platform providing educational videos and executable notebooks on causal inference.
 
