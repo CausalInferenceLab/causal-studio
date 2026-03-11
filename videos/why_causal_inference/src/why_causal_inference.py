@@ -2473,83 +2473,75 @@ class Scene09_RandomizedExperiment(Scene):
         random_label = Text("무작위 배정", font_size=52, color=ACCENT_COLOR, weight=BOLD)
         random_label.move_to(ORIGIN)
 
-        # Beat 2: 교란 → T 화살표가 없는 DAG (Scene07 대비)
-        # 구획: 상단(교란 박스), 중앙(T/Y 노드), 하단(여백)
-        dag_confounder_box = RoundedRectangle(
-            width=4.2, height=1.6, corner_radius=0.18,
-            stroke_color=NEUTRAL_COLOR, stroke_width=2.0,
-        ).move_to(UP * 1.5)
-        dag_conf_label = Text("학교 여건", font_size=26, color=NEUTRAL_COLOR, weight=BOLD)
-        dag_conf_label.move_to(dag_confounder_box.get_top() + DOWN * 0.34)
-        dag_coin_chip = VGroup(
-            load_icon("arrows-shuffle.svg", NEUTRAL_COLOR, 0.28),
-            Text("무작위", font_size=19, color=NEUTRAL_COLOR, weight=BOLD),
-        ).arrange(RIGHT, buff=0.1)
-        dag_conf_factors = VGroup(
-            VGroup(load_icon("coin.svg", NEUTRAL_COLOR, 0.28),
-                   Text("재정", font_size=18, color=NEUTRAL_COLOR, weight=BOLD)).arrange(RIGHT, buff=0.08),
-            VGroup(load_icon("map-pin.svg", NEUTRAL_COLOR, 0.28),
-                   Text("위치", font_size=18, color=NEUTRAL_COLOR, weight=BOLD)).arrange(RIGHT, buff=0.08),
-            VGroup(load_icon("user-star.svg", NEUTRAL_COLOR, 0.28),
-                   Text("교사", font_size=18, color=NEUTRAL_COLOR, weight=BOLD)).arrange(RIGHT, buff=0.08),
-        ).arrange(RIGHT, buff=0.22)
-        dag_conf_factors.move_to(dag_confounder_box.get_center() + DOWN * 0.2)
-
-        dag_t_node = VGroup(
-            Circle(radius=0.52, stroke_color=TABLET_COLOR, stroke_width=2.4),
-            MathTex(r"T").set_color(TABLET_COLOR),
-        ).move_to(LEFT * 2.5 + DOWN * 0.5)
-        dag_y_node = VGroup(
-            Circle(radius=0.52, stroke_color=ACCENT_COLOR, stroke_width=2.4),
-            MathTex(r"Y").set_color(ACCENT_COLOR),
-        ).move_to(RIGHT * 2.5 + DOWN * 0.5)
-        dag_t_label = Text("처치", font_size=21, color=TABLET_COLOR, weight=BOLD).next_to(dag_t_node, DOWN, buff=0.16)
-        dag_y_label = Text("결과", font_size=21, color=ACCENT_COLOR, weight=BOLD).next_to(dag_y_node, DOWN, buff=0.16)
-
-        # 교란 → T 없음. 교란 → Y 만 (결과에는 여전히 영향)
-        dag_c_to_y = Arrow(
-            dag_confounder_box.get_bottom() + RIGHT * 0.3,
-            dag_y_node.get_top(), buff=0.12,
-            color=NEUTRAL_COLOR, stroke_width=2.5,
+        # Beat 2-3: 산점도 — 학교 여건(x) × 시험 점수(y)
+        # Beat 2: 편향 있는 분포 → 무작위 배정 후 섞인 분포 (점 이동 애니메이션)
+        # Beat 3: 무작위화 후 평균선 + 레이블 (처치 효과 = 두 그룹 평균 차이)
+        scatter_axes = Axes(
+            x_range=[0, 10, 10],
+            y_range=[0, 10, 10],
+            x_length=5.2,
+            y_length=3.6,
+            axis_config={
+                "include_tip": True, "tip_length": 0.18,
+                "stroke_width": 1.8, "color": NEUTRAL_COLOR, "include_ticks": False,
+            },
         )
-        dag_t_to_y = Arrow(
-            dag_t_node.get_right(), dag_y_node.get_left(), buff=0.16,
-            color=TABLET_COLOR, stroke_width=3.0,
+        scatter_axes.move_to(LEFT * 0.8 + DOWN * 0.1)
+        scatter_x_label = Text("학교 여건", font_size=19, color=NEUTRAL_COLOR)
+        scatter_x_label.next_to(scatter_axes.x_axis, DOWN, buff=0.22)
+        scatter_y_label = VGroup(*[
+            Text(ch, font_size=19, color=NEUTRAL_COLOR) for ch in "시험점수"
+        ]).arrange(DOWN, buff=0.05)
+        scatter_y_label.next_to(scatter_axes.y_axis, LEFT, buff=0.22)
+        scatter_axes_group = VGroup(scatter_axes, scatter_x_label, scatter_y_label)
+
+        # 편향 있는 배정: T=1 우상단, T=0 좌하단 (교란요인과 처치가 상관됨)
+        biased_t1_coords = [
+            (5.5, 5.5), (6.5, 7.0), (7.0, 6.0), (8.0, 8.0), (9.0, 7.5),
+            (7.5, 8.5), (8.5, 6.5), (6.0, 8.0), (9.0, 9.0), (7.0, 7.5),
+        ]
+        biased_t0_coords = [
+            (1.0, 2.0), (2.0, 1.0), (2.5, 3.0), (3.5, 2.5), (4.0, 1.5),
+            (1.5, 3.5), (3.0, 4.0), (4.5, 3.5), (2.0, 4.5), (4.0, 4.5),
+        ]
+        # 무작위화 후: x 전역 분포, 두 그룹이 y 방향으로 교차(interleaved)
+        # T=1 평균 y ≈ 6.0, T=0 평균 y ≈ 4.45 — 개별 점은 겹침
+        random_t1_coords = [
+            (1.0, 4.5), (2.0, 7.0), (3.5, 5.0), (5.0, 8.0), (6.5, 6.5),
+            (8.0, 4.0), (9.0, 7.5), (4.0, 3.5), (7.0, 6.0), (2.5, 8.0),
+        ]
+        random_t0_coords = [
+            (1.5, 3.0), (3.0, 6.5), (4.5, 2.5), (6.0, 5.5), (7.5, 3.5),
+            (9.0, 6.0), (2.0, 4.0), (5.5, 2.0), (8.5, 4.5), (3.5, 7.0),
+        ]
+
+        dot_r = 0.11
+        biased_t1_dots = VGroup(*[
+            Dot(scatter_axes.coords_to_point(x, y), radius=dot_r, color=TABLET_COLOR, fill_opacity=0.9)
+            for x, y in biased_t1_coords
+        ])
+        biased_t0_dots = VGroup(*[
+            Dot(scatter_axes.coords_to_point(x, y), radius=dot_r, color=LIBRARY_COLOR, fill_opacity=0.9)
+            for x, y in biased_t0_coords
+        ])
+
+        # Beat 3: 평균선 — T=1 평균 y≈6.8, T=0 평균 y≈3.5
+        _x0 = scatter_axes.coords_to_point(0, 0)[0]
+        _x1 = scatter_axes.coords_to_point(10, 0)[0]
+        _my1 = scatter_axes.coords_to_point(0, 6.0)[1]  # T=1 무작위화 후 평균
+        _my0 = scatter_axes.coords_to_point(0, 4.45)[1]  # T=0 무작위화 후 평균
+        mean_line_t1 = DashedLine(
+            [_x0, _my1, 0], [_x1, _my1, 0],
+            color=TABLET_COLOR, stroke_width=2.2, dash_length=0.12,
         )
-        # 무작위 배정 표시: T 노드 위에 shuffle 아이콘
-        random_icon = load_icon("arrows-shuffle.svg", ACCENT_COLOR, 0.42)
-        random_icon.next_to(dag_t_node, UP, buff=0.22)
-
-        dag_group = VGroup(
-            dag_confounder_box, dag_conf_label, dag_conf_factors,
-            dag_t_node, dag_y_node, dag_t_label, dag_y_label,
-            dag_c_to_y, dag_t_to_y,
+        mean_line_t0 = DashedLine(
+            [_x0, _my0, 0], [_x1, _my0, 0],
+            color=LIBRARY_COLOR, stroke_width=2.2, dash_length=0.12,
         )
-
-        # Beat 3: 두 집단 막대 동등화
-        # 구획: 좌중앙(T=1 막대), 우중앙(T=0 막대), 같은 높이
-        eq_axis = Line(LEFT * 2.0, RIGHT * 2.0, color=NEUTRAL_COLOR, stroke_width=2.0)
-        eq_axis.move_to(DOWN * 0.8)
-
-        bar_h = 1.1
-        eq_treated_bar = RoundedRectangle(
-            width=0.7, height=bar_h, corner_radius=0.1,
-            stroke_color=TABLET_COLOR, stroke_width=2.2,
-            fill_color=TABLET_COLOR, fill_opacity=0.18,
-        ).align_to(eq_axis, DOWN).shift(LEFT * 1.1)
-        eq_control_bar = RoundedRectangle(
-            width=0.7, height=bar_h, corner_radius=0.1,
-            stroke_color=LIBRARY_COLOR, stroke_width=2.2,
-            fill_color=LIBRARY_COLOR, fill_opacity=0.18,
-        ).align_to(eq_axis, DOWN).shift(RIGHT * 1.1)
-        eq_t1_mark = MathTex(r"T=1").scale(0.72).set_color(TABLET_COLOR).next_to(eq_treated_bar, DOWN, buff=0.1)
-        eq_t0_mark = MathTex(r"T=0").scale(0.72).set_color(LIBRARY_COLOR).next_to(eq_control_bar, DOWN, buff=0.1)
-        eq_equal_icon = load_icon("equal.svg", ACCENT_COLOR, 0.44)
-        eq_equal_icon.move_to(ORIGIN + DOWN * 0.25)
-        eq_label = Text("처치 여부 외 모든 면에서 평균적으로 비슷", font_size=22, color=WHITE)
-        eq_label.move_to(UP * 0.85)
-
-        eq_group = VGroup(eq_axis, eq_treated_bar, eq_control_bar, eq_t1_mark, eq_t0_mark, eq_equal_icon, eq_label)
+        mean_label_t1 = MathTex(r"E[Y\mid T=1]").scale(0.6).set_color(TABLET_COLOR)
+        mean_label_t0 = MathTex(r"E[Y\mid T=0]").scale(0.6).set_color(LIBRARY_COLOR)
+        mean_label_t1.next_to(mean_line_t1, RIGHT, buff=0.18)
+        mean_label_t0.next_to(mean_line_t0, RIGHT, buff=0.18)
 
         # Beat 4: (Y_0, Y_1) ⊥ T 독립 수식
         indep_formula = MathTex(
@@ -2655,51 +2647,63 @@ class Scene09_RandomizedExperiment(Scene):
         self.play(FadeIn(random_label, scale=0.85), run_time=0.75)
         wait_for_chunks([1], spent=0.75)
 
-        # ── Beat 2: 교란 → T 없는 DAG ──────────────────────────────────────
+        # ── Beat 2: 산점도 — 편향 분포 → 무작위 섞임 ────────────────────────
         # 남는 요소: 없음 (random_label FadeOut)
-        # 새로 등장: dag_group + random_icon (T 노드 위)
-        # 비워두는 영역: 하단 여백
-        # 핵심 시선: 교란 → T 화살표 부재 (random_icon으로 배정 방식 강조)
+        # 새로 등장: scatter_axes_group → biased dots → 점 이동 애니메이션
+        # 비워두는 영역: 우측 (Beat3 레이블 공간 확보)
+        # 핵심 시선: 점들이 섞이는 순간 (무작위 배정의 시각적 의미)
         self.play(FadeOut(random_label, scale=0.95), run_time=0.35)
+        self.play(FadeIn(scatter_axes_group), run_time=0.7)
         self.play(
-            FadeIn(dag_confounder_box, shift=DOWN * 0.07),
-            FadeIn(dag_conf_label, shift=DOWN * 0.07),
-            FadeIn(dag_conf_factors, shift=DOWN * 0.07),
-            FadeIn(dag_t_node, scale=0.92),
-            FadeIn(dag_y_node, scale=0.92),
-            FadeIn(dag_t_label, shift=UP * 0.06),
-            FadeIn(dag_y_label, shift=UP * 0.06),
-            run_time=0.85,
+            FadeIn(biased_t1_dots, lag_ratio=0.12),
+            FadeIn(biased_t0_dots, lag_ratio=0.12),
+            run_time=0.9,
         )
-        self.play(Create(dag_c_to_y), GrowArrow(dag_t_to_y), run_time=0.75)
-        self.play(FadeIn(random_icon, scale=0.9), run_time=0.5)
-        self.play(Indicate(random_icon, color=ACCENT_COLOR, scale_factor=1.12), run_time=0.55)
-        wait_for_chunks([2], spent=3.0)
+        # 편향 상태를 잠깐 보여준 뒤 무작위 배정으로 점들이 섞임
+        self.wait(2.4)
+        self.play(
+            *[biased_t1_dots[i].animate.move_to(
+                scatter_axes.coords_to_point(*random_t1_coords[i])
+              ) for i in range(len(random_t1_coords))],
+            *[biased_t0_dots[i].animate.move_to(
+                scatter_axes.coords_to_point(*random_t0_coords[i])
+              ) for i in range(len(random_t0_coords))],
+            run_time=1.2,
+        )
+        wait_for_chunks([2], spent=5.55)
 
-        # ── Beat 3: 두 집단 막대 동등화 ─────────────────────────────────────
-        # 남는 요소: 없음 (dag FadeOut)
-        # 새로 등장: eq_group (중앙)
-        # 비워두는 영역: 상단/하단
-        # 핵심 시선: 두 막대 같은 높이 + eq_equal_icon
-        self.play(FadeOut(dag_group), FadeOut(random_icon), run_time=0.55)
-        self.play(FadeIn(eq_label, shift=DOWN * 0.06), run_time=0.65)
+        # ── Beat 3: 평균선 + 레이블 — 두 그룹 평균 비교 ─────────────────────
+        # 남는 요소: scatter_axes_group + biased_t1/t0_dots (무작위화 후 위치)
+        # 새로 등장: mean_line_t1, mean_line_t0, mean_label_t1, mean_label_t0
+        # 비워두는 영역: 우측 레이블 공간
+        # 핵심 시선: 두 평균선의 간격 = 순수한 처치 효과
         self.play(
-            FadeIn(eq_axis),
-            FadeIn(eq_treated_bar, shift=UP * 0.06),
-            FadeIn(eq_control_bar, shift=UP * 0.06),
-            FadeIn(eq_t1_mark, shift=UP * 0.05),
-            FadeIn(eq_t0_mark, shift=UP * 0.05),
-            run_time=0.75,
+            Create(mean_line_t1),
+            Create(mean_line_t0),
+            run_time=0.7,
         )
-        self.play(FadeIn(eq_equal_icon, scale=0.9), run_time=0.5)
-        wait_for_chunks([3], spent=1.9)
+        self.play(
+            FadeIn(mean_label_t1, shift=LEFT * 0.05),
+            FadeIn(mean_label_t0, shift=LEFT * 0.05),
+            run_time=0.55,
+        )
+        wait_for_chunks([3], spent=1.25)
 
         # ── Beat 4: (Y_0, Y_1) ⊥ T 독립 수식 ──────────────────────────────
-        # 남는 요소: 없음 (eq_group FadeOut)
+        # 남는 요소: 없음 (scatter 일체 FadeOut)
         # 새로 등장: indep_formula (중앙, 크게)
         # 비워두는 영역: 상단/하단
         # 핵심 시선: ⊥ 기호 (독립 조건)
-        self.play(FadeOut(eq_group), run_time=0.5)
+        self.play(
+            FadeOut(scatter_axes_group),
+            FadeOut(biased_t1_dots),
+            FadeOut(biased_t0_dots),
+            FadeOut(mean_line_t1),
+            FadeOut(mean_line_t0),
+            FadeOut(mean_label_t1),
+            FadeOut(mean_label_t0),
+            run_time=0.5,
+        )
         self.play(FadeIn(indep_formula, scale=0.9), run_time=0.8)
         self.play(Indicate(indep_formula[1], color=WHITE, scale_factor=1.1), run_time=0.55)
         wait_for_chunks([4], spent=1.85)
@@ -2792,3 +2796,686 @@ class Scene09_RandomizedExperiment(Scene):
         wait_for_chunks([9], spent=2.4)
         self.wait(self.WAIT_TAIL)
 
+
+class Scene10_OnlineClassroomRCT(Scene):
+    """
+    Scene 10: 온라인 수업 RCT 사례
+
+    Core Claim:
+    실제 RCT 데이터(온라인 수업 실험)를 통해 단순 평균 차이 = ATE 직접 확인.
+    대면 78.55 vs 온라인 73.64 → ATE ≈ -4.91점.
+    무작위 배정이 선택 편향을 설계 단계에서 제거하기 때문에 인과 해석 가능.
+
+    Expected Misconception:
+    "온라인 학생이 원래 더 우수/열등할 수 있다"는 선택 편향 우려.
+    RCT는 설계 단계에서 이를 제거하므로 단순 평균 차이 = ATE.
+
+    Notebook Reference:
+    book/why_causal_inference/why_causal_inference_ko.ipynb
+    - 직전 Scene 마지막 문장:
+      "무작위 배정 하나로, 비교 가능성의 두 조건을 동시에 확보할 수 있습니다."
+    - 현재 Scene 첫 문장:
+      "실제 데이터로 확인해 볼게요."
+    - Cell 22: 온라인 수업 실험 소개 (대면/온라인/혼합 무작위 배정)
+    - Cell 23-24: face_to_face=78.55, blended=77.09, online=73.64
+    - Cell 25: ATE≈-4.91, 균형 검증 (gender/asian/black/hispanic/white)
+
+    Script-to-Beat Mapping:
+    - Beat 1: chunk 1 (0-1.8s) + chunk 2 (1.8-11.2s) → 실험 소개 타이틀
+    - Beat 2: chunk 3 (11.2-26.1s) → 세 수업 방식 카드 + 무작위 배정
+    - Beat 3: chunk 4 (26.1-50.7s) → 선택 편향 문제 + RCT 해결
+    - Beat 4: chunk 5 (50.7-56.6s) + chunk 6 (56.6-72.4s) + chunk 7 (72.4-83.9s) → 결과 표 + ATE
+    - Beat 5: chunk 8 (83.9-110.9s) → 균형 검증 표
+    """
+
+    WAIT_TAIL = 0.3
+
+    def construct(self):
+        chunk_durations = load_scene_timing_durations("10_online_classroom_rct")
+
+        def wait_for_chunks(indices: list[int], spent: float = 0.0, extra: float = 0.0) -> None:
+            total = sum(chunk_durations[i - 1] for i in indices) - spent + extra
+            if total > 0:
+                self.wait(total)
+
+        FACE_COLOR = BLUE_D
+        ONLINE_COLOR = MAROON_D
+        BLEND_COLOR = GREEN_D
+
+        icon_face = load_icon("school.svg", FACE_COLOR, 0.72)
+        icon_online = load_icon("device-desktop.svg", ONLINE_COLOR, 0.72)
+        icon_blend = load_icon("devices.svg", BLEND_COLOR, 0.72)
+
+        # ── Beat 1: 실험 소개 — 아이콘으로 T/Y 시각화 (chunk 1-2, 11.05s) ──────
+        # 남는: 없음 / 새로: title, T 아이콘 3개+레이블, 화살표, Y 아이콘+레이블
+        # 핵심: "처치 T = 수업 방식 → 결과 Y = 기말 점수" 관계
+        title = Text("온라인 수업 실험", font_size=40, color=WHITE)
+        title.move_to(UP * 2.0)
+
+        # T 섹션: 처치 T 헤더 + 수업방식 아이콘 3개
+        t_header = Text("처치  T", font_size=22, color=NEUTRAL_COLOR)
+        icon_f1 = load_icon("school.svg", FACE_COLOR, 0.5)
+        icon_b1 = load_icon("devices.svg", BLEND_COLOR, 0.5)
+        icon_o1 = load_icon("device-desktop.svg", ONLINE_COLOR, 0.5)
+        lbl_f1 = Text("대면", font_size=16, color=FACE_COLOR)
+        lbl_b1 = Text("혼합", font_size=16, color=BLEND_COLOR)
+        lbl_o1 = Text("온라인", font_size=16, color=ONLINE_COLOR)
+        col_f1 = VGroup(icon_f1, lbl_f1).arrange(DOWN, buff=0.1)
+        col_b1 = VGroup(icon_b1, lbl_b1).arrange(DOWN, buff=0.1)
+        col_o1 = VGroup(icon_o1, lbl_o1).arrange(DOWN, buff=0.1)
+        t_icons = VGroup(col_f1, col_b1, col_o1).arrange(RIGHT, buff=0.35)
+        t_section = VGroup(t_header, t_icons).arrange(DOWN, buff=0.28)
+        t_section.move_to(LEFT * 2.8 + DOWN * 0.3)
+
+        # Y 섹션: 결과 Y 헤더 + 체크리스트 아이콘 + 레이블
+        y_header = Text("결과  Y", font_size=22, color=NEUTRAL_COLOR)
+        icon_y = load_icon("checklist.svg", ACCENT_COLOR, 0.55)
+        lbl_y = Text("기말 시험 점수", font_size=16, color=ACCENT_COLOR)
+        y_col = VGroup(icon_y, lbl_y).arrange(DOWN, buff=0.1)
+        y_section = VGroup(y_header, y_col).arrange(DOWN, buff=0.28)
+        y_section.move_to(RIGHT * 2.5 + DOWN * 0.3)
+
+        # T → Y 화살표
+        ty_arrow = Arrow(
+            t_section.get_right() + RIGHT * 0.1,
+            y_section.get_left() + LEFT * 0.1,
+            buff=0.05, stroke_width=2.5, color=NEUTRAL_COLOR,
+            max_tip_length_to_length_ratio=0.1,
+        )
+
+        ty_visual = VGroup(t_section, ty_arrow, y_section)
+
+        self.play(FadeIn(title, shift=UP * 0.06), run_time=0.6)
+        self.play(
+            LaggedStart(
+                FadeIn(t_section, shift=RIGHT * 0.05),
+                GrowArrow(ty_arrow),
+                FadeIn(y_section, shift=LEFT * 0.05),
+                lag_ratio=0.3,
+            ),
+            run_time=1.1,
+        )
+        wait_for_chunks([1, 2], spent=1.7)
+
+        # ── Beat 2: 세 수업 방식 카드 (chunk 3, 14.9s) ───────────────────────
+        # 남는: title(상단 축소) / 제거: ty_labels / 새로: 카드 3개 + RCT 배지→화살표
+        # 핵심: 대면/혼합/온라인 카드
+
+        def make_format_card(icon, label, color):
+            lbl = Text(label, font_size=24, color=color)
+            grp = VGroup(icon, lbl).arrange(DOWN, buff=0.2)
+            rect = SurroundingRectangle(
+                grp, buff=0.25, color=color,
+                stroke_opacity=0.7, fill_opacity=0.06, fill_color=color,
+            )
+            return VGroup(rect, grp)
+
+        card_f = make_format_card(icon_face, "대면", FACE_COLOR)
+        card_b = make_format_card(icon_blend, "혼합", BLEND_COLOR)
+        card_o = make_format_card(icon_online, "온라인", ONLINE_COLOR)
+        cards = VGroup(card_f, card_b, card_o).arrange(RIGHT, buff=0.55)
+        cards.move_to(ORIGIN)
+
+        rct_badge = Text("무작위 배정", font_size=22, color=ACCENT_COLOR)
+        rct_badge.move_to(UP * 2.4)
+        rct_arr = Arrow(
+            rct_badge.get_bottom() + DOWN * 0.05,
+            cards.get_top() + UP * 0.05,
+            buff=0.1, stroke_width=2.0, color=ACCENT_COLOR,
+            max_tip_length_to_length_ratio=0.12,
+        )
+
+        self.play(
+            title.animate.scale(0.65).to_edge(UP, buff=0.25),
+            FadeOut(ty_visual),
+            run_time=0.55,
+        )
+        self.play(
+            LaggedStart(
+                FadeIn(card_f, shift=UP * 0.05),
+                FadeIn(card_b, shift=UP * 0.05),
+                FadeIn(card_o, shift=UP * 0.05),
+                lag_ratio=0.2,
+            ),
+            run_time=1.0,
+        )
+        self.play(FadeIn(rct_badge), Create(rct_arr), run_time=0.8)
+
+        # ── Beat 2 Phase 2: "처치는 수업 방식, 결과는 기말 점수" (chunk 3 후반) ──
+        # 카드 좌측 축소 이동 + 우측에 T→Y 다이어그램 등장
+        # chunk 3 = 16.02s, phase1 spent ≈ 1.8s → 나머지 ~9s 대기 후 전환
+        self.wait(8.5)
+
+        # rct_badge/arr FadeOut 후 카드 축소+이동, Y 섹션 등장
+        t_lbl = Text("처치  T", font_size=21, color=NEUTRAL_COLOR)
+        icon_y2 = load_icon("checklist.svg", ACCENT_COLOR, 0.6)
+        y_lbl2 = Text("기말 시험 점수", font_size=18, color=ACCENT_COLOR)
+        y_hdr2 = Text("결과  Y", font_size=21, color=NEUTRAL_COLOR)
+        y_col2 = VGroup(icon_y2, y_lbl2).arrange(DOWN, buff=0.12)
+        y_sec2 = VGroup(y_hdr2, y_col2).arrange(DOWN, buff=0.28)
+        y_sec2.move_to(RIGHT * 3.0)
+
+        ty_mid_arr = Arrow(
+            LEFT * 0.6, RIGHT * 1.8,
+            buff=0.0, stroke_width=2.5, color=NEUTRAL_COLOR,
+            max_tip_length_to_length_ratio=0.1,
+        )
+
+        self.play(
+            FadeOut(rct_badge), FadeOut(rct_arr),
+            cards.animate.scale(0.72).move_to(LEFT * 3.0),
+            run_time=0.65,
+        )
+        t_lbl.next_to(cards, UP, buff=0.18)
+        self.play(FadeIn(t_lbl), run_time=0.4)
+        self.play(GrowArrow(ty_mid_arr), FadeIn(y_sec2, shift=LEFT * 0.05), run_time=0.7)
+        # spent(chunk3): 0.55+1.0+0.8+8.5+0.65+0.4+0.7 = 12.6s → wait 16.02-12.6 = 3.42s
+        wait_for_chunks([3], spent=12.6)
+
+        # ── Beat 3: 선택 편향 문제 → RCT 해결 (chunk 4, 23.87s) ──────────────
+        # 남는: 없음 (모두 FadeOut) / 핵심: 선택 편향 DAG → 무작위 배정이 차단
+        # 이 Beat 시작은 chunk 4 시작 시점 (0.5s FadeOut 포함)
+        self.play(
+            FadeOut(cards), FadeOut(t_lbl), FadeOut(ty_mid_arr), FadeOut(y_sec2), FadeOut(title),
+            run_time=0.5,
+        )
+
+        # DAG 노드 헬퍼: SurroundingRectangle + 텍스트
+        def dag_node(label, color, fsize=22):
+            txt = Text(label, font_size=fsize, color=color)
+            box = SurroundingRectangle(txt, buff=0.22, color=color, stroke_opacity=0.8,
+                                       fill_color=color, fill_opacity=0.08)
+            return VGroup(box, txt)
+
+        node_bg = dag_node("학생 배경", QUESTION_COLOR)       # 교란변수 (상단 중앙)
+        node_T  = dag_node("수업 방식 T", ONLINE_COLOR)       # 처치 (좌하단)
+        node_Y  = dag_node("성적 Y", ACCENT_COLOR)            # 결과 (우하단)
+
+        node_bg.move_to(UP * 1.5)
+        node_T.move_to(LEFT * 3.0 + DOWN * 0.8)
+        node_Y.move_to(RIGHT * 3.0 + DOWN * 0.8)
+
+        # 화살표 3개: 배경→T (교란 경로), 배경→Y, T→Y (인과)
+        def dag_arrow(src, dst, color, stroke=2.2):
+            return Arrow(
+                src.get_boundary_point(dst.get_center() - src.get_center()),
+                dst.get_boundary_point(src.get_center() - dst.get_center()),
+                buff=0.08, stroke_width=stroke, color=color,
+                max_tip_length_to_length_ratio=0.12,
+            )
+
+        arr_bg_T = dag_arrow(node_bg, node_T, QUESTION_COLOR)   # 교란 경로 (나중에 X)
+        arr_bg_Y = dag_arrow(node_bg, node_Y, QUESTION_COLOR)
+        arr_T_Y  = dag_arrow(node_T,  node_Y, NEUTRAL_COLOR)
+
+        # 교란 경로 라벨: "배경 → 수업 선택"
+        conf_label = Text("자기주도? 저소득?", font_size=18, color=QUESTION_COLOR)
+        conf_label.next_to(arr_bg_T, LEFT, buff=0.08)
+
+        # X 마크 (교란 경로 차단) + RCT 설명
+        cross = Text("✕", font_size=38, color=ACCENT_COLOR)
+        cross.move_to(arr_bg_T.get_center())
+        rct_cut = Text("무작위 배정이 이 경로를 차단합니다", font_size=21, color=ACCENT_COLOR)
+        rct_cut.move_to(DOWN * 2.5)
+
+        bq = Text("무작위 배정 없었다면?", font_size=28, color=ACCENT_COLOR)
+        bq.move_to(UP * 3.0)
+
+        # Beat 3 애니메이션: DAG 구축 → 교란 경로 강조 → 차단
+        self.play(FadeIn(bq), run_time=0.6)
+        self.wait(2.0)
+        self.play(
+            LaggedStart(FadeIn(node_bg), FadeIn(node_T), FadeIn(node_Y), lag_ratio=0.25),
+            run_time=0.9,
+        )
+        self.play(
+            Create(arr_bg_T), Create(arr_bg_Y), Create(arr_T_Y),
+            run_time=0.8,
+        )
+        self.play(FadeIn(conf_label, shift=RIGHT * 0.04), run_time=0.5)
+        self.wait(4.0)
+        # 교란 경로 강조 (빨갛게 Indicate)
+        self.play(Indicate(arr_bg_T, color=RED_D, scale_factor=1.1), run_time=0.7)
+        self.wait(5.0)
+        # RCT가 교란 경로 차단
+        self.play(
+            arr_bg_T.animate.set_opacity(0.25),
+            conf_label.animate.set_opacity(0.25),
+            run_time=0.5,
+        )
+        self.play(FadeIn(cross, scale=0.5), run_time=0.5)
+        self.play(FadeIn(rct_cut, shift=UP * 0.05), run_time=0.6)
+        # spent(chunk4): 0.5+0.6+2.0+0.9+0.8+0.5+4.0+0.7+5.0+0.5+0.5+0.6 = 16.6s
+        wait_for_chunks([4], spent=16.6)
+
+        # ── Beat 4: 결과 표 + ATE (chunk 5-7, 33.2s) ─────────────────────────
+        # 남는: 없음 / 새로: 결과 표(3행×2열) + ATE 수식
+        # 핵심: 78.55 vs 73.64, ATE≈−4.91
+        self.play(
+            FadeOut(bq), FadeOut(node_bg), FadeOut(node_T), FadeOut(node_Y),
+            FadeOut(arr_bg_T), FadeOut(arr_bg_Y), FadeOut(arr_T_Y),
+            FadeOut(conf_label), FadeOut(cross), FadeOut(rct_cut),
+            run_time=0.5,
+        )
+
+        # 고정 열 x 좌표 (2열: 수업방식 | 평균점수)
+        col_xs = [-1.8, 1.4]
+        row_ys = [1.6, 0.7, -0.1, -0.9]
+        res_data = [
+            ("수업 방식", "평균 점수"),
+            ("대면",     "78.55"),
+            ("혼합",     "77.09"),
+            ("온라인",   "73.64"),
+        ]
+        res_colors = [
+            [NEUTRAL_COLOR, NEUTRAL_COLOR],
+            [FACE_COLOR,    FACE_COLOR],
+            [BLEND_COLOR,   BLEND_COLOR],
+            [ONLINE_COLOR,  ONLINE_COLOR],
+        ]
+        res_fsizes = [22, 26, 26, 26]
+
+        res_cells = []
+        for r, (row_data, cols_color, fsize) in enumerate(zip(res_data, res_colors, res_fsizes)):
+            for c, (val, color) in enumerate(zip(row_data, cols_color)):
+                cell = Text(val, font_size=fsize, color=color)
+                cell.move_to([col_xs[c], row_ys[r], 0])
+                res_cells.append(cell)
+        res_table = VGroup(*res_cells)
+
+        divider = Line(
+            [col_xs[0] - 0.6, row_ys[0] - 0.42, 0],
+            [col_xs[1] + 0.8, row_ys[0] - 0.42, 0],
+            stroke_width=1.5, color=NEUTRAL_COLOR, stroke_opacity=0.5,
+        )
+
+        ate_eq = VGroup(
+            MathTex(r"\widehat{ATE} = 78.55 - 73.64 \approx -4.91", font_size=30).set_color(WHITE),
+            Text("점", font_size=28, color=WHITE),
+        ).arrange(RIGHT, buff=0.05)
+        ate_eq.move_to(DOWN * 2.0)
+
+        self.play(FadeIn(VGroup(*res_cells[:2])), Create(divider), run_time=0.7)
+        self.play(
+            LaggedStart(
+                FadeIn(VGroup(*res_cells[2:4])),
+                FadeIn(VGroup(*res_cells[4:6])),
+                FadeIn(VGroup(*res_cells[6:8])),
+                lag_ratio=0.35,
+            ),
+            run_time=0.9,
+        )
+        # chunk 5: 에이티이 추정 방법 간단 (5.9s)
+        wait_for_chunks([5], spent=0.5 + 0.7 + 0.9)  # FadeOut + 표 표시
+
+        self.play(FadeIn(ate_eq, shift=UP * 0.05), run_time=0.7)
+        self.play(Indicate(ate_eq, color=ACCENT_COLOR, scale_factor=1.06), run_time=0.6)
+        # chunk 6: 수치 결과 (15.7s)
+        wait_for_chunks([6], spent=1.3)
+
+        # chunk 7: 걱정 불필요 — 결과 표에서 두 값 Indicate
+        self.play(Indicate(VGroup(*res_cells[2:4]), color=FACE_COLOR, scale_factor=1.06), run_time=0.5)
+        self.play(Indicate(VGroup(*res_cells[6:8]), color=ONLINE_COLOR, scale_factor=1.06), run_time=0.5)
+        # chunk 7: 11.5s
+        wait_for_chunks([7], spent=1.0)
+
+        # ── Beat 5: 균형 검증 표 (chunk 8, 27.1s) ────────────────────────────
+        # 남는: 없음 / 새로: 균형 검증 표(6행×5열)
+        # 핵심: 흑인계(△) — 소규모 표본의 한계
+        self.play(
+            FadeOut(res_table), FadeOut(divider), FadeOut(ate_eq),
+            run_time=0.5,
+        )
+
+        bal_title = Text("무작위화 균형 검증", font_size=24, color=NEUTRAL_COLOR)
+        bal_title.move_to(UP * 2.8)
+
+        # 5열: 변수 | 대면 | 혼합 | 온라인 | 균형
+        col_xs_b = [-3.1, -1.5, -0.6, 0.3, 1.2]
+        row_ys_b = [2.0, 1.3, 0.6, -0.1, -0.8, -1.5]
+        bal_data = [
+            ("변수",    "대면",  "혼합",  "온라인", ""),
+            ("성별",    "0.63", "0.55", "0.54",  "✓"),
+            ("아시아계", "0.20", "0.22", "0.23",  "✓"),
+            ("흑인계",  "0.07", "0.10", "0.03",  "△"),
+            ("히스패닉", "0.01", "0.01", "0.03",  "✓"),
+            ("백인",    "0.72", "0.63", "0.70",  "✓"),
+        ]
+
+        bal_row_groups = []
+        for r, row_data in enumerate(bal_data):
+            row_cells = []
+            for c, val in enumerate(row_data):
+                if r == 0:
+                    color, fsize = NEUTRAL_COLOR, 18
+                elif c == 0:
+                    color, fsize = NEUTRAL_COLOR, 19
+                elif c == 4:
+                    color, fsize = (YELLOW_E if val == "△" else TEAL_D), 19
+                elif r == 3:   # 흑인계 행 경고색
+                    color, fsize = YELLOW_E, 19
+                else:
+                    color, fsize = WHITE, 19
+                cell = Text(val, font_size=fsize, color=color)
+                cell.move_to([col_xs_b[c], row_ys_b[r], 0])
+                row_cells.append(cell)
+            bal_row_groups.append(VGroup(*row_cells))
+
+        bal_divider = Line(
+            [col_xs_b[0] - 0.4, row_ys_b[0] - 0.42, 0],
+            [col_xs_b[4] + 0.35, row_ys_b[0] - 0.42, 0],
+            stroke_width=1.5, color=NEUTRAL_COLOR, stroke_opacity=0.5,
+        )
+
+        bal_note = Text(
+            "소규모 표본에서는 우연한 불균형이 생길 수 있다",
+            font_size=19, color=NEUTRAL_COLOR,
+        )
+        bal_note.move_to(DOWN * 2.1)
+
+        self.play(FadeIn(bal_title), run_time=0.5)
+        self.play(FadeIn(bal_row_groups[0]), Create(bal_divider), run_time=0.6)
+        self.play(
+            LaggedStart(*[FadeIn(bal_row_groups[i]) for i in range(1, 6)], lag_ratio=0.25),
+            run_time=1.2,
+        )
+        self.play(Indicate(bal_row_groups[3], color=YELLOW_E, scale_factor=1.08), run_time=0.6)
+        self.play(FadeIn(bal_note, shift=UP * 0.05), run_time=0.6)
+        # chunk 8: 27.1s, spent = 0.5(FadeOut)+0.5+0.6+1.2+0.6+0.6 = 4.0s
+        wait_for_chunks([8], spent=4.0)
+        self.wait(self.WAIT_TAIL)
+
+
+class Scene11_RctLimitsAndBeyond(Scene):
+    """
+    RCT의 한계와 준실험 방법론 소개
+
+    직전 Scene (Scene10) 마지막: 무작위화 균형 검증 표
+    현재 Scene 첫 문장: "알씨티는 간단하면서도 강력한 방법입니다."
+
+    ipynb 범위: RCT 한계 섹션 ~ 준실험 방법론 목록
+
+    핵심 주장: RCT는 강력하지만 현실적 제약이 있다.
+               준실험 방법론들이 그 대안이다.
+    오해 교정: 관찰 연구도 조건을 충족하면 인과 추론이 가능하다.
+    visual pivot:
+    - Beat 1: 좌우 분할 프레임(RCT ✓ vs 현실 ✗) — mlp.py MLPStepsPreview 패턴
+    - Beat 2: 아이콘 팝업(비용/윤리/정책) + 흡연 예시 — med_test.py 순차 등장
+    - Beat 3: 이상적 실험 질문 박스 → 관찰 연구 기준점
+    - Beat 4: DAG 단계 빌드업 (①T→Y ②X 등장·문제 ③X 제어·해결)
+    - Beat 5: 방법론 5개 계단 배치 (좌상→우하)
+    - Beat 6: 카드 opacity 0.2 + 목표 텍스트 강조 — embedding.py 패턴
+
+    Beat별 script-to-beat mapping:
+    - Beat 1 (chunk 1, 6.3s): "알씨티는 강력하지만 항상 가능하지는 않습니다"
+    - Beat 2 (chunk 2, 15.3s): 세 가지 한계 아이콘 + 흡연 예시 패널
+    - Beat 3 (chunk 3, 11.8s): 이상적 실험 질문 박스 → 관찰 연구 기준점
+    - Beat 4 (chunk 4, 18.3s): DAG 3단계 빌드업
+    - Beat 5 (chunk 5, 11.1s): 방법론 5개 계단 배치
+    - Beat 6 (chunk 6, 6.9s): 카드 dim + 비교 가능성 목표 강조
+    """
+
+    WAIT_TAIL = 0.3
+
+    def construct(self):
+        chunk_durations = load_scene_timing_durations("11_rct_limits_and_beyond")
+
+        def wait_for_chunks(indices: list[int], spent: float = 0.0, extra: float = 0.0) -> None:
+            total = sum(chunk_durations[i - 1] for i in indices) - spent + extra
+            if total > 0:
+                self.wait(total)
+
+        COST_COLOR = GOLD_D
+        ETHICS_COLOR = BLUE_D
+        POLICY_COLOR = TEAL_D
+
+        # ── Beat 1: 좌우 분할 프레임 — RCT ✓ vs 현실 ✗ (chunk 1, 6.3s) ───────
+        # mlp.py MLPStepsPreview: 수직선으로 두 패널 나눠 대비
+        # 남는: 없음 / 새로: 분할선 + 좌(RCT✓) + 우(현실✗) / 핵심: 좌우 대비
+        divider = Line(
+            UP * 3.8, DOWN * 3.8,
+            stroke_width=1.5, color=NEUTRAL_COLOR, stroke_opacity=0.45,
+        )
+
+        rct_lbl = Text("RCT", font_size=60, color=GREEN_D, weight=BOLD)
+        rct_check = Text("✓", font_size=52, color=GREEN_D)
+        rct_sub = Text("이상적 설계", font_size=20, color=GREEN_D)
+        rct_left_grp = VGroup(rct_lbl, rct_check, rct_sub).arrange(DOWN, buff=0.22)
+        rct_left_grp.move_to(LEFT * 3.2)
+
+        real_lbl = Text("현실에서는", font_size=34, color=WHITE)
+        real_cross = Text("✗", font_size=52, color=RED_D)
+        real_sub = Text("항상 가능하지 않다", font_size=20, color=NEUTRAL_COLOR)
+        rct_right_grp = VGroup(real_lbl, real_cross, real_sub).arrange(DOWN, buff=0.22)
+        rct_right_grp.move_to(RIGHT * 3.2)
+
+        self.play(Create(divider), run_time=0.5)
+        self.play(
+            FadeIn(rct_left_grp, shift=RIGHT * 0.12),
+            FadeIn(rct_right_grp, shift=LEFT * 0.12),
+            run_time=0.7,
+        )
+        # chunk 1: 6.3s, spent = 0.5 + 0.7 = 1.2s
+        wait_for_chunks([1], spent=1.2)
+
+        # ── Beat 2: 한계 아이콘 팝업 + 흡연 예시 (chunk 2, 15.3s) ─────────────
+        # med_test.py NewContrastThreeContexts: 3개 항목 순차 등장 패턴
+        # 제거: divider + 좌우 / 새로: 아이콘 3개(팝업) + 흡연 패널 / 핵심: 아이콘 순차
+        self.play(
+            FadeOut(divider), FadeOut(rct_left_grp), FadeOut(rct_right_grp),
+            run_time=0.5,
+        )
+
+        icons_meta = [
+            ("coin.svg",          COST_COLOR,   "비용 과다",    "대규모 임상 수십억 원",    LEFT * 3.8),
+            ("scale.svg",         ETHICS_COLOR, "윤리 제약",    "흡연·무기 노출 배정 불가",  ORIGIN),
+            ("building-bank.svg", POLICY_COLOR, "정책 통제",    "국가 단위 무작위 배정 불가", RIGHT * 3.8),
+        ]
+
+        icon_cols_grp = VGroup()
+        for icon_file, color, title, desc, pos in icons_meta:
+            icon = load_icon(icon_file, color, 1.1)
+            title_txt = Text(title, font_size=21, color=color, weight=BOLD)
+            desc_txt = Text(desc, font_size=17, color=NEUTRAL_COLOR)
+            col = VGroup(icon, VGroup(title_txt, desc_txt).arrange(DOWN, buff=0.1)).arrange(DOWN, buff=0.28)
+            col.move_to(pos + UP * 0.4)
+            icon_cols_grp.add(col)
+
+        # 아이콘 순차 팝업 (scale=0.82: 약간 작게서 커지는 느낌)
+        for col in icon_cols_grp:
+            self.play(FadeIn(col, scale=0.82), run_time=0.8)
+            self.wait(0.3)
+
+        # "가령 임산부에게" 직전 (~chunk 2의 7.5s 지점) — 흡연 예시 패널
+        no_smoking = load_icon("smoking-no.svg", RED_D, 0.65)
+        smoke_txt = Text("임산부에게 흡연 무작위 배정 불가", font_size=19, color=NEUTRAL_COLOR)
+        smoking_row = VGroup(no_smoking, smoke_txt).arrange(RIGHT, buff=0.3)
+        smoking_box_rect = SurroundingRectangle(
+            smoking_row, buff=0.24, color=NEUTRAL_COLOR,
+            stroke_width=1.2, corner_radius=0.1, stroke_opacity=0.45,
+        )
+        smoking_panel = VGroup(smoking_box_rect, smoking_row)
+        smoking_panel.move_to(DOWN * 2.3)
+
+        self.wait(3.5)
+        self.play(FadeIn(smoking_panel, shift=UP * 0.06), run_time=0.6)
+        # chunk 2: 15.3s, spent = 0.5 + 3*(0.8+0.3) + 3.5 + 0.6 = 7.9s
+        wait_for_chunks([2], spent=7.9)
+
+        # ── Beat 3: 이상적 실험 사고 실험 (chunk 3, 11.8s) ──────────────────
+        # 제거: 아이콘 그룹 + 흡연 패널 / 새로: 질문 박스 + 기준점 / 핵심: 질문 박스
+        self.play(FadeOut(icon_cols_grp), FadeOut(smoking_panel), run_time=0.5)
+
+        question_txt = Text(
+            '"이상적인 실험이라면 어떻게 설계할까?"',
+            font_size=26, color=ACCENT_COLOR,
+        )
+        question_box = SurroundingRectangle(
+            question_txt, buff=0.3, color=ACCENT_COLOR,
+            corner_radius=0.12, stroke_width=1.8,
+        )
+        question_grp = VGroup(question_box, question_txt)
+        question_grp.move_to(UP * 0.6)
+
+        anchor_txt = Text("관찰 연구 설계의 기준점", font_size=22, color=WHITE)
+        anchor_txt.next_to(question_grp, DOWN, buff=0.55)
+        anchor_arr = Arrow(
+            question_grp.get_bottom() + DOWN * 0.08,
+            anchor_txt.get_top() + UP * 0.08,
+            stroke_width=2.5, color=NEUTRAL_COLOR, buff=0,
+            max_tip_length_to_length_ratio=0.3,
+        )
+
+        self.play(FadeIn(question_grp, shift=UP * 0.08), run_time=0.7)
+        self.play(GrowArrow(anchor_arr), FadeIn(anchor_txt, shift=UP * 0.05), run_time=0.6)
+        # chunk 3: 11.8s, spent = 0.5 + 0.7 + 0.6 = 1.8s
+        wait_for_chunks([3], spent=1.8)
+
+        # ── Beat 4: 준실험 개념 DAG 3단계 빌드업 (chunk 4, 18.3s) ────────────
+        # mlp.py LaggedStartMap(GrowArrow): 화살표 단계별 등장으로 인과 이야기 구축
+        # 제거: 질문 박스 → 새로: ①T→Y ②X 등장(문제) ③X 제어(해결)
+        # 핵심: 각 단계에서 바뀌는 화살표 색/opacity
+        self.play(
+            FadeOut(question_grp), FadeOut(anchor_arr), FadeOut(anchor_txt),
+            run_time=0.5,
+        )
+
+        quasi_title = Text("준실험 방법론", font_size=28, color=WHITE, weight=BOLD)
+        quasi_title.move_to(UP * 3.0)
+
+        def q_node(label, color, fsize=20):
+            txt = Text(label, font_size=fsize, color=color)
+            box = SurroundingRectangle(
+                txt, buff=0.22, color=color, corner_radius=0.1, stroke_width=1.8,
+            )
+            return VGroup(box, txt)
+
+        def q_arrow(src, dst, color, stroke=2.2):
+            dir_vec = dst.get_center() - src.get_center()
+            return Arrow(
+                src.get_boundary_point(dir_vec),
+                dst.get_boundary_point(-dir_vec),
+                buff=0.1, stroke_width=stroke, color=color,
+                max_tip_length_to_length_ratio=0.25,
+            )
+
+        node_T = q_node("처치 T", GOLD_D)
+        node_Y = q_node("결과 Y", TEAL_D)
+        node_T.move_to(LEFT * 2.6 + UP * 0.2)
+        node_Y.move_to(RIGHT * 2.6 + UP * 0.2)
+
+        # get_right/get_left + 동일 y 좌표 고정 → 완전 수평 화살표
+        ty_y = node_T.get_center()[1]  # 두 노드 동일 y (UP * 0.2)
+        arr_T_Y = Arrow(
+            [node_T.get_right()[0], ty_y, 0],
+            [node_Y.get_left()[0], ty_y, 0],
+            buff=0, stroke_width=3.0, color=ACCENT_COLOR,
+            max_tip_length_to_length_ratio=0.25,
+        )
+        goal_lbl = Text("알고 싶은 인과 효과", font_size=17, color=NEUTRAL_COLOR)
+        goal_lbl.next_to(arr_T_Y, DOWN, buff=0.2)
+
+        # ① T→Y: "이게 알고 싶은 인과 관계"
+        self.play(FadeIn(quasi_title), run_time=0.4)
+        self.play(FadeIn(node_T), FadeIn(node_Y), run_time=0.6)
+        self.play(Create(arr_T_Y), FadeIn(goal_lbl), run_time=0.6)
+        self.wait(3.0)  # 오디오: "알씨티처럼 처치가 잠재적 결과와 독립이라는..."
+
+        # ② 교란변수 X 등장 — 관찰 연구의 문제
+        node_X = q_node("교란 변수 X", QUESTION_COLOR, fsize=18)
+        node_X.move_to(UP * 2.0)
+        arr_X_T = q_arrow(node_X, node_T, QUESTION_COLOR)
+        arr_X_Y = q_arrow(node_X, node_Y, QUESTION_COLOR)
+        problem_lbl = Text("교란 변수가 처치와 결과 모두에 영향", font_size=18, color=QUESTION_COLOR)
+        problem_lbl.move_to(DOWN * 1.5)
+
+        self.play(FadeIn(node_X, shift=DOWN * 0.1), run_time=0.5)
+        self.play(
+            LaggedStart(Create(arr_X_T), Create(arr_X_Y), lag_ratio=0.4),
+            run_time=0.7,
+        )
+        self.play(FadeIn(problem_lbl, shift=UP * 0.05), run_time=0.5)
+        self.wait(3.5)  # 오디오: "어떤 공변량을 통제하면 처치가 사실상..."
+
+        # ③ 교란 경로 제어 — 준실험의 해결
+        midpt = (node_X.get_center() + node_T.get_center()) / 2
+        ctrl_lbl = Text("통 제", font_size=17, color=NEUTRAL_COLOR)
+        ctrl_lbl.move_to(midpt + RIGHT * 0.5)
+        solution_lbl = Text("처치가 사실상 무작위처럼 보이도록", font_size=20, color=ACCENT_COLOR)
+        solution_lbl.move_to(DOWN * 1.5)
+
+        self.play(
+            arr_X_T.animate.set_stroke(color=NEUTRAL_COLOR, opacity=0.25),
+            arr_X_Y.animate.set_stroke(color=NEUTRAL_COLOR, opacity=0.25),
+            FadeOut(problem_lbl),
+            run_time=0.7,
+        )
+        self.play(FadeIn(ctrl_lbl), run_time=0.4)
+        self.play(FadeIn(solution_lbl, shift=UP * 0.05), run_time=0.5)
+        # chunk 4: 18.3s, spent = 0.5+0.4+0.6+0.6+3.0+0.5+0.7+0.5+3.5+0.7+0.4+0.5 = 11.9s
+        wait_for_chunks([4], spent=11.9)
+
+        # ── Beat 5: 방법론 5개 — 2행 그리드 3+2 (chunk 5, 11.1s) ──────────────
+        # 제거: 준실험 DAG 전체 / 새로: 상단 3개 + 하단 2개 그리드 / 핵심: 카드 배치
+        beat4_all = VGroup(
+            quasi_title, node_T, node_Y, arr_T_Y, goal_lbl,
+            node_X, arr_X_T, arr_X_Y, ctrl_lbl, solution_lbl,
+        )
+        self.play(FadeOut(beat4_all), run_time=0.5)
+
+        method_header = Text("앞으로 다룰 방법론들", font_size=22, color=NEUTRAL_COLOR)
+        method_header.move_to(UP * 2.2)
+
+        method_names = ["매칭", "이중차분법", "합성통제법", "도구변수", "회귀불연속"]
+        method_colors = [BLUE_D, GREEN_D, GOLD_D, MAROON_D, TEAL_D]
+
+        def make_method_card(name, color):
+            txt = Text(name, font_size=18, color=color)
+            box = RoundedRectangle(
+                width=2.1, height=0.9, corner_radius=0.12,
+                color=color, stroke_width=1.8,
+            )
+            box.set_fill(color=color, opacity=0.08)
+            txt.move_to(box.get_center())
+            return VGroup(box, txt)
+
+        cards = VGroup(*[make_method_card(n, c) for n, c in zip(method_names, method_colors)])
+        # 2행 그리드: 상단 3개(x=-3,0,3 / y=0.0), 하단 2개(x=-1.5,1.5 / y=-1.1)
+        grid_pos = [(-3.0, 0.0), (0.0, 0.0), (3.0, 0.0), (-1.5, -1.1), (1.5, -1.1)]
+        for card, (x, y) in zip(cards, grid_pos):
+            card.move_to([x, y, 0])
+
+        self.play(FadeIn(method_header), run_time=0.4)
+        # 상단 3개 먼저, 하단 2개 이어서
+        self.play(
+            LaggedStart(*[FadeIn(cards[i], shift=UP * 0.08) for i in range(3)], lag_ratio=0.25),
+            run_time=1.0,
+        )
+        self.play(
+            LaggedStart(*[FadeIn(cards[i], shift=UP * 0.08) for i in range(3, 5)], lag_ratio=0.3),
+            run_time=0.7,
+        )
+        # chunk 5: 11.1s, spent = 0.5+0.4+1.0+0.7 = 2.6s
+        wait_for_chunks([5], spent=2.6)
+
+        # ── Beat 6: 카드 opacity 0.2 + 목표 텍스트 강조 (chunk 6, 6.9s) ───────
+        # embedding.py: 비포커스 항목 opacity 0.2, 핵심 목표만 선명하게
+        # 카드·헤더: opacity 0.2(유지) / 새로: 목표 텍스트(카드 위 여백) / 핵심: 목표
+        self.play(
+            cards.animate.set_opacity(0.2),
+            method_header.animate.set_opacity(0.2),
+            run_time=0.6,
+        )
+
+        goal_line1 = Text("방법은 달라도 목표는 하나입니다.", font_size=28, color=WHITE, weight=BOLD)
+        goal_line2 = Text(
+            "두 집단을 비교 가능하게 만들 수 있는가.",
+            font_size=21, color=ACCENT_COLOR,
+        )
+        goal_grp = VGroup(goal_line1, goal_line2).arrange(DOWN, buff=0.3)
+        goal_grp.move_to(UP * 1.4)  # 상단 카드(y=0.0, top≈0.45) 위 여백
+
+        self.play(FadeIn(goal_grp, shift=UP * 0.06), run_time=0.6)
+        # chunk 6: 6.9s, spent = 0.6 + 0.6 = 1.2s
+        wait_for_chunks([6], spent=1.2)
+        self.wait(self.WAIT_TAIL)
