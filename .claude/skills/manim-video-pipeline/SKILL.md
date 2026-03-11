@@ -294,6 +294,12 @@ Scene 구조 기반 내레이션 스크립트 생성 (한국어).
 개별 debug mp4들을 순서대로 합쳐 최종 영상 생성.
 → `references/ffmpeg-recipes.md` 참조
 
+기본값:
+- scene별 `build/final/{NN}_{scene_name}_hq.mp4`가 준비되면 `scripts/concat_videos.sh`로 `build/final/{topic}_full.mp4`를 만든다.
+- 사용자가 최종 영상에 배경음악을 원하면, 합본 완료 후에만 `scripts/mix_bgm.sh`로 `build/final/{topic}_full_bgm.mp4`를 추가 생성한다.
+- BGM은 내레이션보다 항상 훨씬 작아야 하며, 교육 영상 기본 시작값은 `--bgm-volume 0.08 ~ 0.12` 범위다.
+- BGM은 scene별 mux 단계에 미리 넣지 않는다. 최종 합본 단계에서 한 번만 넣는다.
+
 ### 6. YouTube 업로드 + 노트북 임베드
 완성 영상을 YouTube에 업로드하고, `book/{topic}/{topic}.ipynb`에 임베드.
 
@@ -307,6 +313,15 @@ cd videos/{topic} && manim -pql --media_dir build/manim src/{topic}.py Scene{NN}
 ### 오디오 합성
 ```bash
 ../../.claude/skills/manim-video-pipeline/scripts/mux_audio.sh {video.mp4} {audio.mp3} {output.mp4}
+```
+
+### 최종 합본 + BGM
+```bash
+cd videos/{topic} && ../../.claude/skills/manim-video-pipeline/scripts/mix_bgm.sh \
+  build/final/{topic}_full.mp4 \
+  path/to/bgm.mp3 \
+  build/final/{topic}_full_bgm.mp4 \
+  --bgm-volume 0.10
 ```
 
 ### ElevenLabs 오디오 생성
@@ -346,6 +361,15 @@ manim -pqh --media_dir build/manim src/{topic}.py Scene01_{ClassName}
 ### 전체 합본
 ```bash
 cd videos/{topic} && ../../.claude/skills/manim-video-pipeline/scripts/concat_videos.sh build/final/ build/final/{topic}_full.mp4
+```
+
+배경음악까지 넣는 경우:
+```bash
+cd videos/{topic} && ../../.claude/skills/manim-video-pipeline/scripts/mix_bgm.sh \
+  build/final/{topic}_full.mp4 \
+  path/to/bgm.mp3 \
+  build/final/{topic}_full_bgm.mp4 \
+  --bgm-volume 0.10
 ```
 
 ## 단계별 상세 가이드

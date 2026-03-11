@@ -64,6 +64,26 @@ ffmpeg -f concat -safe 0 -i /tmp/filelist.txt \
   build/final/{TOPIC}_full.mp4
 ```
 
+## 전체 합본 + BGM
+
+```bash
+# narration이 이미 포함된 최종 합본에 bgm을 낮은 볼륨으로 섞기
+../../.claude/skills/manim-video-pipeline/scripts/mix_bgm.sh \
+  build/final/{TOPIC}_full.mp4 \
+  path/to/bgm.mp3 \
+  build/final/{TOPIC}_full_bgm.mp4 \
+  --bgm-volume 0.12
+```
+
+기본값:
+- `--bgm-volume 0.12`: 내레이션을 해치지 않는 낮은 배경음
+- `--voice-gain 1.0`: 원본 보이스오버 유지
+
+원칙:
+- BGM은 내레이션보다 항상 훨씬 작아야 한다.
+- 말이 많은 교육 영상은 보통 `0.08 ~ 0.15` 범위에서 시작한다.
+- BGM 파일이 짧으면 loop해서 영상 길이에 맞춘다.
+
 ## 합본 검증
 
 ```bash
