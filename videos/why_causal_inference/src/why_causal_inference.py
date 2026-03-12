@@ -3215,7 +3215,7 @@ class Scene11_RctLimitsAndBeyond(Scene):
     - Beat 6 (chunk 6, 6.9s): 카드 dim + 비교 가능성 목표 강조
     """
 
-    WAIT_TAIL = 0.3
+    WAIT_TAIL = 1.0
 
     def construct(self):
         chunk_durations = load_scene_timing_durations("11_rct_limits_and_beyond")
@@ -3467,15 +3467,24 @@ class Scene11_RctLimitsAndBeyond(Scene):
             run_time=0.6,
         )
 
+        # 새 스크립트: "방법은 달라도 목표는 하나입니다. 두 집단을 비교 가능하게 만드는 것."
         goal_line1 = Text("방법은 달라도 목표는 하나입니다.", font_size=28, color=WHITE, weight=BOLD)
         goal_line2 = Text(
-            "두 집단을 비교 가능하게 만들 수 있는가.",
+            "두 집단을 비교 가능하게 만드는 것.",
             font_size=21, color=ACCENT_COLOR,
         )
         goal_grp = VGroup(goal_line1, goal_line2).arrange(DOWN, buff=0.3)
         goal_grp.move_to(UP * 1.4)  # 상단 카드(y=0.0, top≈0.45) 위 여백
 
         self.play(FadeIn(goal_grp, shift=UP * 0.06), run_time=0.6)
-        # chunk 6: 6.9s, spent = 0.6 + 0.6 = 1.2s
+        # chunk 6: 9.94s, spent = 0.6 + 0.6 = 1.2s
         wait_for_chunks([6], spent=1.2)
+
+        # ── Beat 7: 에필로그 — 자연스러운 페이드아웃 ──
+        # dim 상태 그대로 머물렀다가 부드럽게 페이드아웃 — 갑작스러운 밝아짐 없이
+        self.wait(1.5)
+        self.play(
+            FadeOut(VGroup(cards, method_header, goal_grp)),
+            run_time=2.5,
+        )
         self.wait(self.WAIT_TAIL)
