@@ -24,8 +24,8 @@ causal_studio/
 On a fresh clone:
 
 ```text
-이 저장소 Python 환경 세팅해줘      → python-setup skill
-영상 작업용 로컬 자산 설치해줘      → video-assets-setup skill
+Set up Python environment      → python-setup skill
+Install local video assets     → video-assets-setup skill
 ```
 
 `video-assets-setup` clones the following repos locally (not git-tracked):
