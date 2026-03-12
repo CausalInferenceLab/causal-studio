@@ -8,7 +8,7 @@
 VIDEO="$1"
 AUDIO="$2"
 OUTPUT="$3"
-MODE="${4:---shortest}"
+MODE="${4:---full}"
 
 if [ -z "$VIDEO" ] || [ -z "$AUDIO" ] || [ -z "$OUTPUT" ]; then
     echo "Usage: $0 <video.mp4> <audio.mp3> <output.mp4> [--shortest|--full]"

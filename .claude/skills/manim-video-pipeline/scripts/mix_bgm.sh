@@ -48,9 +48,10 @@ echo "Voice gain: ${VOICE_GAIN}"
 ffmpeg -y \
     -i "$VIDEO" \
     -stream_loop -1 -i "$BGM" \
-    -filter_complex "[0:a]volume=${VOICE_GAIN}[voice];[1:a]volume=${BGM_VOLUME}[bgm];[voice][bgm]amix=inputs=2:duration=first:dropout_transition=2[mix]" \
+    -filter_complex "[0:a]volume=${VOICE_GAIN}[voice];[1:a]volume=${BGM_VOLUME},atrim=duration=${VIDEO_DUR}[bgm];[voice][bgm]amix=inputs=2:duration=longest:dropout_transition=2[mix]" \
     -map 0:v:0 -map "[mix]" \
-    -c:v copy -c:a aac -shortest \
+    -t "${VIDEO_DUR}" \
+    -c:v copy -c:a aac \
     "$OUTPUT"
 
 echo "Output: $OUTPUT"

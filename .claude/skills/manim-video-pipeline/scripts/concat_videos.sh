@@ -16,11 +16,11 @@ fi
 # Create file list (sorted by filename)
 FILELIST="/tmp/concat_filelist_$$.txt"
 
-# Find all mp4 files, prefer _debug.mp4 versions
+# Find all mp4 files — absolute paths so ffmpeg resolves correctly from /tmp/
 ls "${INPUT_DIR}"/*_debug.mp4 "${INPUT_DIR}"/*.mp4 2>/dev/null | \
     sort -t'/' -k2 | uniq | \
     while read f; do
-        echo "file '$f'"
+        echo "file '$(realpath "$f")'"
     done > "$FILELIST"
 
 echo "Files to concatenate:"

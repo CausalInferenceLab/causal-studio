@@ -66,12 +66,8 @@ videos/{topic}/
 │       ├── 01_{scene_name}.txt # 씬별 내레이션 스크립트
 │       └── ...
 ├── preview/
-│   ├── code/
-│   │   ├── 01_{scene_name}_code.mp4
-│   │   └── ...
-│   └── mux/
-│       ├── 01_{scene_name}_mux.mp4
-│       └── ...
+│   ├── 01_{scene_name}_mux.mp4
+│   └── ...
 └── build/
     ├── manim/                  # Manim 내부 캐시/중간 산출물 전용
     │   ├── Tex/
@@ -161,7 +157,7 @@ iv 토픽으로 진행하고 ref_video=3b1b/videos/_2020/covid.py ref_transcript
 - 사용자가 "Scene 01부터"처럼 지정하지 않으면 첫 미완성 Scene부터 진행한다.
 - 별도 요청이 없으면 `scene_outline.md`를 만들지 않는다.
 - 다음 Scene 아이디어가 있더라도 파일로 길게 쌓아두지 말고, 필요하면 답변에서만 짧게 언급한다.
-- Scene 코드를 수정한 뒤에는 같은 턴에서 바로 `preview/code/{NN}_{scene_name}_code.mp4`를 다시 생성해 결과를 확인한다.
+- Scene 코드를 수정한 뒤에는 같은 턴에서 바로 `preview/{NN}_{scene_name}_mux.mp4`를 다시 생성해 결과를 확인한다.
 - Scene 내부 주석은 한국어로 쓰고, "왜 이 화면이 필요한가", "어떤 스크립트 문단을 처리하는가", "다음 Beat로 왜 넘어가는가"가 보이게 적는다.
 - 새 Scene를 시작할 때는 답변이나 docstring에 최소한 아래를 남긴다:
   - 직전 Scene 마지막 문장
@@ -169,7 +165,7 @@ iv 토픽으로 진행하고 ref_video=3b1b/videos/_2020/covid.py ref_transcript
   - ipynb 기준 시작/끝 셀 또는 문단
 - 새 아이콘이 필요하면 토픽별 `videos/{topic}/assets/`보다 먼저 공용 `videos/assets/`에 두어 다른 영상에서도 재사용 가능하게 한다.
 - `build/` 루트에는 사람이 직접 확인하는 결과물만 둔다. Manim이 자동 생성하는 `Tex/`, `texts/`, `images/`, `videos/`는 모두 `build/manim/` 아래로 모은다.
-- 빠른 확인용 산출물은 `build/`가 아니라 `preview/` 아래에 둔다. 즉 test 결과물은 `preview/code/`, `preview/mux/`를 사용한다.
+- 빠른 확인용 mux 결과물은 `preview/` 바로 아래에 둔다. `preview/code/` 같은 중간 복사본은 만들지 않는다. Manim 렌더 결과는 `build/manim/` 안에 이미 있으므로 그대로 mux 입력으로 사용한다.
 - 렌더 전에 Beat별 화면 스케치를 코드 주석 수준으로라도 남긴다. 예: "상단은 제목, 좌측은 T_i, 우측 위/아래는 분기"처럼 미리 공간 점유를 적고 시작한다.
 - 렌더 전에 Beat별 주석에는 최소한 `남는 요소`, `새로 등장하는 요소`, `비워 두는 화면 영역`, `이 Beat의 단일 핵심 시선 대상`을 적는다. 이 넷 중 하나라도 빠지면 레이아웃 검토가 불충분한 것으로 본다.
 - 코드 작성이 끝난 뒤 렌더 전에 Beat 주석만 따로 읽었을 때, 각 Beat에서 "무엇을 먼저 지우고 무엇만 읽게 하는지"가 즉시 드러나지 않으면 아직 렌더 단계로 넘어가면 안 된다.
@@ -182,8 +178,7 @@ iv 토픽으로 진행하고 ref_video=3b1b/videos/_2020/covid.py ref_transcript
 - 사용자 승인 후 `build/audio/{NN}_{scene_name}.mp3`
 - 사용자 승인 후 `build/audio/{NN}_{scene_name}.timings.json`
 - `src/{topic}.py`의 해당 Scene 클래스
-- `preview/code/{NN}_{scene_name}_code.mp4`
-- mp3가 있으면 `preview/mux/{NN}_{scene_name}_mux.mp4`
+- mp3가 있으면 `preview/{NN}_{scene_name}_mux.mp4`
 - 사용자가 만족하면 `build/final/{NN}_{scene_name}_hq.mp4`
 - 여러 scene이 확정되면 `build/final/{topic}_full.mp4`
 
@@ -280,10 +275,9 @@ Scene 구조 기반 내레이션 스크립트 생성 (한국어).
 - QA에서 첫 확인 항목은 "물리적 겹침"이다. 하나라도 겹치면 다른 판단보다 우선해서 수정한다.
 - 물리적 겹침이 없더라도 서로 너무 가까워 읽기 어려우면 실패로 본다. 최소 간격이 부족하면 동일 Beat 내 요소 수를 줄인다.
 - mp3를 받은 뒤에만 mux를 수행한다.
-- mux 전에 `ffprobe`로 code-only 영상과 mp3 길이를 먼저 비교한다.
+- mux 전에 `ffprobe`로 Manim 렌더 영상(`build/manim/.../480p15/SceneXX.mp4`)과 mp3 길이를 먼저 비교한다.
 - 길이 차이가 크면 mux를 바로 만들지 말고 Scene 코드로 돌아가 `.timings.json` 기준으로 다시 맞춘 뒤 렌더를 재생성한다.
-- scene별 code-only 결과물은 `preview/code/{NN}_{scene_name}_code.mp4`
-- scene별 mux 결과물은 `preview/mux/{NN}_{scene_name}_mux.mp4`
+- scene별 mux 결과물은 `preview/{NN}_{scene_name}_mux.mp4`
 - 기본 mux는 480p 테스트용이며, 타이밍 보정 기능은 없다. 단순히 video/audio를 합쳐 검수용 mp4를 만든다.
 - 사용자가 해당 scene 결과에 만족하면, 고화질로 다시 렌더하거나 mux해서 `build/final/{NN}_{scene_name}_hq.mp4`로 따로 저장한다.
 - `build/final/`에는 scene별 hq 결과와 전체 합본만 둔다.
@@ -342,15 +336,11 @@ npm run elevenlabs-audio -- --topic {topic} --scene 01 --name {scene_name} \
 # 1) Scene 01 코드 작성 후 debug 렌더
 cd videos/{topic} && manim -pql --media_dir build/manim src/{topic}.py Scene01_{ClassName}
 
-# 2) code-only 480p 테스트 영상 정리
-mkdir -p preview/code && \
-cp build/manim/videos/{topic}/480p15/{scene01_video}.mp4 preview/code/01_{scene_name}_code.mp4
-
-# 3) mp3를 받은 뒤 480p 테스트 mux
+# 2) mp3를 받은 뒤 480p 테스트 mux (build/manim 결과 직접 사용)
 ../../.claude/skills/manim-video-pipeline/scripts/mux_audio.sh \
-  preview/code/01_{scene_name}_code.mp4 \
+  build/manim/videos/{topic}/480p15/Scene01_{ClassName}.mp4 \
   build/audio/01_{scene_name}.mp3 \
-  preview/mux/01_{scene_name}_mux.mp4
+  preview/01_{scene_name}_mux.mp4
 
 # 4) 사용자가 만족하면 고화질 저장
 manim -pqh --media_dir build/manim src/{topic}.py Scene01_{ClassName}

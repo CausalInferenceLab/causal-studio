@@ -22,12 +22,13 @@ find build/manim/videos/ -name "*.mp4" -type f -printf '%T@ %p\n' 2>/dev/null | 
 ## Mux (video + audio 합성)
 
 ```bash
-# 기본
-ffmpeg -i {VIDEO} -i {AUDIO} -c:v copy -c:a aac -map 0:v:0 -map 1:a:0 {OUTPUT}
-
-# 오디오가 더 긴 경우
-ffmpeg -i {VIDEO} -i {AUDIO} -c:v copy -c:a aac -shortest {OUTPUT}
+# Manim scene mux — 비디오 길이 기준 (기본값 --full)
+../../.claude/skills/manim-video-pipeline/scripts/mux_audio.sh {VIDEO} {AUDIO} {OUTPUT}
 ```
+
+Manim scene은 `WAIT_TAIL + fade-out tail` 구조상 video가 항상 audio보다 길다.
+`-shortest`를 쓰면 오디오 종료 시점에서 화면이 잘려 fade-out이 사라지므로 절대 사용하지 않는다.
+오디오가 영상보다 긴 경우는 mux 옵션으로 해결하지 않고 Scene 코드 타이밍을 먼저 조정한다.
 
 mux는 타이밍 보정 단계가 아님. 화면이 오디오보다 먼저 끝나면 Scene 코드로 돌아가 수정.
 
