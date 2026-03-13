@@ -42,6 +42,7 @@ Install local video assets     → video-assets-setup skill
 | `book-serve` | Run Jupyter Book local server |
 | `book-publish` | Add notebook to book TOC and verify build |
 | `ipynb-to-english` | Translate Korean notebook to English `_en.ipynb` |
+| `ipynb-youtube-embed` | Embed a YouTube iframe into a notebook (with pre-stored output for Jupyter Book) |
 | `manim-video-pipeline` | Scene design / script / render / audio / mux / concat |
 | `manim-thumbnail` | Generate a 3b1b-style YouTube thumbnail PNG with Manim |
 | `git-commit` | Analyze changes and commit |

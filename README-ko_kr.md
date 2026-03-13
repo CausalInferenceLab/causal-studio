@@ -42,6 +42,7 @@ causal_studio/
 | `book-serve` | Jupyter Book 로컬 서버 실행 |
 | `book-publish` | 노트북을 book TOC에 추가하고 빌드 검증 |
 | `ipynb-to-english` | 한국어 노트북을 영어 `_en.ipynb`로 번역 |
+| `ipynb-youtube-embed` | 노트북에 YouTube iframe 임베드 (Jupyter Book 렌더링을 위해 outputs까지 저장) |
 | `manim-video-pipeline` | scene 설계 / 스크립트 / 렌더 / 오디오 / mux / 합본 전 과정 |
 | `manim-thumbnail` | Manim으로 3b1b 스타일 YouTube 썸네일 PNG 생성 |
 | `git-commit` | 변경 분석 및 커밋 |
