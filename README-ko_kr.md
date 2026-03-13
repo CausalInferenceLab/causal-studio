@@ -43,6 +43,7 @@ causal_studio/
 | `book-publish` | 노트북을 book TOC에 추가하고 빌드 검증 |
 | `ipynb-to-english` | 한국어 노트북을 영어 `_en.ipynb`로 번역 |
 | `manim-video-pipeline` | scene 설계 / 스크립트 / 렌더 / 오디오 / mux / 합본 전 과정 |
+| `manim-thumbnail` | Manim으로 3b1b 스타일 YouTube 썸네일 PNG 생성 |
 | `git-commit` | 변경 분석 및 커밋 |
 | `git-pr` | PR 생성 |
 | `skill-creator` | 프로젝트 스킬 생성·수정 |

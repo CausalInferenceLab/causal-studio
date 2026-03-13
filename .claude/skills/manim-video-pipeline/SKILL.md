@@ -154,6 +154,7 @@ iv 토픽으로 진행하고 ref_video=3b1b/videos/_2020/covid.py ref_transcript
 - mux는 "타이밍을 맞추는 단계"가 아니라, 이미 맞춘 video/audio를 합쳐 확인하는 단계다.
 - `build/audio/{NN}_{scene_name}.timings.json`이 있으면, mux 전에 반드시 그 chunk 시간표를 Scene 코드의 Beat/wait/run_time 조정 기준으로 먼저 사용한다.
 - mux 전에 code-only 영상 길이와 mp3 길이를 먼저 확인한다. 화면이 오디오보다 먼저 끝나면 mux 옵션으로 덮지 말고 Scene 코드로 돌아가 수정한다.
+- WAIT_TAIL은 `(mp3 전체 길이) - (마지막 self.wait(WAIT_TAIL) 직전까지 누적 시간) + 최소 0.5s` 이상이어야 한다. video < mp3이면 WAIT_TAIL이 부족한 것이다. mux 단계에서 발견해도 반드시 코드로 돌아가 WAIT_TAIL을 늘리고 재렌더한다.
 - 사용자가 "Scene 01부터"처럼 지정하지 않으면 첫 미완성 Scene부터 진행한다.
 - 별도 요청이 없으면 `scene_outline.md`를 만들지 않는다.
 - 다음 Scene 아이디어가 있더라도 파일로 길게 쌓아두지 말고, 필요하면 답변에서만 짧게 언급한다.
@@ -280,6 +281,7 @@ Scene 구조 기반 내레이션 스크립트 생성 (한국어).
 - scene별 mux 결과물은 `preview/{NN}_{scene_name}_mux.mp4`
 - 기본 mux는 480p 테스트용이며, 타이밍 보정 기능은 없다. 단순히 video/audio를 합쳐 검수용 mp4를 만든다.
 - 사용자가 해당 scene 결과에 만족하면, 고화질로 다시 렌더하거나 mux해서 `build/final/{NN}_{scene_name}_hq.mp4`로 따로 저장한다.
+- **hq mux는 반드시 `--shortest` 플래그를 사용한다.** `--full`(기본값)로 mux하면 video가 audio보다 길어질 수 있고, `-c copy` concat 시 audio 오프셋이 scene마다 누적되어 이후 모든 경계에서 싱크가 어긋난다. hq mux에서 `--shortest`가 audio를 자른다면, 그것은 video가 mp3보다 짧다는 뜻이므로 WAIT_TAIL 부족 문제다 — 위 규칙으로 돌아가 코드를 수정한다.
 - `build/final/`에는 scene별 hq 결과와 전체 합본만 둔다.
 - Manim 렌더는 항상 `--media_dir build/manim`으로 실행해 중간 산출물이 `build/` 루트에 흩어지지 않게 한다.
 - mux 결과를 확인한 뒤 다음 Scene으로 넘어간다.
@@ -289,6 +291,7 @@ Scene 구조 기반 내레이션 스크립트 생성 (한국어).
 → `references/ffmpeg-recipes.md` 참조
 
 기본값:
+- concat 전에 모든 hq 파일의 video/audio 트랙 길이 차이를 반드시 확인한다. `diff = video_duration - audio_duration`이 +0.1s를 초과하는 파일이 있으면 concat하지 말고 먼저 해당 scene을 `--shortest`로 재mux한다. `-c copy` concat은 video/audio 오프셋을 트랙별로 독립 계산하므로, 한 scene에서 생긴 차이가 이후 모든 경계에 누적된다.
 - scene별 `build/final/{NN}_{scene_name}_hq.mp4`가 준비되면 `scripts/concat_videos.sh`로 `build/final/{topic}_full.mp4`를 만든다.
 - 사용자가 최종 영상에 배경음악을 원하면, 합본 완료 후에만 `scripts/mix_bgm.sh`로 `build/final/{topic}_full_bgm.mp4`를 추가 생성한다.
 - BGM은 내레이션보다 항상 훨씬 작아야 하며, 교육 영상 기본 시작값은 `--bgm-volume 0.08 ~ 0.12` 범위다.

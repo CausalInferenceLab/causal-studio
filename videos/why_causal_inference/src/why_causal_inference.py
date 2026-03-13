@@ -243,7 +243,7 @@ class Scene01_WhyCausalQuestionsMatter(Scene):
         for rel in relations:
             self.play(FadeIn(rel, shift=RIGHT * 0.16), run_time=0.8)
             self.wait(2.8)
-        self.wait(0.9)
+        self.wait(1.85)  # chunk5 종료(35.99s)까지 0.94s 부족 → 1.85s로 늘려 싱크 보정
 
         # Beat 5:
         # chunk 6을 처리한다.
@@ -396,7 +396,7 @@ class Scene02_AssociationIsNotCausation(Scene):
         # 그 요인들이 처치와 결과에 동시에 영향을 준다는 점을 보여준다.
         self.play(FadeIn(confounder_group, shift=DOWN * 0.12), run_time=0.9)
         self.play(Create(backdoor_left), Create(backdoor_right), run_time=0.9)
-        self.wait(11.0)
+        self.wait(12.8)  # chunk2 종료(20.99s)까지 Beat2가 1.8s 부족 → 12.8s로 늘려 싱크+끊김 보정
 
         # Beat 3:
         # 태블릿만으로는 결론을 낼 수 없고, 남는 것은 연관관계뿐이라는 점으로 정리한다.
@@ -1656,7 +1656,7 @@ class Scene07_BiasDecomposition(Scene):
     - chunk 8-11 -> Beat 7
     """
 
-    WAIT_TAIL = 0.2
+    WAIT_TAIL = 1.5  # mp3(92.87s) > video(92.38s) → 0.49s 부족, 1.5s로 늘려 나레이션 끊김 해소
 
     def construct(self):
         chunk_durations = load_scene_timing_durations("07_bias_decomposition")
