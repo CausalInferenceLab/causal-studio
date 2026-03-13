@@ -1,5 +1,7 @@
 # Contributing
 
+English | [한국어](./CONTRIBUTING-ko_kr.md)
+
 This project mixes a Jupyter Book and local-only Manim video workflows. Keep changes small, explicit, and compatible with both local development and hosted book environments.
 
 ## Core Rules

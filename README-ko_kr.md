@@ -4,7 +4,7 @@
 
 인과추론 코드북(Jupyter Book)과 Manim 교육 영상을 함께 관리하는 저장소입니다.
 
-작업 규칙: [CONTRIBUTING.md](./CONTRIBUTING.md)
+작업 규칙: [English](./CONTRIBUTING.md) | [한국어](./CONTRIBUTING-ko_kr.md)
 
 ## 저장소 구조
 
