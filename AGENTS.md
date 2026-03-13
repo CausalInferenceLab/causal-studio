@@ -24,3 +24,14 @@ How to execute:
 
 Priority:
 - In this repository, REPO scope skills (`.codex/skills/*`) take precedence over USER/ADMIN/SYSTEM skills when names overlap.
+
+## Project Working Rules
+
+- Treat `.codex/skills/*` and `.claude/skills/*` as the default operating procedures for recurring tasks.
+- Keep dependency scopes separated:
+  - `requirements.txt` for full local book + video work
+  - `requirements-book.txt` for book, Binder, and deploy runtime
+  - `binder/apt.txt` for Binder system packages
+- When editing notebooks under `book/`, use Binder-safe paths and do not assume the current working directory is the notebook folder.
+- Do not commit local machine artifacts such as `.env`, local settings, generated caches, or render outputs unless the user explicitly asks for that.
+- Prefer small, task-coherent commits that include related config/dependency updates together.

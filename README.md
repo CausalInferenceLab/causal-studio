@@ -4,6 +4,8 @@ English | [한국어](./README-ko_kr.md)
 
 A repository for managing a causal inference codebook (Jupyter Book) and Manim educational videos together.
 
+Project working rules: [CONTRIBUTING.md](./CONTRIBUTING.md)
+
 ## Repository Structure
 
 ```text
