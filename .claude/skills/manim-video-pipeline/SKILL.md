@@ -296,6 +296,8 @@ Scene 구조 기반 내레이션 스크립트 생성 (한국어).
 - 사용자가 최종 영상에 배경음악을 원하면, 합본 완료 후에만 `scripts/mix_bgm.sh`로 `build/final/{topic}_full_bgm.mp4`를 추가 생성한다.
 - BGM은 내레이션보다 항상 훨씬 작아야 하며, 교육 영상 기본 시작값은 `--bgm-volume 0.08 ~ 0.12` 범위다.
 - BGM은 scene별 mux 단계에 미리 넣지 않는다. 최종 합본 단계에서 한 번만 넣는다.
+- **`mix_bgm.sh`는 반드시 `--video-fade`, `--bgm-tail`, `--bgm-fade` 효과가 포함된 현재 버전(filter_complex 기반)을 사용한다.** 예전의 `-c:v copy` 단순 믹스 방식은 fade-out/tail이 없어 영상이 뚝 끊긴다. 현재 버전은 기본값으로 `--video-fade 1.5`, `--bgm-tail 3.0`, `--bgm-fade 3.0`이 적용되며, 출력 길이는 `입력 영상 + bgm-tail`초가 된다.
+- `tpad` filter의 `stop_mode`는 반드시 `clone`을 사용한다. `black`은 ffmpeg 8.x에서 유효하지 않은 값이다. `fade=t=out`으로 마지막 프레임이 이미 검정이므로 `clone`이 동일한 결과를 만든다.
 
 ### 6. YouTube 업로드 + 노트북 임베드
 완성 영상을 YouTube에 업로드하고, `book/{topic}/{topic}.ipynb`에 임베드.
