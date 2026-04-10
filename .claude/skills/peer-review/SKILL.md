@@ -9,4 +9,4 @@ Read the full procedure at `references/review.md`.
 
 Agent definitions: `../deep-research/references/agents/`
 
-Output: structured review in `outputs/`.
+Output: structured review in `research/<slug>-review/review.md`.

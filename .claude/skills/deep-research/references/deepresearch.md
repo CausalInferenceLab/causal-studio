@@ -13,7 +13,7 @@ Analyze the research question using extended thinking. Develop a research strate
 - Source types and time periods that matter
 - Acceptance criteria: what evidence would make the answer "sufficient"
 
-Derive a short slug from the topic (lowercase, hyphens, no filler words, ≤5 words — e.g. "uplift-modeling" not "deepresearch-plan"). Write the plan to `outputs/.plans/<slug>.md` as a self-contained artifact. Use this same slug for all artifacts in this run.
+Derive a short slug from the topic (lowercase, hyphens, no filler words, ≤5 words — e.g. "uplift-modeling" not "deepresearch-plan"). All artifacts for this run live under `research/<slug>/`. Write the plan to `research/<slug>/plan.md` as a self-contained artifact. Use this same slug for all artifacts in this run.
 
 ```markdown
 # Research Plan: [topic]
@@ -83,7 +83,7 @@ After researchers return, read their output files and critically assess:
 
 If gaps are significant, spawn another targeted batch of researchers. No fixed cap on rounds — iterate until evidence is sufficient or sources are exhausted.
 
-Update the plan artifact (`outputs/.plans/<slug>.md`) task ledger, verification log, and decision log after each round.
+Update the plan artifact (`research/<slug>/plan.md`) task ledger, verification log, and decision log after each round.
 
 Most topics need 1-2 rounds. Stop when additional rounds would not materially change conclusions.
 
@@ -114,11 +114,11 @@ Before finalizing the draft, do a claim sweep:
 - label inferences as inferences
 - if code or calculations were involved, record which checks were actually run and which remain unverified
 
-Save this draft to `outputs/.drafts/<slug>-draft.md`.
+Save this draft to `research/<slug>/draft.md`.
 
 ## 6. Cite
 
-Spawn a verifier agent via the Agent tool to post-process YOUR draft. Provide the agent with the draft path, all research file paths, and the instructions in `references/agents/verifier.md`. The verifier adds inline citations, verifies every source URL, and produces the final output at `outputs/<slug>-cited.md`.
+Spawn a verifier agent via the Agent tool to post-process YOUR draft. Provide the agent with the draft path, all research file paths, and the instructions in `references/agents/verifier.md`. The verifier adds inline citations, verifies every source URL, and produces the final output at `research/<slug>/cited.md`.
 
 The verifier does not rewrite the report — it only anchors claims to sources and builds the numbered Sources section.
 
@@ -135,9 +135,9 @@ After fixes, run at least one more verification pass if any FATAL issues were fo
 
 ## 8. Deliver
 
-Save the final cited and verified output to `outputs/<slug>.md`.
+Save the final cited and verified output to `research/<slug>/report.md`.
 
-Write a provenance record alongside it as `outputs/<slug>.provenance.md`:
+Write a provenance record alongside it as `research/<slug>/provenance.md`:
 
 ```markdown
 # Provenance: [topic]
@@ -148,6 +148,6 @@ Write a provenance record alongside it as `outputs/<slug>.provenance.md`:
 - **Sources accepted:** [sources that survived citation verification]
 - **Sources rejected:** [dead links, unverifiable, or removed]
 - **Verification:** [PASS / PASS WITH NOTES — summary of reviewer findings]
-- **Plan:** outputs/.plans/<slug>.md
-- **Research files:** [list of intermediate research files]
+- **Plan:** research/<slug>/plan.md
+- **Research files:** [list of intermediate research files under research/<slug>/raw/]
 ```
