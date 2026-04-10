@@ -15,6 +15,10 @@ When request intent matches below topics, use `.claude/skills/*` as the operatio
 - `manim-video-pipeline`: scene design/script/render/audio mux/full concat
 - `pip-install`: install package in `.venv` and sync `requirements.txt`
 - `skill-creator`: create/update project skill package
+- `deep-research`: 심층 조사, deep research, 종합 분석, in-depth report → outputs/ 에 저장
+- `literature-review`: 문헌 조사, lit review, 논문 survey, state of the art
+- `peer-review`: 동료 검토 시뮬레이션, 논문/노트북/분석 결과 리뷰
+- `source-comparison`: 여러 소스·방법론·도구 비교 매트릭스
 
 How to execute:
 1. Read the target `SKILL.md`.
