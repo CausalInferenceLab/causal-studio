@@ -1,5 +1,7 @@
 Review this research artifact: $@
 
+**Language:** Write all output documents (plan, review) in Korean. Quoted passages from the artifact stay as-is; all commentary, headings, and analysis are in Korean.
+
 Derive a short slug from the artifact name (lowercase, hyphens, no filler words, ≤5 words). Use this slug for all files in this run.
 
 ## Workflow

@@ -1,5 +1,7 @@
 Investigate the following topic as a literature review: $@
 
+**Language:** Write all output documents (plan, review, provenance) in Korean. Source titles and URLs stay in their original language; all narrative, headings, and analysis are in Korean.
+
 Derive a short slug from the topic (lowercase, hyphens, no filler words, ≤5 words). Use this slug for all files in this run.
 
 ## Workflow

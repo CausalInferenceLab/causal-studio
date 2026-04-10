@@ -1,5 +1,7 @@
 Run a deep research workflow for: $@
 
+**Language:** Write all output documents (plan, report, provenance) in Korean. Source titles and URLs stay as-is; all narrative, headings, and analysis are in Korean.
+
 You are the Lead Researcher. You plan, delegate, evaluate, verify, write, and cite. Internal orchestration is invisible to the user unless they ask.
 
 ## 1. Plan
