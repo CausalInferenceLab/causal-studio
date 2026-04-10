@@ -36,17 +36,38 @@ causal_studio/
 
 ## 스킬
 
+### 리서치
+
+| 스킬 | 용도 |
+|---|---|
+| `deep-research` | 멀티 에이전트 심층 조사 — 인용이 검증된 리서치 브리프를 `outputs/`에 소스 추적 기록과 함께 저장 |
+| `literature-review` | 논문 중심 문헌 조사, consensus·disagreements·open questions 정리 |
+| `peer-review` | 동료 검토 시뮬레이션 — FATAL / MAJOR / MINOR 심각도 분류 및 수정 계획 제공 |
+| `source-comparison` | 여러 소스·방법론·도구를 비교하는 근거 기반 비교 매트릭스 생성 |
+
+### Book & 노트북
+
+| 스킬 | 용도 |
+|---|---|
+| `book-serve` | Jupyter Book 로컬 서버 실행 |
+| `book-publish` | 노트북을 book TOC에 추가하고 빌드 검증 |
+| `ipynb-to-english` | 한국어 노트북을 영어 `_en.ipynb`로 번역 |
+| `ipynb-youtube-embed` | 노트북에 YouTube iframe 임베드 (Jupyter Book 렌더링을 위해 outputs까지 저장) |
+
+### 영상
+
+| 스킬 | 용도 |
+|---|---|
+| `manim-video-pipeline` | scene 설계 / 스크립트 / 렌더 / 오디오 / mux / 합본 전 과정 |
+| `manim-thumbnail` | Manim으로 3b1b 스타일 YouTube 썸네일 PNG 생성 |
+
+### 환경 & 프로젝트
+
 | 스킬 | 용도 |
 |---|---|
 | `python-setup` | `.venv` 생성 및 초기 의존성 설치 |
 | `video-assets-setup` | `3b1b/`, `tabler-icons/` 로컬 자산 설치·업데이트 |
 | `pip-install` | `.venv`에 패키지 설치 후 `requirements.txt` 동기화 |
-| `book-serve` | Jupyter Book 로컬 서버 실행 |
-| `book-publish` | 노트북을 book TOC에 추가하고 빌드 검증 |
-| `ipynb-to-english` | 한국어 노트북을 영어 `_en.ipynb`로 번역 |
-| `ipynb-youtube-embed` | 노트북에 YouTube iframe 임베드 (Jupyter Book 렌더링을 위해 outputs까지 저장) |
-| `manim-video-pipeline` | scene 설계 / 스크립트 / 렌더 / 오디오 / mux / 합본 전 과정 |
-| `manim-thumbnail` | Manim으로 3b1b 스타일 YouTube 썸네일 PNG 생성 |
 | `git-commit` | 변경 분석 및 커밋 |
 | `git-pr` | PR 생성 |
 | `skill-creator` | 프로젝트 스킬 생성·수정 |

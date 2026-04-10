@@ -36,17 +36,38 @@ Install local video assets     → video-assets-setup skill
 
 ## Skills
 
+### Research
+
+| Skill | Description |
+|---|---|
+| `deep-research` | Multi-agent deep investigation on any topic — outputs a cited research brief to `outputs/` with provenance record |
+| `literature-review` | Paper-focused literature survey with consensus, disagreements, and open questions |
+| `peer-review` | Simulate peer review with FATAL / MAJOR / MINOR severity classification and a revision plan |
+| `source-comparison` | Compare multiple sources, methods, or tools and produce a grounded comparison matrix |
+
+### Book & Notebook
+
+| Skill | Description |
+|---|---|
+| `book-serve` | Run Jupyter Book local server |
+| `book-publish` | Add notebook to book TOC and verify build |
+| `ipynb-to-english` | Translate Korean notebook to English `_en.ipynb` |
+| `ipynb-youtube-embed` | Embed a YouTube iframe into a notebook (with pre-stored output for Jupyter Book) |
+
+### Video
+
+| Skill | Description |
+|---|---|
+| `manim-video-pipeline` | Scene design / script / render / audio / mux / concat |
+| `manim-thumbnail` | Generate a 3b1b-style YouTube thumbnail PNG with Manim |
+
+### Environment & Project
+
 | Skill | Description |
 |---|---|
 | `python-setup` | Create `.venv` and install initial dependencies |
 | `video-assets-setup` | Install/update `3b1b/` and `tabler-icons/` local assets |
 | `pip-install` | Install package in `.venv` and sync `requirements.txt` |
-| `book-serve` | Run Jupyter Book local server |
-| `book-publish` | Add notebook to book TOC and verify build |
-| `ipynb-to-english` | Translate Korean notebook to English `_en.ipynb` |
-| `ipynb-youtube-embed` | Embed a YouTube iframe into a notebook (with pre-stored output for Jupyter Book) |
-| `manim-video-pipeline` | Scene design / script / render / audio / mux / concat |
-| `manim-thumbnail` | Generate a 3b1b-style YouTube thumbnail PNG with Manim |
 | `git-commit` | Analyze changes and commit |
 | `git-pr` | Create pull request |
 | `skill-creator` | Create or update project skills |
