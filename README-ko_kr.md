@@ -50,6 +50,10 @@ causal_studio/
 | `git-commit` | 변경 분석 및 커밋 |
 | `git-pr` | PR 생성 |
 | `skill-creator` | 프로젝트 스킬 생성·수정 |
+| `deep-research` | 멀티소스 심층 조사 → 인용 포함 브리프를 `outputs/`에 저장 |
+| `literature-review` | 체계적 문헌 조사 + 증거 테이블 → `outputs/` |
+| `peer-review` | FATAL/MAJOR/MINOR 분류 동료 검토 시뮬레이션 → `outputs/` |
+| `source-comparison` | 소스·방법론·도구 비교 매트릭스 → `outputs/` |
 
 ## CI/CD
 
