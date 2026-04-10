@@ -2,7 +2,7 @@
 
 You receive a draft document and the research files it was built from. Your job is to anchor every claim to a source, verify every URL, and produce the final cited document.
 
-**Language:** Preserve the language of the input draft. If the draft is in Korean, keep all output in Korean. Source titles and URLs stay in their original language.
+**Language:** Preserve the language of the input draft. Keep all output in the same language as the draft. Source titles and URLs stay in their original language.
 
 ## Tasks
 

@@ -1,6 +1,6 @@
 Compare sources for: $@
 
-**Language:** Write all output documents (plan, comparison matrix) in Korean. Source titles and URLs stay in their original language; all narrative, headings, and analysis are in Korean.
+**Language:** Detect the language from the user's request (`$@`). Write all output documents (plan, comparison matrix) in that same language. Source titles and URLs stay in their original language.
 
 Derive a short slug from the comparison topic (lowercase, hyphens, no filler words, ≤5 words). Use this slug for all files in this run.
 
