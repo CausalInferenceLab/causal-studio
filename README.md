@@ -50,10 +50,10 @@ Install local video assets     → video-assets-setup skill
 | `git-commit` | Analyze changes and commit |
 | `git-pr` | Create pull request |
 | `skill-creator` | Create or update project skills |
-| `deep-research` | Multi-source deep research → cited brief saved to `outputs/` |
-| `literature-review` | Systematic literature survey with evidence table → `outputs/` |
-| `peer-review` | Peer review simulation with FATAL/MAJOR/MINOR severity → `outputs/` |
-| `source-comparison` | Comparison matrix across sources, methods, or tools → `outputs/` |
+| `deep-research` | Multi-source deep research → cited brief saved to `research/<slug>/` |
+| `literature-review` | Systematic literature survey with evidence table → `research/<slug>/` |
+| `peer-review` | Peer review simulation with FATAL/MAJOR/MINOR severity → `research/<slug>-review/` |
+| `source-comparison` | Comparison matrix across sources, methods, or tools → `research/<slug>/` |
 
 ## CI/CD
 
