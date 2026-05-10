@@ -1,5 +1,6 @@
 # Jupyter Book (2.x - MyST-MD 기반)
 jupyter-book>=2.0.0
+jupyterlab
 
 # Video Production
 manim>=0.18.0
@@ -9,6 +10,18 @@ numpy
 pandas
 matplotlib
 seaborn
-scikit-learn
+scikit-learn<1.7
+scikit-uplift
 statsmodels
 graphviz
+econml
+kagglehub
+ipywidgets
+
+# PDF Processing
+pypdf
+pdfplumber
+reportlab
+pdf2image
+pytesseract
+Pillow

@@ -23,6 +23,8 @@ project:
       file: why_causal_inference/why_causal_inference_en.ipynb
     - file: why_causal_inference/why_causal_inference_ko.ipynb
       hidden: true
+    - title: Who Should Be Treated?
+      file: who_should_be_treated/who_should_be_treated_ko.ipynb
 
 site:
   template: book-theme
