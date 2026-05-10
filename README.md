@@ -1,10 +1,23 @@
+<a id="top"></a>
+
 # Causal Studio
 
 English | [한국어](./README-ko_kr.md)
 
-A repository for managing a causal inference codebook (Jupyter Book) and Manim educational videos together.
+🌐 Language: English | [한국어](./README-ko_kr.md)
+
+A platform providing educational videos and executable notebooks on causal inference.
+
+- Book: <https://causalinferencelab.github.io/causal-studio/>
+- YouTube: <https://www.youtube.com/@CausalStudio>
 
 Project working rules: [CONTRIBUTING.md](./CONTRIBUTING.md) | [한국어](./CONTRIBUTING-ko_kr.md)
+
+## How to Learn
+
+1. Watch the videos: Understand concepts visually through 3Blue1Brown-style animations for each chapter.
+2. Run the code: Practice hands-on by running code directly in Binder or Colab.
+3. Go deeper: Build a thorough understanding with the detailed code and explanations in the notebooks.
 
 ## Repository Structure
 
@@ -34,32 +47,21 @@ Install local video assets     → video-assets-setup skill
 - `3b1b/` — 3b1b/videos reference
 - `videos/assets/tabler-icons/` — Tabler Icons
 
-## Skills
-
-| Skill | Description |
-|---|---|
-| `python-setup` | Create `.venv` and install initial dependencies |
-| `video-assets-setup` | Install/update `3b1b/` and `tabler-icons/` local assets |
-| `pip-install` | Install package in `.venv` and sync `requirements.txt` |
-| `book-serve` | Run Jupyter Book local server |
-| `book-publish` | Add notebook to book TOC and verify build |
-| `ipynb-to-english` | Translate Korean notebook to English `_en.ipynb` |
-| `ipynb-youtube-embed` | Embed a YouTube iframe into a notebook (with pre-stored output for Jupyter Book) |
-| `manim-video-pipeline` | Scene design / script / render / audio / mux / concat |
-| `manim-thumbnail` | Generate a 3b1b-style YouTube thumbnail PNG with Manim |
-| `git-commit` | Analyze changes and commit |
-| `git-pr` | Create pull request |
-| `skill-creator` | Create or update project skills |
-| `deep-research` | Multi-source deep research → cited brief saved to `research/<slug>/` |
-| `literature-review` | Systematic literature survey with evidence table → `research/<slug>/` |
-| `peer-review` | Peer review simulation with FATAL/MAJOR/MINOR severity → `research/<slug>-review/` |
-| `source-comparison` | Comparison matrix across sources, methods, or tools → `research/<slug>/` |
-
 ## CI/CD
 
 Pushing changes under `book/**` to `main` triggers GitHub Actions to automatically deploy to GitHub Pages.
 
 Deploy dependencies: `requirements-book.txt`
+
+## Our Contributors
+
+<a href="https://github.com/CausalInferenceLab/causal-studio/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=CausalInferenceLab/causal-studio" />
+</a>
+
+<p align="right">
+  <a href="#top">⬆️ Back to Top</a>
+</p>
 
 ## License
 
