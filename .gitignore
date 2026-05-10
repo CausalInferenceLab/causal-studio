@@ -29,6 +29,7 @@ __pycache__/
 *.pyo
 .Python
 .env
+settings.local.json
 env/
 venv/
 .venv/
