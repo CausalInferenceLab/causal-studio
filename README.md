@@ -50,12 +50,6 @@ Pushing changes under `book/**` to `main` triggers GitHub Actions to automatical
 
 Deploy dependencies: `requirements-book.txt`
 
-## Our Contributors
-
-<a href="https://github.com/CausalInferenceLab/causal-studio/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=CausalInferenceLab/causal-studio" />
-</a>
-
 ## License
 
 MIT. External assets (3b1b, Tabler Icons) follow their respective upstream licenses.

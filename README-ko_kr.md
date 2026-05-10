@@ -50,12 +50,6 @@ causal_studio/
 
 배포 의존성: `requirements-book.txt`
 
-## Our Contributors
-
-<a href="https://github.com/CausalInferenceLab/causal-studio/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=CausalInferenceLab/causal-studio" />
-</a>
-
 ## 라이선스
 
 이 저장소는 MIT입니다. 외부 자산(3b1b, Tabler Icons)은 각 upstream 라이선스를 따릅니다.
