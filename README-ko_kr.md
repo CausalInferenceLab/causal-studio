@@ -13,9 +13,8 @@
 
 ## 학습 방법
 
-1. 영상을 먼저 보기: 각 장의 명확한 애니메이션으로 개념을 시각적으로 이해합니다.
-2. 코드를 직접 실행하기: Binder 또는 Colab에서 코드를 돌리며 손으로 익힙니다.
-3. 더 깊게 보기: 노트북의 자세한 설명과 코드를 통해 개념을 완전히 정리합니다.
+1. 영상을 먼저 보기: 각 장을 명확한 시각 자료로 이해합니다.
+2. 노트북 실행과 탐구: Binder 또는 Colab에서 직접 코드를 실행해 보며 실습하고, 노트북의 코드와 설명으로 더 깊이 이해합니다.
 
 ## 저장소 구조
 
@@ -56,10 +55,6 @@ causal_studio/
 <a href="https://github.com/CausalInferenceLab/causal-studio/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=CausalInferenceLab/causal-studio" />
 </a>
-
-<p align="right">
-  <a href="#top">⬆️ Back to Top</a>
-</p>
 
 ## 라이선스
 

@@ -13,9 +13,8 @@ Project working rules: [CONTRIBUTING.md](./CONTRIBUTING.md) | [한국어](./CONT
 
 ## How to Learn
 
-1. Watch the videos: Understand concepts visually through clear animations for each chapter.
-2. Run the code: Practice hands-on by running code directly in Binder or Colab.
-3. Go deeper: Build a thorough understanding with the detailed code and explanations in the notebooks.
+1. Watch the videos: Learn each chapter through clear visual explanations.
+2. Run and explore the notebooks: Practice hands-on in Binder or Colab, then build a deeper understanding with the notebook code and explanations.
 
 ## Repository Structure
 
@@ -56,10 +55,6 @@ Deploy dependencies: `requirements-book.txt`
 <a href="https://github.com/CausalInferenceLab/causal-studio/graphs/contributors">
   <img src="https://contrib.rocks/image?repo=CausalInferenceLab/causal-studio" />
 </a>
-
-<p align="right">
-  <a href="#top">⬆️ Back to Top</a>
-</p>
 
 ## License
 
