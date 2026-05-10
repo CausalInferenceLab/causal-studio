@@ -1,0 +1,709 @@
+\newcommand{\htau}{\widehat{\tau}}
+\newcommand{\hmu}{\widehat{\mu}}
+\newcommand{\hGamma}{\widehat{\Gamma}}
+\newcommand{\he}{\widehat{e}}
+\DeclareMathOperator{\E}{E}
+\DeclareMathOperator{\PP}{P}
+\newcommand{\p}[1]{\left( #1 \right)}
+\newcommand{\hpi}{\hat{\pi}}
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE, include=FALSE, results='hide'}
+# Deleting all current variables
+rm(list=ls())
+
+# Ensuring consistent random values in the bookdown version (this can be ignored).
+set.seed(1, kind = "Mersenne-Twister", normal.kind = "Inversion", sample.kind = "Rejection")
+
+# Note: bookdown seems to require explicitly calling these packages. 
+library(reshape2)
+library(DiagrammeR)
+```
+
+
+# Policy Learning I - Binary Treatment
+
+
+Source RMD file: [link](https://docs.google.com/uc?export=download&id=1yI7RWqqe32DLXD7k66bgw5LT1_LcvO1a)
+
+
+A few chapters ago, we learned how to estimate the average effect of a binary treatment (ATE), that is, the value of treating everyone in a population versus treating no one. Once that was established, we asked whether certain subgroups could react differently to the treatment, as we learned how to estimate such heterogeneous treatment effects (HTE). Then, in the previous chapter, we learned how to aggregate these heterogeneous effects to estimate the average outcome that would be attained if treatment assignment were to follow a particular rule, that is, if we were to treat only individuals with certain observable characteristics (policy evaluation). In this chapter, we will learn how to search the space of available treatment rules to approximately _maximize_ the average outcome across the population. That is, we will answer questions of the type: "_who_ should be treated?" We'll call this problem **policy learning**. 
+
+We'll make a distinction between parametric and non-parametric policies, just as we did with predictive models. Parametric policies are simpler and depend only on a fixed number of parameters, whereas nonparametric policies can increase in complexity with the data. As we'll discuss below, there will be situations in which one or the other will be more appropriate.
+
+For now, we'll work with the same toy simulation setting that we used in the previous chapter. 
+
+```{r, warning=FALSE, message=FALSE}
+# use e.g., install.packages("grf") to install any of the following packages.
+library(grf)
+library(glmnet)
+library(splines)
+library(policytree)
+library(ggplot2)
+library(lmtest)
+library(sandwich)
+```
+
+```{r}
+# A randomized setting.
+n <- 1000
+p <- 4
+X <- matrix(runif(n*p), n, p)
+e <- .5   # fixed, known probability
+W <- rbinom(n, prob = e, size = 1)
+Y <- .5*(X[,1] - .5) + (X[,2] - .5)*W + .1 * rnorm(n) 
+data <- data.frame(x=X, y=Y, w=W)
+
+outcome <- "y"
+covariates <- paste0("x.", seq(p))
+treatment <- "w"
+```
+
+## Non-parametric policies
+
+In the HTE chapter we define the conditional average treatment effect (CATE) function
+
+\begin{equation}
+  (\#eq:cate-oracle)
+  \tau(x) := \E[Y_i(1) - Y_i(0) | X_i = x],
+\end{equation}
+that is, the average effect of a binary treatment conditional on observable charateristics.
+
+If we knew \@ref(eq:cate-oracle), then a natural policy would be to assign individuals to treatment when their CATE is positive,
+\begin{equation*}
+  \pi^{*} = \mathbb{I}\{\tau(x) \geq 0\}.
+\end{equation*}
+
+More generally, if treating that individual costs a known amount $c(x)$, 
+\begin{equation*}
+  \pi^{*} = \mathbb{I}\{\tau(x) \geq c(x)\}.
+\end{equation*}
+
+Of course, we don't know \@ref(eq:cate-oracle). However, we can obtain an estimate $\htau(\cdot)$ using any flexible (i.e., non-parametric) method as we learned in the HTE chapter, and then obtain a policy estimate
+\begin{equation*}
+  \hpi(x) = \mathbb{I}\{ \htau(x) \geq 0\},
+\end{equation*}
+replacing the zero threshold by some appropriate cost function if needed.
+
+Once we have an estimated policy, we need to estimate its value. To obtain accurate estimates, we must ensure appropriate **data-splitting**. We cannot estimate and evaluate a policy using the same data set, because that would lead to an overestimate of the value of the policy. One option here is to divide the data into training and test subsets, fit $\htau(\cdot)$ in the training subset and evaluate it in the test subset. This is analogous to what we saw in prediction problems: if we try to evaluate our predictions on the training set, we will overestimate how good our predictions are. 
+
+The next snippet estimates the conditional treatment effect function via a Lasso model with splines. Note the data splitting.
+
+```{r}
+# Preparing to run a regression with splines (piecewise polynomials).
+# Note that if we have a lot of data we should increase the argument `df` below.
+# The optimal value of `df` can be found by cross-validation
+# i.e., check if the value of the policy, estimated below, increases or decreases as `df` varies. 
+fmla.xw <- formula(paste0("~", paste0("bs(", covariates, ", df=5) *", treatment, collapse="+")))
+XW <- model.matrix(fmla.xw, data)
+Y <- data[,outcome]
+
+# Data-splitting
+# Define training and evaluation sets
+train <- sample(1:n, 0.5*n)
+test <- -train
+
+# Fitting the outcome model on the *training* data
+model.m <- cv.glmnet(XW[train,], Y[train])  
+
+# Predict outcome E[Y|X,W=w] for w in {0, 1} on the *test* data
+data.0 <- data[test,] 
+data.0[,treatment] <- 0
+XW0 <- model.matrix(fmla.xw, data.0)
+mu.hat.0 <- predict(model.m, XW0, s="lambda.min")
+
+data.1 <- data[test,]  
+data.1[,treatment] <- 1
+XW1 <- model.matrix(fmla.xw, data.1)
+mu.hat.1 <- predict(model.m, XW1, s="lambda.min")
+
+# Computing the CATE estimate tau.hat
+tau.hat <- mu.hat.1 - mu.hat.0
+
+# Assignment if tau.hat is positive (or replace by non-zero cost if applicable)
+pi.hat <- as.numeric(tau.hat > 0)
+
+# Estimate assignment probs e(x). 
+# (This will be useful for evaluation via AIPW scores a little later)
+
+# Uncomment/comment the next lines as appropriate
+# In randomized settings assignment probabilities are fixed and known.
+e.hat <- rep(0.5, length(test))  
+# In observational setttings the assignment probability is typically unknown.
+# fmla.x <- formula(paste0("~", paste0("bs(", covariates, ", df=3, degree=3)", collapse="+")))
+# XX <- model.matrix(fmla.x, data)
+# model.e <- cv.glmnet(XX[train,], W[train], family="binomial")
+# e.hat <- predict(model.e, XX[test,], s="lambda.min", type="response")
+```
+
+On the test set, we can evaluate this policy as we learned in the previous chapter. In a randomized setting, a simple estimator based on the difference in means is available.
+
+```{r}
+# Only valid in randomized settings.
+A <- pi.hat == 1
+Y <- data[test, outcome]
+W <- data[test, treatment]
+value.estimate <- mean(Y[A & (W==1)]) * mean(A) + mean(Y[!A & (W==0)]) * mean(!A)
+value.stderr <- sqrt(var(Y[A & (W==1)]) / sum(A & (W==1)) * mean(A)^2 + var(Y[!A & (W==0)]) / sum(!A & W==0) * mean(!A)^2)
+print(paste("Value estimate:", value.estimate, "Std. Error:", value.stderr))
+```
+
+In a randomized setting and observational settings with unconfoundedness, an estimator of the policy value based on AIPW scores is available. In large samples, it should have smaller variance than the one based on sample averages.
+
+```{r}
+# Valid in randomized settings and observational settings with unconfoundedness and overlap.
+Y <- data[test, outcome]
+W <- data[test, treatment]
+gamma.hat.1 <- mu.hat.1 + W / e.hat * (Y - mu.hat.1)
+gamma.hat.0 <- mu.hat.0 + (1 - W) / (1 - e.hat) * (Y - mu.hat.0)
+gamma.hat.pi <- pi.hat * gamma.hat.1 + (1 - pi.hat) * gamma.hat.0
+
+value.estimate <- mean(gamma.hat.pi)
+value.stderr <- sd(gamma.hat.pi) / sqrt(length(gamma.hat.pi))
+print(paste("Value estimate:", value.estimate, "Std. Error:", value.stderr))
+```
+
+Above we used a flexible linear model, but in fact we can also use any other non-parametric method. The next example uses `grf`. An advantage of using `grf` is that we can leverage [out-of-bag](https://github.com/grf-labs/grf/blob/master/REFERENCE.md#out-of-bag-prediction) predictions, so explicit data splitting is not necessary.
+
+```{r}
+# Using the entire data
+X <- data[,covariates]
+Y <- data[,outcome]
+W <- data[,treatment]
+
+# Comment / uncomment as approriate
+# Randomized setting with known assignment probability (here, 0.5)
+forest <- causal_forest(X, Y, W, W.hat=.5)
+# Observational setting with unconfoundedness and overlap.
+# forest <- causal_forest(X, Y, W)
+
+# Get "out-of-bag" predictions
+tau.hat.oob <- predict(forest)$predictions
+pi.hat <- as.numeric(tau.hat.oob > 0)
+```
+
+Again, to evaluate the value of this policy in a randomized setting, we can use the following estimator based on sample averages.
+
+```{r}
+# Only valid in randomized settings.
+
+# We can use the entire data because predictions are out-of-bag
+A <- pi.hat == 1
+value.estimate <- mean(Y[A & (W==1)]) * mean(A) + mean(Y[!A & (W==0)]) * mean(!A)
+value.stderr <- sqrt(var(Y[A & (W==1)]) / sum(A & (W==1)) * mean(A)^2 + var(Y[!A & (W==0)]) / sum(!A & W==0) * mean(!A)^2)
+print(paste("Value estimate:", value.estimate, "Std. Error:", value.stderr))
+```
+
+And here's how to produce an AIPW-based estimate. Note that that estimates of the propensity scores (`W.hat`) and outcome model (`mu.hat.1`, `mu.hat.0`) are also [out-of-bag](https://github.com/grf-labs/grf/blob/master/REFERENCE.md#out-of-bag-prediction), ensuring appropriate sample splitting.
+
+```{r}
+# Valid in randomized settings and observational settings with unconfoundedness and overlap.
+tau.hat <- predict(forest)$predictions
+
+# Retrieve relevant quantities.
+e.hat <- forest$W.hat # P[W=1|X]
+mu.hat.1 <- forest$Y.hat + (1 - e.hat) * tau.hat  # E[Y|X,W=1] = E[Y|X] + (1 - e(X)) * tau(X)
+mu.hat.0 <- forest$Y.hat - e.hat * tau.hat        # E[Y|X,W=0] = E[Y|X] - e(X) * tau(X)
+
+# Compute AIPW scores.
+gamma.hat.1 <- mu.hat.1 + W / e.hat * (Y - mu.hat.1)
+gamma.hat.0 <- mu.hat.0 + (1-W) / (1-e.hat) * (Y - mu.hat.0)
+gamma.hat.pi <- pi.hat * gamma.hat.1 + (1 - pi.hat) * gamma.hat.0
+
+# Value estimates.
+value.estimate <- mean(gamma.hat.pi)
+value.stderr <- sd(gamma.hat.pi) / sqrt(length(gamma.hat.pi))
+print(paste("Value estimate:", value.estimate, "Std. Error:", value.stderr))
+```
+
+<font size=2>
+A technical note. It's easy to get confused and try to "estimate" a nonparametric policy using AIPW scores, as in "$\hpi(X_i) = \mathbb{I}\{ \hGamma_{i,1} \geq  \hGamma_{i,0} \}$". _This is incorrect_. AIPW scores are very noisy and should never be used "pointwise" like this. They should be used as part of an average (as above), or some other form of aggregation (as we'll see in the next section).
+</font>
+
+
+## Parametric policies
+
+In many settings, there are good reasons to constrain the policy to belong to a smaller function class $\Pi$. The set $\Pi$ may contain only policies that, for example, are transparent and easy to explain to stakeholders, or that are easily implemented in the field. It may also be the case that the set of available policies $\Pi$ encodes other desirability criteria, such as satisfying certain budget constraints or depending only on a subset of observable characteristics.
+
+Estimating such a policy from data is finding an approximate solution to the following constrained maximization problem,
+\begin{equation}
+  (\#eq:param-pi-oracle)
+  \pi^{*} = \arg\max_{\pi \in \Pi} \E[Y(\pi(X_i))].
+\end{equation}
+
+Following [Athey and Wager (2021, Econometrica)](https://onlinelibrary.wiley.com/doi/abs/10.3982/ECTA15732), we will use the following empirical counterpart of \@ref(eq:param-pi-oracle),
+\begin{equation}
+  (\#eq:param-pi-problem)
+  \hpi = \arg\min_{\pi \in \Pi} \frac{1}{n} \sum_{i=1}^{n} \hGamma_{i,\pi(X_i)},
+\end{equation}
+where $\hGamma_{i,\pi(X_i)}$ are AIPW scores as defined in the previous chapter. As reminder, 
+\begin{equation}
+  \hGamma_{i,\pi(X_i)} = \pi(X_i)\hGamma_{i,1} + (1 - \pi(X_i))\hGamma_{i,0},
+\end{equation}
+where
+\begin{align}
+    (\#eq:aipw)
+    \hGamma_{i,1} 
+    &= \hat{\mu}^{-i}(X_i, 1) + \frac{W_i}{\hat{e}^{-i}(X_i)} \left(Y_i -\hat{\mu}^{-i}(X_i, 1)\right), \\
+    \hGamma_{i,0} 
+    &= \hat{\mu}^{-i}(X_i, 0) . \frac{1-W_i}{1-\hat{e}^{-i}(X_i)} \left(Y_i -\hat{\mu}^{-i}(X_i, 0)\right).
+\end{align}
+
+Here we use shallow tree policies as our main example of parametric policies. The `R` package `policytree` can be used to find a policy that solves \@ref(eq:param-pi-problem). In the example below, we'll construct AIPW scores estimated using `grf`, though we could have used any other non-parametric method (with appropriate sample-splitting). See this short [tutorial](https://grf-labs.github.io/policytree/) for other examples using these two packages.
+
+Let's walk through an example for the data simulated above. The first step is to construct AIPW scores \@ref(eq:aipw). The function `double_robust_scores` from the `policytree` package does that in one line.
+
+```{r}
+# Randomized setting: pass the known treatment assignment as an argument.
+forest <- causal_forest(X, Y, W, W.hat=.5)
+# Observational settting with unconfoundedness+overlap: let the assignment probabilities be estimated.
+# forest <- causal_forest(X, Y, W)
+
+# from policytree package
+gamma.matrix <- double_robust_scores(forest)  
+
+# Note: the function double_robust_scores is equivalent to the following:
+# tau.hat <- predict(forest)$predictions
+# mu.hat.1 <- forest$Y.hat + (1 - forest$W.hat) * tau.hat
+# mu.hat.0 <- forest$Y.hat - forest$W.hat * tau.hat
+# gamma.hat.1 <- mu.hat.1 + W/forest$W.hat * (Y - mu.hat.1)
+# gamma.hat.0 <- mu.hat.0 + (1-W)/(1-forest$W.hat) * (Y - mu.hat.0)
+# gamma.matrix <- cbind(gamma.hat.0, gamma.hat.1)
+```
+
+Next, to ensure appropriate sample splitting, we divide our data into training and test subsets. We estimate the policy on the training subset and estimate its value on the test subset.
+
+```{r}
+# Divide data into train and test sets
+train <- sample(1:n, 0.5*n)
+test <- -train
+
+# Train on a portion of the data
+# The argument `depth` controls the depth of the tree.
+# Depth k means that we can partition the data into up to 2^(k+1) regions.  
+policy <- policy_tree(X[train,], gamma.matrix[train,], depth=2)
+
+# Predict on remaining portion
+# Note policytree recodes the treatments to 1,2
+# We substract one to get back to our usual encoding 0,1.
+pi.hat <- predict(policy, X[test,]) - 1
+```
+
+To understand the policy we just learned, we can print the tree splits.
+```{r}
+print(policy)
+```
+
+Alternatively, we can plot the tree.
+```{r policy-tree, fig.align = 'center', fig.cap= "Learned policy"}
+plot(policy, leaf.labels = c("control", "treatment"))
+```
+
+Note how the treatment rule is rather transparent, in that whether or not each individual is treated depends only on a couple of if-statements. This can be very attractive in settings in which it's important to explain the policy to stakeholders, or reason about its consequences in terms of fairness (e.g., is it okay that these particular subgroups get the treatment?), manipulability (e.g., will individuals lie about their observable characteristics to get a better outcome?), and so on. 
+
+To evaluate the policy, we again use what we learned in the previous chapter, remembering that we can only use the test set for evaluation. In a randomized setting, we can use the following estimator based on sample averages.
+
+```{r}
+# only valid for randomized setting!
+A <- pi.hat == 1 
+Y <- data[test, outcome]
+W <- data[test, treatment]
+value.estimate <- mean(Y[A & (W==1)]) * mean(A) + mean(Y[!A & (W==0)]) * mean(!A)
+value.stderr <- sqrt(var(Y[A & (W==1)]) / sum(A & (W==1)) * mean(A)^2 + var(Y[!A & (W==0)]) / sum(!A & W==0) * mean(!A)^2)
+print(paste("Value estimate:", value.estimate, "Std. Error:", value.stderr))
+```
+
+Using the remaining AIPW scores produces an estimate that, in large samples, has smaller standard error.
+
+```{r}
+# Valid in randomized settings and observational settings with unconfoundedness and overlap.
+gamma.hat.pi <- pi.hat * gamma.matrix[test,2] + (1 - pi.hat)  * gamma.matrix[test,1]
+value.estimate <- mean(gamma.hat.pi)
+value.stderr <- sd(gamma.hat.pi) / sqrt(length(gamma.hat.pi))
+print(paste("Value estimate:", value.estimate, "Std. Error:", value.stderr))
+```
+
+<font size=2>
+A technical note. Very small policy tree leaves make it hard to reliably evaluate policy values, in particular when the treatment is categorical with many levels. You can avoid small tree leaves increasing the `min.node.size` argument in `policy_tree`.
+</font>
+
+[Possible edit here: talk about cross-validation?]
+
+
+## Case study
+
+Let's apply the methods above to our `welfare` dataset, as used in previous chapters.
+
+```{r, message=FALSE, warning=FALSE}
+# Read in data
+data <- read.csv("https://docs.google.com/uc?id=1AQva5-vDlgBcM_Tv9yrO8yMYRfQJgqo_&export=download")
+n <- nrow(data)
+
+## NOTE: invert treatment and control, compared to the ATE and HTE chapters.
+data$w <- 1 - data$w
+
+# Treatment is the wording of the question:
+# 'does the the gov't spend too much on 'assistance to the poor' (control: 0)
+# 'does the the gov't spend too much on "welfare"?' (treatment: 1)
+treatment <- "w"
+
+# Outcome: 1 for 'yes', 0 for 'no'
+outcome <- "y"
+
+# Additional covariates
+covariates <- c("age", "polviews", "income", "educ", "marital", "sex")
+```
+
+It's important to note that there are different types of "heterogeneity" in treatment effects. Sometimes the effect of a treatment is positive throughout, and what changes is the magnitude of the effect. In this case, we would still like to treat everyone. On the other hand, sometimes the treatment effect is positive for certain subgroups and negative for others. The latter is a more interesting scenario for policy learning. 
+
+In this dataset, however, the effect seems to be mostly positive throughout. That is, i.e., most individuals respond "yes" more often when they are asked about "welfare" than about "assistance to the poor." To make the problem more interesting, we'll artificially modify the problem by introducing a cost of asking about welfare. This is just for illustration here, although there are natural examples in which treatment is indeed costly. Note in the code below how we subtract a cost of `.3` from the AIPW scores associated with treatment.
+
+
+```{r}
+# Prepare data
+X <- data[,covariates]
+Y <- data[,outcome]
+W <- data[,treatment]
+cost <- .3
+
+# Fit a policy tree on forest-based AIPW scores
+forest <- causal_forest(X, Y, W)
+gamma.matrix <- double_robust_scores(forest)
+gamma.matrix[,2] <- gamma.matrix[,2] - cost  # Subtracting cost of treatment
+
+# Divide data into train and evaluation sets
+train <- sample(1:n, 0.8*n)
+test <- -train
+
+# Fit policy on training subset
+policy <- policy_tree(X[train,], gamma.matrix[train,], depth = 2, min.node.size=1)
+
+# Predicting treatment on test set
+pi.hat <- predict(policy, X[test,]) - 1
+
+# Predicting leaves (useful later)
+leaf <- predict(policy, X[test,], type = "node.id")
+num.leaves <- length(unique(leaf))
+```
+
+
+Examining the policy we just learned.
+
+```{r}
+print(policy)
+```
+
+
+```{r policy-tree-case-study, fig.align = 'center', fig.cap= "Learned policy", message=FALSE, warning=FALSE}
+plot(policy, leaf.labels = c("control", "treatment"))
+```
+
+Estimating the value of the learned policy. Note in the code below that we must subtract the cost of treatment.
+
+```{r}
+A <- pi.hat == 1
+Y.test <- data[test, outcome]
+W.test <- data[test, treatment]
+
+# Only valid for randomized setting.
+# Note the -cost here!
+value.avg.estimate <- (mean(Y.test[A & (W.test==1)]) - cost) * mean(A) + mean(Y.test[!A & (W.test==0)]) * mean(!A)
+value.avg.stderr <- sqrt(var(Y.test[A & (W.test==1)]) / sum(A & (W.test==1)) * mean(A)^2 + var(Y.test[!A & (W.test==0)]) / sum(!A & W.test==0) * mean(!A)^2)
+print(paste("Estimate [sample avg]:", value.avg.estimate, "(", value.avg.stderr, ")"))
+
+# Valid in both randomized and obs setting with unconf + overlap.
+gamma.hat.1 <- gamma.matrix[test,2]
+gamma.hat.0 <- gamma.matrix[test,1]
+gamma.hat.pi <- pi.hat * gamma.hat.1 + (1 - pi.hat)  * gamma.hat.0
+value.aipw.estimate <- mean(gamma.hat.pi)
+value.aipw.stderr <- sd(gamma.hat.pi) / sqrt(length(gamma.hat.pi))
+print(paste("Estimate [AIPW]:", value.aipw.estimate, "(", value.aipw.stderr, ")"))
+```
+
+
+Testing whether the learned policy value is different from the value attained by the "no-treatment" policy.
+
+```{r}
+# Only valid for randomized setting.
+diff.estimate <- (mean(Y.test[A & (W.test==1)]) - cost - mean(Y.test[A & (W.test==0)])) * mean(A)
+diff.stderr <- sqrt(var(Y.test[A & (W.test==1)]) / sum(A & (W.test==1)) + var(Y.test[A & (W.test==0)]) / sum(A & W.test==0)) * mean(A)^2
+print(paste("Difference estimate [sample avg]:", diff.estimate, "Std. Error:", diff.stderr))
+
+# Valid in both randomized and obs setting with unconf + overlap.
+gamma.hat.pi.diff <- gamma.hat.pi - gamma.hat.0
+diff.estimate <- mean(gamma.hat.pi.diff)
+diff.stderr <- sd(gamma.hat.pi.diff) / sqrt(length(gamma.hat.pi.diff))
+print(paste("Difference estimate [aipw]:", diff.estimate, "Std. Error:", diff.stderr))
+```
+
+
+## Topics 1: Subgroups using learned policy
+
+The learned policy naturally induces interesting subgroups for which we expect the treatment effect to be different. With appropriate sample splitting, we can test that treatment effect is indeed different across "regions" defined by assignment under the learned policy,
+\begin{equation}
+  H_0: \E[Y_i(1) - Y_i(0)| \hpi(X_i) = 1] = \E[Y_i(1) - Y_i(0)| \hpi(X_i) = 0].
+\end{equation}
+
+```{r}
+# Only valid in randomized settings
+fmla <- formula(paste0(outcome, "~ 0 + pi.hat + w:pi.hat"))
+ols <- lm(fmla, data=transform(data[test,], pi.hat=factor(pi.hat)))
+coefs <- coeftest(ols, vcov=vcovHC(ols, 'HC2'))[3:4,1:2] 
+coefs[,1] <- coefs[,1] - cost  # subtracting cost
+coefs
+```
+
+```{r}
+# Valid in randomized settings and observational settings with unconfoundedness+overlap
+ols <- lm(gamma.hat.1 - gamma.hat.0 ~ 0 + factor(pi.hat))
+coeftest(ols, vcov=vcovHC(ols, 'HC2'))[1:2,]
+```
+
+
+If we learned a tree policy using the `policytree`, we can test whether treatment effects are different across leaves.
+
+\begin{equation}
+  H_0: \E[Y_i(1) - Y_i(0)| \text{Leaf} = 1] = \E[Y_i(1) - Y_i(0)| \text{Leaf} = \ell] \qquad \text{for }\ell \geq 2
+\end{equation}
+
+```{r}
+# Only valid in randomized settings.
+fmla <- paste0(outcome, ' ~ 0 + leaf +  w:leaf')
+ols <- lm(fmla, data=transform(data[test,], leaf=factor(leaf)))
+coefs <- coeftest(ols, vcov=vcovHC(ols, 'HC2'))[,1:2]
+interact <- grepl(":", rownames(coefs))
+coefs[interact,1] <- coefs[interact,1] - cost # subtracting cost
+coefs[interact,]
+```
+
+```{r}
+# Valid in randomized settings and observational settings with unconfoundedness+overlap.
+gamma.hat.diff <- gamma.hat.1 - gamma.hat.0
+ols <- lm(gamma.hat.1 - gamma.hat.0 ~ 0 + factor(leaf))
+coeftest(ols, vcov=vcovHC(ols, 'HC2'))[,1:2]
+```
+
+
+Finally, in Figure \@ref(fig:avg-cov-policy), as we have done in previous chapters, we can check how covariate averages vary across subgroups. This time, the subgroups are defined by treatment assignment under the learned policy.
+\begin{equation}
+  H_0: \E[X_{ij} | \hpi(X_i) = 1] = \E[X_{ij} | \hpi(X_i) = 0] \qquad \text{for each covariate }j
+\end{equation}
+
+```{r avg-cov-policy, fig.align = 'center', fig.cap= "Average covariate values within each group (defined by treatment assignment under the learned policy)"}
+df <- lapply(covariates, function(covariate) {
+  fmla <- formula(paste0(covariate, " ~ 0 + factor(pi.hat)"))
+  ols <- lm(fmla, data=transform(data[test,], pi.hat=pi.hat))
+  ols.res <- coeftest(ols, vcov=vcovHC(ols, "HC2"))
+    
+  # Retrieve results
+  avg <- ols.res[,1]
+  stderr <- ols.res[,2]
+  
+  # Tally up results
+  data.frame(
+    covariate, avg, stderr, pi.hat=factor(c('control', 'treatment')),
+    # Used for coloring
+    scaling=pnorm((avg - mean(avg))/sd(avg)), 
+    # We will order based on how much variation is 'explained' by the averages
+    # relative to the total variation of the covariate in the data
+    variation=sd(avg) / sd(data[,covariate]),
+    # String to print in each cell in heatmap below
+    labels=paste0(signif(avg, 3), "\n", "(", signif(stderr, 3), ")"))
+})
+df <- do.call(rbind, df)
+
+# a small optional trick to ensure heatmap will be in decreasing order of 'variation'
+df$covariate <- reorder(df$covariate, order(df$variation))
+
+# plot heatmap
+ggplot(df) +
+    aes(pi.hat, covariate) +
+    geom_tile(aes(fill = scaling)) + 
+    geom_text(aes(label = labels)) +
+    scale_fill_gradient(low = "#E1BE6A", high = "#40B0A6") +
+    theme_minimal() + 
+    ylab("") + xlab("") +
+    theme(plot.title = element_text(size = 12, face = "bold"),
+          axis.text=element_text(size=11))
+```
+
+
+
+
+## Topics 2: Learning with uncertain costs
+
+In the previous section, treatment costs were known and (just for simplicity of exposition) fixed across covariate values. However, there are situations in which costs are unknown and must be learned from the data as well. In such situations, we may be interested only in policies that do not exceed a certain budget in expectation.
+
+Here, we follow [Sun, Du, Wager (2021)](https://arxiv.org/abs/2103.11066) for how to deal with this issue. Their formulation is as follows. In potential outcome notation, each observation can be described by the tuple $(X_i, Y_i(0), Y_i(1), C_i(0), C_i(1))$, where the new pair $(C_i(0), C_i(1))$ represents costs that would be realized if individuals were assigned to control or treatment. Of course, in the data we only observe the tuple $(X_i, W_i, Y_i, C_i)$, where $C_i \equiv C_i(W_i)$. We are interested in approximating the policy $\pi_B^*$ that maximizes the gain from treating relative to not treating anyone while keeping the average relative cost bounded by some known budget $B$,
+\begin{equation}
+  \pi_B^*(x) := \arg\max \E[Y(\pi(X_i))] - \E[Y_i(0)]  \quad \text{such that} \quad \E[C_i(\pi(X_i)) - C_i(0)] \leq B.
+\end{equation}
+
+This paper demonstrates that the optimal policy has the following structure. First, we can order observations in decreasing order according to the following priority ranking,
+\begin{equation}
+  (\#eq:rho)
+  \rho(x) :=
+    \frac{\E[Y_i(1) - Y_i(0) | X_i = x]}
+         {\E[C_i(1) - C_i(0) | X_i = x]}.
+\end{equation}
+Then, we assign treatment in decreasing order \@ref(eq:rho) until we either treat everyone with positive $\rho(x)$ or the budget is met. The intuition is that individuals for which \@ref(eq:rho) is high have a high expected treatment effect relative to cost, so by assigning them first we obtain a cost-effective policy. We stop once there's no one else for which treatment is expected to be positive or we run out of resources.
+
+To obtain estimates $\hat{\rho}$ of \@ref(eq:rho) from the data, we have two options. The first is to estimate the numerator $\htau(x) = \E[Y_i(1) - Y_i(0) |X_i = x]$ and the denominator $\hat{\gamma}(x) = \E[C_i(1) - C_i(0) |X_i = x]$ separately, in a manner analogous to what we saw in the HTE chapter, and compute their ratio, producing the estimate $\hat{\rho}(x) = \htau(x) / \hat{\gamma}(x)$. We'll see a second option below.
+
+Let's put the first option into practice. For illustration, we will generate random costs for our data. We'll assume that the costs of treatment are drawn from a conditionally Exponential distribution, and that there are no costs for not treating.
+```{r}
+# Creating random costs.
+data$costs <- C <- ifelse(data$w == 1, rexp(n=n, 1/(data$income * data$polviews)), 0)
+```
+
+Figure \@ref(fig:cost-curves) compares two kinds of policies. An "ignore costs" policy which, as the name suggests, orders individuals by $\hat{\tau}$ only without taking costs into account; and the "ratio" policy in which the numerator and denominator of \@ref(eq:rho) are estimated separately. The comparison is made via a **cost curve** that compares the cumulative benefit of treatment with its cumulative cost (both normalized to 1), for all possible budgets at once. More cost-effective policies hug the left corner of the graph more tightly, keeping away from the 45-degree line.
+
+```{r}
+# Preprating data
+X <- data[,covariates]
+Y <- data[,outcome]
+W <- data[,treatment]
+C <- data[,'costs']
+
+# Sample splitting.
+# Note that we can't simply rely on out-of-bag observations here, because we're ranking *across* observations.
+# This is the same issue we encountered when ranking observations according to predicted CATE in the HTE chapter.
+train <- sample(1:n, 0.5*n)
+test <- -train
+train.treat <- which(W[train] == 1)
+
+# Because they will be useful to save computational time later,
+# we'll estimate the outcome model and propensity score model separately.
+
+# Propensity score model.
+# Comment / uncomment as appropriate.
+# Randomized setting with fixed and known assignment probability (here: 0.5)
+W.hat.train <- 0.5
+# Observational settings with unconfoundedness and overlap.
+# e.forest <- regression_forest(X = X[train,], Y = W[train])
+# W.hat.train <- predict(e.forest)$predictions
+
+# Outcome model.
+m.forest <- regression_forest(X = X[train,], Y = Y[train])
+Y.hat.train <- predict(m.forest)$predictions
+
+# Estimating the numerator.
+tau.forest <- causal_forest(X = X[train,], Y = Y[train], W = W[train], W.hat = W.hat.train, Y.hat = Y.hat.train)
+
+# Estimating the denominator.
+# Because costs for untreated observations are known to be zero, we're only after E[C(1)|X].
+# Under unconfoundedness, this can be estimated by regressing C on X using only the treated units.
+gamma.forest <- regression_forest(X = X[train.treat,], Y = C[train.treat])
+gamma.hat.train <- predict(m.forest)$predictions
+# If costs were not zero, we could use the following.
+# gamma.forest <- causal_forest(X = X[train,], Y = C[train], W = W[train], W.hat = W.hat.train, Y.hat = Y.hat.train)
+
+# Compute predictions on test set
+tau.hat <- predict(tau.forest, X[test,])$predictions
+gamma.hat <- predict(gamma.forest, X[test,])$predictions
+
+# Rankings
+rank.ignore <- order(tau.hat, decreasing = TRUE)
+rank.direct <- order(tau.hat / gamma.hat, decreasing = TRUE)
+
+# IPW-based estimates of (normalized) treatment and cost
+W.hat.test <- .5
+# W.hat.test <- predict(e.forest, X[test,])$predictions
+n.test <- length(test)
+treatment.ipw <- 1 / n.test * (W[test]/W.hat.test - (1 - W[test])/(1 - W.hat.test)) * Y[test]
+cost.ipw <-  1 / n.test * W[test] / W.hat.test * C[test]
+
+# Cumulative benefit and cost of treatment (normalized) for a policy that ignores costs.
+treatment.value.ignore <- cumsum(treatment.ipw[rank.ignore]) / sum(treatment.ipw)
+treatment.cost.ignore <- cumsum(cost.ipw[rank.ignore]) / sum(cost.ipw)
+
+# Cumulative benefit and cost of treatment (normalized) for a policy that uses the ratio, estimated separately.
+treatment.value.direct <- cumsum(treatment.ipw[rank.direct]) / sum(treatment.ipw)
+treatment.cost.direct <- cumsum(cost.ipw[rank.direct]) / sum(cost.ipw)
+```
+
+```{r cost-curves, fig.align = 'center', fig.cap= "Cost curves"}
+# Plotting
+plot(treatment.cost.ignore, treatment.value.ignore, col=rgb(0.2,0.4,0.1,0.7), lwd = 3, type = "l", xlab="(Normalized) cumulative cost", ylab="(Normalized) cumulative value", las=1)
+lines(treatment.cost.direct, treatment.value.direct, col=rgb(0.6,0.4,0.1,0.7), lwd = 3, type = "l")
+abline(a = 0, b = 1, lty = 2)
+legend("bottomright", legend = c("Ignoring costs", "Direct ratio"), col = c(rgb(0.2,0.4,0.1,0.7), rgb(0.8,0.4,0.1,0.7)), lwd=3)
+```
+
+To read this graph, we consider a point on the horizontal axis, representing a possible (normalized) budget constraint. At that point, whichever policy is higher is more cost-effective. In this example, we see that the "direct ratio" solution is much more cost-effective than the "ignore costs" one.
+
+
+As the authors note, we can also estimate \@ref(eq:rho) in a second manner that targets the parameter $\rho(x)$ directly. First, they note that, under overlap and the following unconfoundedness assumption
+\begin{equation}
+  \{Y_i(0), Y_i(1), C_i(1), C_i(0)  \} \perp W_i | X_i
+\end{equation}
+we can rewrite \@ref(eq:rho) as
+\begin{equation}
+  (\#eq:rho-iv)
+  \rho(x) :=
+    \frac{\text{Cov}[Y_i, W_i | X_i = x]}
+         {\text{Cov}[C_i, W_i | X_i = x]}.
+\end{equation}
+
+As readers with a little more background in causal inference may note, \@ref(eq:rho-iv) coincides with the definition of the conditional local average treatment effect (LATE) if we _were_ to take $W_i$ as an "instrumental variable" and $C_i$ as the "treatment". In fact, instrumental variable methods require entirely different assumptions, so the connection with instrumental variables is tenuous (see the paper for details), but mechanically \@ref(eq:rho-iv) still provides us with an estimation procedure: we can use any method used to estimate conditional LATE to produce an estimate $\hat{\rho}$.
+
+
+```{r}
+# Estimating rho(x) directly via instrumental forests.
+# In observational settings, remove the argument W.hat.
+iv.forest <- instrumental_forest(X = X[train,],
+                                 Y = Y[train],
+                                 W = C[train],   # cost as 'treatment'
+                                 Z = W[train],   # treatment as 'instrument'
+                                 Y.hat = Y.hat.train,
+                                 W.hat = NULL,   # If costs are nonzero: predict(gamma.forest)$predictions,
+                                 Z.hat = tau.forest$W.hat)
+
+# Predict and compute and estimate of the ranking on a test set.
+rho.iv <- predict(iv.forest, X[test,])$predictions
+rank.iv <- order(rho.iv, decreasing = TRUE)
+
+# Cumulative benefit and cost of treatment (normalized) for a policy based on the IV analogy.
+treatment.value.iv <- cumsum(treatment.ipw[rank.iv]) / sum(treatment.ipw)
+treatment.cost.iv <- cumsum(cost.ipw[rank.iv]) / sum(cost.ipw)
+```
+
+
+```{r cost-curves-late, fig.align = 'center', fig.cap= "Cost curves"}
+# Plotting
+plot(treatment.cost.ignore, treatment.value.ignore, col=rgb(0.2,0.4,0.1,0.7), lwd = 3, type = "l", xlab="(Normalized) cumulative cost", ylab="(Normalized) cumulative value", las=1)
+lines(treatment.cost.direct, treatment.value.direct, col=rgb(0.6,0.4,0.1,0.7), lwd = 3, type = "l")
+abline(a = 0, b = 1, lty = 2)
+lines(treatment.cost.iv, treatment.value.iv, col=rgb(1,0,0,0.7), lwd = 3, type = "l")
+abline(a = 0, b = 1, lty = 2)
+legend("bottomright", legend = c("Ignoring costs", "Direct ratio", "Sun, Du, Wager (2021)"), col = c(rgb(0.2,0.4,0.1,0.7), rgb(0.8,0.4,0.1,0.7), rgb(1,0,0,0.7)), lwd=3)
+```
+
+In Figure \@ref(fig:cost-curves-late), both the "direct ratio" and the solution based on instrumental forests have similar performance. This isn't always the case. When the ratio $\rho(x)$ is simpler relative to $\tau(x)$ and $\gamma(x)$, the solution based on instrumental forests may perform better since it is estimating $\rho(x)$ directly, where the "direct ratio" solution needs to estimate the more complicated objects $\tau(x)$ and $\gamma(x)$ separately. At a high level, we should expect $\rho(x)$ to be relatively simpler when there is a strong relationship between $\tau(x)$ and $\gamma(x)$. Here, our simulated costs seem to be somewhat related to CATE (see Figure \@ref(fig:cost-cate)), but perhaps not strongly enough to make the instrumental forest solution noticeably better than the one based on ratios.
+
+```{r cost-cate, fig.align = 'center', fig.cap= "Estimated cost and estimated CATE"}
+plot(gamma.hat, tau.hat, 
+     pch=16, # shape is filled circle
+     col=rgb(0,0,0,0.1), # color is black with transparency 0.1
+     las=1, 
+     xlab="Estimated cost (normalized)", ylab="Estimated CATE (normalized)")
+```
+
+
+The different policies can be compared by the area between the curves they trace and the 45-degree line, with higher values indicating better policies.
+
+```{r}
+auc <- data.frame(
+  ignore=sum((treatment.value.ignore - treatment.cost.ignore) * diff((c(0, treatment.cost.ignore)))),
+  ratio=sum((treatment.value.direct - treatment.cost.direct) * diff((c(0, treatment.cost.direct)))),
+  iv=sum((treatment.value.iv - treatment.cost.iv) * diff((c(0, treatment.cost.iv))))
+)
+auc
+```
+
+
+
+## Further reading
+
+The presentation of parametric policies was largely based on [Athey and Wager (2021, Econometrica)](https://onlinelibrary.wiley.com/doi/abs/10.3982/ECTA15732). A slightly more accessible version of some of the material in the published version can be found in an earlier [ArXiv version](https://arxiv.org/abs/1702.02896v1) of the same paper. Policy comparisons via cost curves can also be found in [Imai and Li (2019)](https://arxiv.org/pdf/1905.05389.pdf).
+
+
