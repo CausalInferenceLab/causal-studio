@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip list*)",
+      "Bash(pkill -f \"jupyter-book\"*)",
+      "Bash(jupyter-book *)",
+      "Bash(cd /Users/jhkim/Desktop/personal_study/causal/causal-studio/book*)"
+    ]
+  }
+}
