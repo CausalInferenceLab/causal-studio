@@ -23,12 +23,10 @@ project:
       file: why_causal_inference/why_causal_inference_en.ipynb
     - file: why_causal_inference/why_causal_inference_ko.ipynb
       hidden: true
-    - title: "Introduction to IPW"
-      children:
-        - title: "IPW in Practice"
-          file: ipw_basics/ipw_in_practice_en.ipynb
-        - file: ipw_basics/ipw_in_practice_ko.ipynb
-          hidden: true
+    - title: "IPW in Practice"
+      file: ipw_basics/ipw_in_practice_en.ipynb
+    - file: ipw_basics/ipw_in_practice_ko.ipynb
+      hidden: true
 
 site:
   template: book-theme
