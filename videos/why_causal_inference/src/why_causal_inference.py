@@ -15,7 +15,7 @@ TOPIC_DIR = Path(__file__).resolve().parents[1]
 
 def load_icon(filename: str, color: str, height: float) -> SVGMobject:
     icon = SVGMobject(str(ASSET_DIR / filename))
-    icon.set_stroke(color=color, width=2.6, opacity=1)
+    icon.set_stroke(color=color, width=2 .6, opacity=1)
     icon.set_fill(opacity=0)
     icon.height = height
     return icon
@@ -1075,7 +1075,7 @@ class Scene05_MultiverseTableAteAtt(Scene):
         self.play(
             LaggedStart(
                 *[
-                    Indicate(VGroup(row[1][0], row[2][0]), color=ACCENT_COLOR, scale_factor=1.02)
+                    Indicate(VGroup(r ow[1][0], row[2][0]), color=ACCENT_COLOR, scale_factor=1.02)
                     for row in body_rows
                 ],
                 lag_ratio=0.12,

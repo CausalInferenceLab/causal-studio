@@ -2,7 +2,7 @@ version: 1
 
 project:
   title: Causal Studio
-  copyright: '2025'
+  copyright: "2025"
   github: https://github.com/CausalInferenceLab/causal-studio
   license: CC-BY-4.0
   keywords:
@@ -23,6 +23,10 @@ project:
       file: why_causal_inference/why_causal_inference_en.ipynb
     - file: why_causal_inference/why_causal_inference_ko.ipynb
       hidden: true
+    - title: "IPW in Practice"
+      file: ipw_basics/ipw_in_practice_en.ipynb
+    - file: ipw_basics/ipw_in_practice_ko.ipynb
+      hidden: true
 
 site:
   template: book-theme
@@ -35,4 +39,4 @@ site:
     logo_text: Causal Studio
     style: ./custom.css
   parts:
-    primary_sidebar_footer: ''
+    primary_sidebar_footer: ""
