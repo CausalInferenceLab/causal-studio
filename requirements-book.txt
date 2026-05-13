@@ -5,6 +5,9 @@ pandas
 scipy
 matplotlib
 seaborn
-scikit-learn
+scikit-learn<1.7
 statsmodels
 graphviz
+econml
+scikit-uplift
+kagglehub
