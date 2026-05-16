@@ -24,7 +24,7 @@ bash .claude/skills/video-assets-setup/scripts/setup_video_assets.sh
 ## 확인
 
 ```bash
-test -f 3b1b/_2020/covid.py && echo "3b1b OK"
+test -f 3b1b/videos/_2020/covid.py && echo "3b1b OK"
 test -f videos/assets/tabler-icons/icons/outline/device-tablet.svg && echo "tabler OK"
 ```
 

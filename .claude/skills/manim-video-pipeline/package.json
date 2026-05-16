@@ -4,12 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "elevenlabs-audio": "node scripts/generate_elevenlabs_audio.mjs",
-    "openai-audio": "node scripts/generate_elevenlabs_audio.mjs"
+    "elevenlabs-audio": "node scripts/generate_elevenlabs_audio.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
-  "dependencies": {}
+  "dependencies": {
+    "@elevenlabs/elevenlabs-js": "^2.38.1"
+  }
 }

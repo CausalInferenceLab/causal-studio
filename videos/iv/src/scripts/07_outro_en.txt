@@ -1,9 +1,0 @@
-Let's put three scenes side by side.
-The water companies of 1854 London. The draft lottery of 1969 America. And, maybe, your own birthday.
-All of them are accidents that already exist in the real world.
-
-In an IV analysis, the hardest part isn't the formula.
-It's finding the accident.
-
-When random assignment isn't possible, find the coin nature has already flipped.
-That's the next step in causal inference.

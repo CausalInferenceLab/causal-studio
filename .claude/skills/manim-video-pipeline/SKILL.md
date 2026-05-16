@@ -29,7 +29,7 @@ Manim CE 기반 교육 영상 제작 워크플로우.
 - 코드 주석은 단순히 `Beat 1`, `Beat 2`만 적지 말고, 해당 Beat가 스크립트의 어떤 설명을 화면에서 어떻게 처리하는지 드러내야 한다.
 - 아직 작업하지 않는 다음 Scene들을 미리 script/code에 길게 쌓아두지 않는다.
 - 사용자가 참고할 3b1b 영상을 주면, 그 영상을 직접 참조해 script와 code를 만든다.
-- 사용자가 참고 영상을 주지 않으면, 로컬 `3b1b/` 안에서 (`_2015` ~ `_2026` 연도 디렉터리) 현재 ipynb 주제, scene 목표, 연출 방식과 가장 비슷한 파일을 골라 참조한다.
+- 사용자가 참고 영상을 주지 않으면, 로컬 `3b1b/videos` 안에서 현재 ipynb 주제, scene 목표, 연출 방식과 가장 비슷한 파일을 골라 참조한다.
 - 3b1b 코드는 복붙하지 말고, 현재 Manim CE 버전에 맞게 구조와 표현만 참고해 재구현한다.
 - 화면 글자는 기본적으로 최소화한다. 자세한 설명은 mp3/스크립트가 맡고, 화면은 앵커 단어, 짧은 수식, 도형, 색, 위치 변화로 전달한다.
 - 같은 내용을 긴 문장 자막으로 다시 쓰지 않는다. 문장이 필요해도 헤드라인 수준으로 제한한다.
@@ -96,29 +96,29 @@ book/{topic}/{topic}.ipynb
 아래 인자를 함께 전달하면 3b1b 스타일 참조를 명시적으로 반영한다.
 
 - `topic`: 작업 토픽명 (예: `why_causal_inference`, `iv`)
-- `ref_video`: 3b1b Manim 코드 경로 (예: `3b1b/_2020/covid.py`)
-- `ref_transcript`: 3b1b 자막 경로 (옵션, 현재 로컬 클론에는 없음)
-- `ref_sentence_timings`: 문장 타이밍 경로 (옵션, 현재 로컬 클론에는 없음)
+- `ref_video`: 3b1b Manim 코드 경로 (예: `3b1b/videos/_2020/covid.py`)
+- `ref_transcript`: 3b1b 자막 경로 (예: `3b1b/captions/2020/exponential-and-epidemics/english/transcript.txt`)
+- `ref_sentence_timings`: 문장 타이밍 경로 (예: `3b1b/captions/2020/exponential-and-epidemics/english/sentence_timings.json`)
 
 Codex 호출 예:
 ```bash
-$manim-video-pipeline topic=iv ref_video=3b1b/_2020/covid.py
+$manim-video-pipeline topic=iv ref_video=3b1b/videos/_2020/covid.py ref_transcript=3b1b/captions/2020/exponential-and-epidemics/english/transcript.txt ref_sentence_timings=3b1b/captions/2020/exponential-and-epidemics/english/sentence_timings.json
 ```
 
 Claude 호출 예:
 ```bash
-/manim-video-pipeline topic=iv ref_video=3b1b/_2020/covid.py
+/manim-video-pipeline topic=iv ref_video=3b1b/videos/_2020/covid.py ref_transcript=3b1b/captions/2020/exponential-and-epidemics/english/transcript.txt ref_sentence_timings=3b1b/captions/2020/exponential-and-epidemics/english/sentence_timings.json
 ```
 
 자연어 호출 예:
 
 ```text
-iv 토픽으로 진행하고 ref_video=3b1b/_2020/covid.py 참고해서 scene 구조 설계해줘
+iv 토픽으로 진행하고 ref_video=3b1b/videos/_2020/covid.py ref_transcript=3b1b/captions/2020/exponential-and-epidemics/english/transcript.txt ref_sentence_timings=3b1b/captions/2020/exponential-and-epidemics/english/sentence_timings.json 참고해서 scene 구조 설계해줘
 ```
 
 참조 영상 규칙:
 - `ref_video`가 주어지면 그 파일을 우선 참조한다.
-- `ref_video`가 없으면 로컬 `3b1b/_<year>/` 디렉터리에서 현재 ipynb 주제, scene의 핵심 메시지, 필요한 연출 타입이 가장 비슷한 파일을 고른다.
+- `ref_video`가 없으면 로컬 `3b1b/videos`에서 현재 ipynb 주제, scene의 핵심 메시지, 필요한 연출 타입이 가장 비슷한 파일을 고른다.
 - 단순 랜덤 선택은 금지한다.
 - 선택 이유를 한 줄로 남긴다. 예: "질문 나열형 인트로 구조가 유사해서", "표/수식 전개 리듬이 유사해서"
 - 참조 대상을 정했으면, 현재 Scene의 코드 docstring/주석에 어떤 파일을 참조했는지 명시한다.
@@ -205,12 +205,11 @@ Scene 구조 기반 내레이션 스크립트 생성 (한국어).
 - 사용자가 승인하기 전에는 mp3 생성이나 Scene 코드 작성으로 넘어가지 않는다.
 
 ### 2. 오디오 생성 (외부)
-스크립트를 OpenAI gpt-4o-mini-tts로 mp3 변환.
-- 기본 생성 스크립트: `scripts/generate_elevenlabs_audio.mjs` (파일명은 레거시, 내부 구현은 OpenAI API)
-- API 키는 repo root `.env`의 `OPENAI_API_KEY`를 사용한다.
-- model은 `gpt-4o-mini-tts`, output format은 `mp3`를 사용한다.
-- voice 기본값은 `coral`. 변경하려면 `OPENAI_TTS_VOICE` 환경변수로 지정한다 (예: `nova`, `sage`, `ash`, `shimmer`).
-- 톤 지시는 `OPENAI_TTS_INSTRUCTIONS` 환경변수로 전달한다 (예: "차분한 한국어 설명 톤, 12세 청취자가 이해하기 쉽게").
+스크립트를 TTS(ElevenLabs/Piper)로 mp3 변환.
+- 기본 ElevenLabs 생성 스크립트: `scripts/generate_elevenlabs_audio.mjs`
+- API 키는 repo root `.env`의 `ELEVENLABS_API_KEY`를 사용한다.
+- voice_id는 `7Nah3cbXKVmGX7gQUuwz`를 고정으로 사용한다.
+- model은 `eleven_multilingual_v2`, output format은 `mp3_44100_128`을 사용한다.
 - 출력: `videos/{topic}/build/audio/{NN}_{scene_name}.mp3`
 - 동시에 chunk별 timing 메타데이터를 `videos/{topic}/build/audio/{NN}_{scene_name}.timings.json`에 저장한다.
 - 스크립트 파일을 그대로 읽어 음성을 만들고, 파일명은 scene 번호와 scene 이름을 유지한다.
@@ -324,23 +323,17 @@ cd videos/{topic} && ../../.claude/skills/manim-video-pipeline/scripts/mix_bgm.s
   --bgm-volume 0.10
 ```
 
-### OpenAI gpt-4o-mini-tts 오디오 생성
+### ElevenLabs 오디오 생성
 ```bash
 cd .claude/skills/manim-video-pipeline && \
-npm run openai-audio -- --topic {topic} --scene 01 --name {scene_name}
+npm run elevenlabs-audio -- --topic {topic} --scene 01 --name {scene_name}
 ```
 
 직접 script 경로를 줄 수도 있다:
 ```bash
 cd .claude/skills/manim-video-pipeline && \
-npm run openai-audio -- --topic {topic} --scene 01 --name {scene_name} \
+npm run elevenlabs-audio -- --topic {topic} --scene 01 --name {scene_name} \
   --script ../../../videos/{topic}/src/scripts/01_{scene_name}.txt
-```
-
-voice 또는 톤을 바꾸려면 환경변수로:
-```bash
-OPENAI_TTS_VOICE=nova OPENAI_TTS_INSTRUCTIONS="차분한 한국어 설명 톤" \
-  npm run openai-audio -- --topic {topic} --scene 01 --name {scene_name}
 ```
 
 ### 현재 Scene 반복 루프 예시
