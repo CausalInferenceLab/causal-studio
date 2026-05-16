@@ -1,0 +1,23 @@
+Last time we saw that random assignment wipes out bias.
+If the experimenter flips a coin to decide who gets treated, the bias disappears.
+
+But most causal questions in the real world don't let us flip a coin.
+We can't randomly assign smoking to pregnant women.
+We can't randomly decide who gets drafted into the army.
+
+So one question remains.
+If the experimenter can't flip the coin, who can flip it for us?
+
+London, 1854. Dr. John Snow stood in the middle of a city devastated by cholera.
+At the time, two companies supplied water to London homes.
+One drew clean water from upstream, the other drew sewage-mixed water from the lower Thames.
+
+Here's the key.
+Which company served which street had almost nothing to do with a family's income or hygiene.
+It was, for all practical purposes, an accident.
+
+The water pipe network was, in effect, flipping a coin on Snow's behalf.
+
+Today's topic, the instrumental variable or IV,
+is exactly this kind of tool — one that catches accidents that already exist in the world,
+and uses them to pin down a causal effect.
