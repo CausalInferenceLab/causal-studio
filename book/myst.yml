@@ -23,6 +23,18 @@ project:
       file: why_causal_inference/why_causal_inference_en.ipynb
     - file: why_causal_inference/why_causal_inference_ko.ipynb
       hidden: true
+    - title: The Unreasonable Effectiveness of Linear Regression (Minimal)
+      file: regression/05-The-Unreasonable-Effectiveness-of-Linear-Regression_minimal.ipynb
+    - file: regression/05-The-Unreasonable-Effectiveness-of-Linear-Regression_minimal_ko.ipynb
+      hidden: true
+    - title: Grouped and Dummy Regression (Minimal)
+      file: regression/06-Grouped-and-Dummy-Regression_minimal.ipynb
+    - file: regression/06-Grouped-and-Dummy-Regression_minimal_ko.ipynb
+      hidden: true
+    - title: Instrumental Variables in a Nutshell
+      file: iv/iv_en.ipynb
+    - file: iv/iv_ko.ipynb
+      hidden: true
 
 site:
   template: book-theme
