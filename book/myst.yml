@@ -23,6 +23,10 @@ project:
       file: why_causal_inference/why_causal_inference_en.ipynb
     - file: why_causal_inference/why_causal_inference_ko.ipynb
       hidden: true
+    - title: Fuzzy Regression Discontinuity
+      file: rdd/fuzzy_rdd_en.ipynb
+    - file: rdd/fuzzy_rdd_ko.ipynb
+      hidden: true
 
 site:
   template: book-theme
