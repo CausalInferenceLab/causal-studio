@@ -2,36 +2,42 @@
 
 English | [한국어](./CONTRIBUTING-ko_kr.md)
 
-This project mixes a Jupyter Book and local-only Manim video workflows. Keep changes small, explicit, and compatible with both local development and hosted book environments.
+This project combines an executable Jupyter Book with local-only Manim video workflows. Keep changes small and explicit, and make them reproducible in both local and Binder/book environments.
 
 ## Core Rules
 
-1. Use the repo skills first.
-   - Codex workflows live in `.codex/skills/`.
-   - Claude bridge workflows live in `.claude/skills/` when the task matches the documented trigger.
+1. Use repo skills first.
+   - Use `.codex/skills/` for Codex workflows.
+   - Use `.claude/skills/` as the operating source when a task matches one of its triggers.
 
-2. Keep book and video dependencies separated.
-   - `requirements.txt` is the full local environment for book + video work.
-   - `requirements-book.txt` is the minimal runtime for book, Binder, and GitHub Pages style builds.
-   - If a notebook under `book/` imports a package at runtime, update `requirements-book.txt` too.
-   - If Binder needs a system package, update `binder/apt.txt`.
+2. Keep dependency scopes separated.
+   - `requirements.txt`: full local environment for book + video work
+   - `requirements-book.txt`: minimal runtime for book, Binder, and deployed builds
+   - `binder/apt.txt`: system packages needed on Binder
 
-3. Write Binder-safe notebook paths.
+3. Write Binder-safe notebooks.
    - Do not assume the current working directory is the notebook directory.
-   - Prefer paths that work from repo root as well as notebook-local execution.
-   - For packaged data in the book, prefer `pathlib.Path` with a repo-root path and a local fallback when appropriate.
+   - Use paths that work from both the repo root and notebook-local execution.
+   - If a `book/` notebook imports a new package, update `requirements-book.txt` too.
 
-4. Treat local-only assets as local-only.
-   - `3b1b/` and `videos/assets/tabler-icons/` are setup assets, not core repo content.
-   - Do not commit generated caches, renders, or machine-local settings unless the change explicitly requires it.
+4. Do not commit local-only assets.
+   - Exclude `.env`, local settings, generated caches, and rendered outputs by default.
+   - Treat `3b1b/` and `videos/assets/tabler-icons/` as local setup assets.
 
-5. Verify the path you changed.
-   - Book changes: build or otherwise verify the affected book content.
-   - Binder-facing changes: check Binder config and notebook runtime assumptions together.
-   - Video pipeline changes: prefer the bundled skill scripts instead of ad hoc shell rewrites.
+## Notebook Writing Criteria
 
-## Commit Scope
+Pre-video notebooks are video drafts, but they should also have learning value on their own.
 
+- Explain enough. Do not leave core concepts, assumptions, code results, or chart interpretation for the reader to infer.
+- Keep the notebook easy to read and run cell by cell. Avoid `.py`-style structures where many functions and classes are defined far above their use.
+- Allow modest code repetition when it supports the learning flow. Prefer understandable progression over heavy abstraction.
+- Prefer proven libraries over custom implementations.
+- Check whether the topic gains something from video: visualization, comparison, motion, or a clearer visual explanation.
+- The notebook should run from top to bottom without errors.
+
+## Verification And Commits
+
+- Build or otherwise verify changed book content.
+- For Binder-facing changes, check dependencies, paths, and runtime together.
 - Keep unrelated changes out of the same commit.
-- Avoid committing `.env`, local settings, or other machine-specific files.
-- If a change affects published notebooks, include the dependency/config updates in the same PR.
+- If a change affects published notebooks, include related config changes in the same PR.
