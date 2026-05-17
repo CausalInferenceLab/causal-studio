@@ -32,7 +32,7 @@ Pre-video notebooks are video drafts, but they should also have learning value o
 - Keep the notebook easy to read and run cell by cell. Avoid `.py`-style structures where many functions and classes are defined far above their use.
 - Allow modest code repetition when it supports the learning flow. Prefer understandable progression over heavy abstraction.
 - Prefer proven libraries over custom implementations.
-- Check whether the topic gains something from video: visualization, comparison, motion, or a clearer visual explanation.
+- Check whether the topic can be explained better through visualization when made into a video.
 - The notebook should run from top to bottom without errors.
 
 ## Verification And Commits
