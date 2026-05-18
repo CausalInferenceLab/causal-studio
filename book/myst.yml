@@ -22,6 +22,9 @@ project:
     - title: Why Causal Inference?
       file: why_causal_inference/why_causal_inference_en.ipynb
     - file: why_causal_inference/why_causal_inference_ko.ipynb
+    - title: "What is IPW?"
+      file: ipw_basics/what_is_ipw_en.ipynb
+    - file: ipw_basics/what_is_ipw_ko.ipynb
       hidden: true
     - title: "IPW in Practice"
       file: ipw_basics/ipw_in_practice_en.ipynb
