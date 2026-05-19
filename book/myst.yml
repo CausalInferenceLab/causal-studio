@@ -23,6 +23,8 @@ project:
       file: why_causal_inference/why_causal_inference_en.ipynb
     - file: why_causal_inference/why_causal_inference_ko.ipynb
       hidden: true
+    - title: Frontdoor Criterion
+      file: fdc/frontdoor_criterion.ipynb
 
 site:
   template: book-theme
