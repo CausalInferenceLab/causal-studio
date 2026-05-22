@@ -11,6 +11,7 @@ matplotlib
 seaborn
 scikit-learn
 statsmodels
+linearmodels
 duckdb
 dowhy
 graphviz
