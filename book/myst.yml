@@ -23,6 +23,10 @@ project:
       file: why_causal_inference/why_causal_inference_en.ipynb
     - file: why_causal_inference/why_causal_inference_ko.ipynb
       hidden: true
+    - title: "When Confounders Hide | Front-Door Criterion"
+      file: fdc/frontdoor_criterion_en.ipynb
+    - file: fdc/frontdoor_criterion_ko.ipynb
+      hidden: true
 
 site:
   template: book-theme
