@@ -1,0 +1,27 @@
+To make this concrete, imagine we could jump across parallel universes and observe the counterfactual.
+
+With that ability, suppose we collect data from four schools.
+For each school, we can see both their score with a tablet and their score without one.
+
+Treatment T equals 1 for the tablet condition, and Y is the test score as our measure of achievement.
+
+Now that we can observe both Y¹ and Y⁰ for each school,
+we can compute the Individual Treatment Effect directly.
+
+For example, School 1's ITE is negative 50,
+and School 3's ITE is negative 200.
+
+ATE is the average of all these ITEs.
+Add up negative 50, 0, negative 200, and 50 — then divide by 4 — and you get negative 50.
+
+That means tablets, on average, lowered academic achievement by 50 points.
+
+ATT is computed only for the schools that actually received treatment — those with T equals 1.
+In this case, that's Schools 3 and 4.
+
+So ATT is the average of negative 200 and 50, which gives negative 75.
+
+Among the schools that actually got tablets, the average effect was a 75-point drop in scores.
+
+The reason this calculation was easy is that we had access to both
+the factual and counterfactual outcomes for every school.

@@ -1,0 +1,32 @@
+Let's verify this with real data.
+
+We've been using the tablet example, but here we'll look at an actual experiment
+studying how different teaching formats affect academic achievement.
+
+Students were randomly assigned to one of three course formats:
+in-person, fully online, or hybrid.
+The format a student received had nothing to do with their individual characteristics.
+Treatment is the course format; the outcome is the final exam score.
+
+What would happen without randomization?
+Students who choose online courses might be unusually self-motivated.
+Or they might be students who can't commute due to financial hardship.
+Either way, these differences would contaminate the results.
+Randomization removes this bias by design.
+
+Estimating ATE is then straightforward: just compare average scores across groups.
+
+The in-person average is 78.55, and the online average is 73.64.
+The estimated ATE is approximately negative 4.91.
+Online instruction lowered scores by about 5 points on average.
+
+We don't need to worry about whether online students come from lower-income backgrounds,
+or whether they had weaker academic preparation.
+Randomization handled all of that at the design stage.
+
+Of course, we should verify that randomization actually worked.
+Checking whether variables like gender and race are balanced across groups is good practice.
+In this dataset, most variables look balanced.
+The Black student variable shows some imbalance — but with a small sample,
+random chance alone can produce these differences.
+As sample size grows, such imbalances naturally decrease.

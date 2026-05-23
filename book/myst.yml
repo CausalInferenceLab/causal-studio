@@ -19,13 +19,21 @@ project:
     - file: intro_en.md
     - file: intro_ko.md
       hidden: true
-    - title: Why Causal Inference?
-      file: why_causal_inference/why_causal_inference_en.ipynb
-    - file: why_causal_inference/why_causal_inference_ko.ipynb
-      hidden: true
-    - title: "When Confounders Hide | Front-Door Criterion"
-      file: fdc/frontdoor_criterion_en.ipynb
-    - file: fdc/frontdoor_criterion_ko.ipynb
+
+    - title: 📖 Book
+      children:
+        - title: Why Causal Inference?
+          file: why_causal_inference/why_causal_inference_en.ipynb
+        - file: why_causal_inference/why_causal_inference_ko.ipynb
+          hidden: true
+        - title: "When Confounders Hide | Front-Door Criterion"
+          file: fdc/frontdoor_criterion_en.ipynb
+        - file: fdc/frontdoor_criterion_ko.ipynb
+          hidden: true
+
+    - title: 🎬 Videos
+      file: videos_en.md
+    - file: videos_ko.md
       hidden: true
 
 site:

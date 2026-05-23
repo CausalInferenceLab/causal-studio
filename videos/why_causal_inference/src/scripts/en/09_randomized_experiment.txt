@@ -1,0 +1,22 @@
+The answer is randomization.
+
+If treatment is assigned like a coin flip, which school gets a tablet becomes completely unrelated to funding, location, or teacher quality.
+
+The treated and control groups then become comparable on average in every way except treatment.
+
+In notation, potential outcomes Y⁰ and Y¹ become independent of treatment assignment T.
+
+With that single condition, both comparability requirements are automatically satisfied.
+
+First, the expected Y⁰ for the treated group equals the expected Y⁰ for the control group.
+Because of random assignment, the treated schools would have scored just as well as the control schools, had they not received the tablets.
+Bias vanishes.
+
+Second, the expected Y¹ for the treated group equals the expected Y¹ for the control group.
+Both groups respond to treatment in the same way.
+ATT and ATC become equal.
+
+And so the simple mean difference equals ATE.
+
+This is why the Randomized Controlled Trial — the RCT — is called the gold standard for causal inference.
+A single randomization step secures both comparability conditions at once.

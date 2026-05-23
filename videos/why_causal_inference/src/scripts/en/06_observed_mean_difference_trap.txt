@@ -1,0 +1,19 @@
+Now let's come back to reality.
+
+The Y⁰ of treated schools and the Y¹ of control schools are never observed.
+So we can't compute ITE directly — and therefore can't calculate ATE or ATT directly either.
+
+A natural thought at this point is: why not just compare the average scores of the two groups?
+
+Using only the observed scores in our example,
+the treated schools have an average of 600 and 750 — that's 675.
+The control schools average 500 and 600 — that's 550.
+
+The difference is 125.
+Based on simple averages, it looks like tablets raised scores.
+
+But remember: the true ATE from the multiverse was negative 50.
+The sign is completely reversed.
+
+Taking observed associations at face value as causal effects can lead us badly astray.
+So where does this gap come from?
