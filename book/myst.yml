@@ -26,6 +26,10 @@ project:
           file: why_causal_inference/why_causal_inference_en.ipynb
         - file: why_causal_inference/why_causal_inference_ko.ipynb
           hidden: true
+        - title: Who Should Be Treated? | Policy Learning
+          file: who_should_be_treated/who_should_be_treated_en.ipynb
+        - file: who_should_be_treated/who_should_be_treated_ko.ipynb
+          hidden: true
         - title: "When Confounders Hide | Front-Door Criterion"
           file: fdc/frontdoor_criterion_en.ipynb
         - file: fdc/frontdoor_criterion_ko.ipynb
@@ -34,10 +38,6 @@ project:
     - title: 🎬 Videos
       file: videos_en.md
     - file: videos_ko.md
-      hidden: true
-    - title: Policy Learning
-      file: who_should_be_treated/who_should_be_treated_en.ipynb
-    - file: who_should_be_treated/who_should_be_treated_ko.ipynb
       hidden: true
 
 site:
