@@ -2,7 +2,7 @@ version: 1
 
 project:
   title: Causal Studio
-  copyright: "2025"
+  copyright: '2025'
   github: https://github.com/CausalInferenceLab/causal-studio
   license: CC-BY-4.0
   keywords:
@@ -19,16 +19,33 @@ project:
     - file: intro_en.md
     - file: intro_ko.md
       hidden: true
-    - title: Why Causal Inference?
-      file: why_causal_inference/why_causal_inference_en.ipynb
-    - file: why_causal_inference/why_causal_inference_ko.ipynb
-    - title: "What is IPW?"
-      file: ipw_basics/what_is_ipw_en.ipynb
-    - file: ipw_basics/what_is_ipw_ko.ipynb
+
+    - title: 📖 Book
+      children:
+        - title: Why Causal Inference?
+          file: why_causal_inference/why_causal_inference_en.ipynb
+        - file: why_causal_inference/why_causal_inference_ko.ipynb
+          hidden: true
+        - title: "When Confounders Hide | Front-Door Criterion"
+          file: fdc/frontdoor_criterion_en.ipynb
+        - file: fdc/frontdoor_criterion_ko.ipynb
+          hidden: true
+        - title: "What is IPW?"
+          file: ipw_basics/what_is_ipw_en.ipynb
+        - file: ipw_basics/what_is_ipw_ko.ipynb
+          hidden: true
+        - title: "IPW in Practice"
+          file: ipw_basics/ipw_in_practice_en.ipynb
+        - file: ipw_basics/ipw_in_practice_ko.ipynb
+          hidden: true
+
+    - title: 🎬 Videos
+      file: videos_en.md
+    - file: videos_ko.md
       hidden: true
-    - title: "IPW in Practice"
-      file: ipw_basics/ipw_in_practice_en.ipynb
-    - file: ipw_basics/ipw_in_practice_ko.ipynb
+    - title: Policy Learning
+      file: who_should_be_treated/who_should_be_treated_en.ipynb
+    - file: who_should_be_treated/who_should_be_treated_ko.ipynb
       hidden: true
 
 site:
@@ -42,4 +59,4 @@ site:
     logo_text: Causal Studio
     style: ./custom.css
   parts:
-    primary_sidebar_footer: ""
+    primary_sidebar_footer: ''
