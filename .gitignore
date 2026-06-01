@@ -20,6 +20,9 @@ videos/*/preview/
 # Prompts (skills replaced runtime usage)
 /prompts
 
+# Large data files (cached locally, not tracked in git)
+book/fdc/data/
+
 # OS
 .DS_Store
 
@@ -29,6 +32,7 @@ __pycache__/
 *.pyo
 .Python
 .env
+settings.local.json
 env/
 venv/
 .venv/

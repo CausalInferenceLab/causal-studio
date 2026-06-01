@@ -1,10 +1,20 @@
+<a id="top"></a>
+
 # Causal Studio
 
-English | [한국어](./README-ko_kr.md)
+🌐 Language: English | [한국어](./README-ko_kr.md)
 
-A repository for managing a causal inference codebook (Jupyter Book) and Manim educational videos together.
+A platform providing educational videos and executable notebooks on causal inference.
+
+- Book: <https://causalinferencelab.github.io/causal-studio/>
+- YouTube: <https://www.youtube.com/@CausalStudio>
 
 Project working rules: [CONTRIBUTING.md](./CONTRIBUTING.md) | [한국어](./CONTRIBUTING-ko_kr.md)
+
+## How to Learn
+
+1. Watch the videos: Learn each chapter through clear visual explanations.
+2. Run and explore the notebooks: Practice hands-on in Binder or Colab, then build a deeper understanding with the notebook code and explanations.
 
 ## Repository Structure
 
@@ -33,27 +43,6 @@ Install local video assets     → video-assets-setup skill
 `video-assets-setup` clones the following repos locally (not git-tracked):
 - `3b1b/` — 3b1b/videos reference
 - `videos/assets/tabler-icons/` — Tabler Icons
-
-## Skills
-
-| Skill | Description |
-|---|---|
-| `python-setup` | Create `.venv` and install initial dependencies |
-| `video-assets-setup` | Install/update `3b1b/` and `tabler-icons/` local assets |
-| `pip-install` | Install package in `.venv` and sync `requirements.txt` |
-| `book-serve` | Run Jupyter Book local server |
-| `book-publish` | Add notebook to book TOC and verify build |
-| `ipynb-to-english` | Translate Korean notebook to English `_en.ipynb` |
-| `ipynb-youtube-embed` | Embed a YouTube iframe into a notebook (with pre-stored output for Jupyter Book) |
-| `manim-video-pipeline` | Scene design / script / render / audio / mux / concat |
-| `manim-thumbnail` | Generate a 3b1b-style YouTube thumbnail PNG with Manim |
-| `git-commit` | Analyze changes and commit |
-| `git-pr` | Create pull request |
-| `skill-creator` | Create or update project skills |
-| `deep-research` | Multi-source deep research → cited brief saved to `research/<slug>/` |
-| `literature-review` | Systematic literature survey with evidence table → `research/<slug>/` |
-| `peer-review` | Peer review simulation with FATAL/MAJOR/MINOR severity → `research/<slug>-review/` |
-| `source-comparison` | Comparison matrix across sources, methods, or tools → `research/<slug>/` |
 
 ## CI/CD
 

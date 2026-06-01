@@ -1,0 +1,25 @@
+So when does association become causation?
+
+Recall the decomposition: observed mean difference equals ATT plus bias.
+
+For observed association to equal the causal effect, the bias term must be zero.
+
+In notation, this means the expected Y⁰ for the treated group must equal the expected Y⁰ for the control group.
+
+Intuitively: the schools that received tablets,
+had they not received them,
+should have scored about the same as the schools that didn't receive tablets.
+
+In other words, the two groups must be comparable in everything except the treatment itself.
+
+When this condition holds, bias disappears,
+and the simple mean difference equals ATT.
+
+Going one step further — if treated and control groups would respond similarly to the treatment,
+ATT and ATC become equal.
+
+And then the simple mean difference equals ATE as well.
+
+To summarize: comparability is what turns association into causation.
+
+One question remains: how do we actually create comparable groups in the real world?

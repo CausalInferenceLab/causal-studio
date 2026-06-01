@@ -1,0 +1,21 @@
+Now let's go beyond intuition and set up the notation we need to talk about causal effects.
+
+First, T_i indicates whether unit i received the treatment.
+It equals 1 if treated, and 0 if not.
+In our example, giving a student a tablet is the treatment.
+
+Next, Y_i is the outcome variable — what we're trying to measure.
+Here, it's academic achievement.
+We want to know whether the treatment affected that outcome.
+
+But this is where a fundamental problem arises.
+We can't observe the same student in both worlds — one where they got a tablet and one where they didn't.
+Only one outcome exists in reality.
+
+To handle this, we introduce the idea of potential outcomes.
+Y¹_i is the potential outcome for student i if they received the tablet.
+Y⁰_i is the potential outcome for that same student if they did not.
+
+Both values are possible — but only one is ever observed.
+The one that actually happened is called the factual.
+The other, the road not taken, is the counterfactual.

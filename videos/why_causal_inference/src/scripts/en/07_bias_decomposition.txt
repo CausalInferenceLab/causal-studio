@@ -1,0 +1,32 @@
+The gap exists because the simple mean difference contains bias.
+
+Let's think about it intuitively using our tablet example.
+
+To the claim "schools with tablets have higher test scores," you might counter:
+"Those schools would have scored well anyway.
+They had better funding, better teachers, and better facilities to begin with."
+The two groups weren't comparable to start with.
+
+In the language of potential outcomes, this means:
+even without the tablet, the treated schools would likely have outperformed the control schools.
+
+Let's verify this with math.
+The observed association we can compute from data can be decomposed.
+
+By adding and subtracting Y⁰ for the treated group, the simple mean difference splits into two parts.
+
+One part is the actual causal effect among the treated — the ATT.
+The other is the bias: how different the two groups were to begin with, even without treatment.
+
+In other words: simple mean difference equals ATT plus bias.
+
+Bias measures how much the groups differed in their baseline potential outcomes.
+It arises because factors like school funding, location, and teacher quality
+affect both who gets treated and what the outcome is.
+
+Variables that influence both treatment and outcome are called confounders.
+
+To estimate the causal effect correctly, we need to eliminate this bias.
+That means the two groups should be comparable on average — everything except the treatment.
+
+This is the central challenge of causal inference.
