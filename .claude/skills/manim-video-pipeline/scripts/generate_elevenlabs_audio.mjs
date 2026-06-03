@@ -6,11 +6,10 @@ import path from "node:path";
 import process from "node:process";
 import { spawn } from "node:child_process";
 
-import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
-
-const VOICE_ID = "7Nah3cbXKVmGX7gQUuwz";
-const MODEL_ID = "eleven_multilingual_v2";
-const OUTPUT_FORMAT = "mp3_44100_128";
+const MODEL_ID = "gpt-4o-mini-tts";
+const VOICE = process.env.OPENAI_TTS_VOICE || "coral";
+const OUTPUT_FORMAT = "mp3";
+const INSTRUCTIONS = process.env.OPENAI_TTS_INSTRUCTIONS || "";
 
 function printUsage() {
   console.log(`Usage:
@@ -59,8 +58,15 @@ async function readText(scriptPath, directText) {
   return raw.trim();
 }
 
+function stripComments(text) {
+  return text
+    .split(/\r?\n/)
+    .filter((line) => !/^\s*#/.test(line))
+    .join("\n");
+}
+
 function splitIntoChunks(text, maxChars = 650) {
-  const paragraphs = text
+  const paragraphs = stripComments(text)
     .split(/\n\s*\n/g)
     .map((part) => part.replace(/\s+/g, " ").trim())
     .filter(Boolean);
@@ -95,22 +101,40 @@ function splitIntoChunks(text, maxChars = 650) {
 async function ensureEnv(repoRoot) {
   const envPath = path.join(repoRoot, ".env");
   process.loadEnvFile(envPath);
-  const apiKey = process.env.ELEVENLABS_API_KEY;
+  const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
-    throw new Error(`ELEVENLABS_API_KEY not found in ${envPath}`);
+    throw new Error(`OPENAI_API_KEY not found in ${envPath}`);
   }
   return apiKey;
 }
 
-async function streamToBuffer(stream) {
-  const reader = stream.getReader();
-  const chunks = [];
-  while (true) {
-    const { done, value } = await reader.read();
-    if (done) break;
-    chunks.push(Buffer.from(value));
+async function synthesizeSpeechChunk(apiKey, text) {
+  const payload = {
+    model: MODEL_ID,
+    voice: VOICE,
+    input: text,
+    response_format: OUTPUT_FORMAT,
+  };
+  if (INSTRUCTIONS) {
+    payload.instructions = INSTRUCTIONS;
   }
-  return Buffer.concat(chunks);
+
+  const response = await fetch("https://api.openai.com/v1/audio/speech", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(payload),
+  });
+
+  if (!response.ok) {
+    const body = await response.text();
+    throw new Error(`Status code: ${response.status}\nBody: ${body}`);
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
+  return Buffer.from(arrayBuffer);
 }
 
 async function runFfmpeg(fileListPath, outputPath) {
@@ -217,7 +241,8 @@ async function main() {
       scriptPath,
       outputPath,
       timingsPath,
-      voiceId: VOICE_ID,
+      provider: "openai",
+      voice: VOICE,
       modelId: MODEL_ID,
       outputFormat: OUTPUT_FORMAT,
       charCount: text.length,
@@ -228,7 +253,6 @@ async function main() {
   }
 
   const apiKey = await ensureEnv(repoRoot);
-  const client = new ElevenLabsClient({ apiKey });
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "elevenlabs-scene-"));
   const chunkPaths = [];
 
@@ -280,7 +304,8 @@ async function main() {
         sceneName,
         scriptPath,
         outputPath,
-        voiceId: VOICE_ID,
+        provider: "openai",
+        voice: VOICE,
         modelId: MODEL_ID,
         outputFormat: OUTPUT_FORMAT,
         totalDuration: mergedDuration,
