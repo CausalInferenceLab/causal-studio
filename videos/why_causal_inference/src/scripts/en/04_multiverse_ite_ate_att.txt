@@ -1,0 +1,13 @@
+With the idea of potential outcomes, we can define the Individual Treatment Effect, or ITE.
+
+ITE is the difference in test scores for a single school — with the tablet versus without.
+That's Y¹ minus Y⁰.
+
+It's intuitively clear, but since the counterfactual is unobservable, ITE can't be calculated directly.
+
+So in practice, we work with the Average Treatment Effect, or ATE —
+the average difference between treated and control units across the entire population.
+
+There's also ATT: the Average Treatment effect on the Treated.
+Rather than looking at everyone, ATT asks: for the units that actually received treatment,
+how effective was it?

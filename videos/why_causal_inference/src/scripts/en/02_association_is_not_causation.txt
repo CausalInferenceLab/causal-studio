@@ -1,0 +1,9 @@
+Intuitively, it's not hard to see why correlation isn't causation.
+
+Say schools with tablets have higher test scores.
+But what if the schools that adopted tablets were already better funded —
+with more tutoring programs and better-staffed classrooms?
+Those students would have done well even without the tablets.
+
+So we can't immediately conclude that tablets improve learning.
+All we can say is that there's an association between tablets and higher test scores.

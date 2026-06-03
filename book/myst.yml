@@ -19,9 +19,35 @@ project:
     - file: intro_en.md
     - file: intro_ko.md
       hidden: true
-    - title: Why Causal Inference?
-      file: why_causal_inference/why_causal_inference_en.ipynb
-    - file: why_causal_inference/why_causal_inference_ko.ipynb
+
+    - title: 📖 Book
+      children:
+        - title: Why Causal Inference?
+          file: why_causal_inference/why_causal_inference_en.ipynb
+        - file: why_causal_inference/why_causal_inference_ko.ipynb
+          hidden: true
+        - title: IPW
+          children:
+            - title: Basics
+              file: ipw/basics_en.ipynb
+            - file: ipw/basics_ko.ipynb
+              hidden: true
+            - title: Practice
+              file: ipw/practice_en.ipynb
+            - file: ipw/practice_ko.ipynb
+              hidden: true
+        - title: Policy Learning
+          file: policy_learning/policy_learning_en.ipynb
+        - file: policy_learning/policy_learning_ko.ipynb
+          hidden: true
+        - title: Front-Door Criterion
+          file: frontdoor/frontdoor_en.ipynb
+        - file: frontdoor/frontdoor_ko.ipynb
+          hidden: true
+
+    - title: 🎬 Videos
+      file: videos_en.md
+    - file: videos_ko.md
       hidden: true
     - title: The Unreasonable Effectiveness of Linear Regression (Minimal)
       file: regression/05-The-Unreasonable-Effectiveness-of-Linear-Regression_minimal.ipynb

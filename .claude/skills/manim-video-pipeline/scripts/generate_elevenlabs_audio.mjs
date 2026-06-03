@@ -13,15 +13,17 @@ const INSTRUCTIONS = process.env.OPENAI_TTS_INSTRUCTIONS || "";
 
 function printUsage() {
   console.log(`Usage:
-  node scripts/generate_elevenlabs_audio.mjs --topic TOPIC --scene 01 --name scene_name [--script PATH]
+  node scripts/generate_elevenlabs_audio.mjs --topic TOPIC --scene 01 --name scene_name [--lang LANG] [--script PATH]
   node scripts/generate_elevenlabs_audio.mjs --topic TOPIC --scene 01 --name scene_name --text "..."
 
 Options:
   --topic      topic directory under videos/
   --scene      scene number, e.g. 01
   --name       scene snake_case name
-  --script     explicit script file path
+  --lang       language code, e.g. ko (default) or en — affects script/audio subfolder
+  --script     explicit script file path (overrides --lang-based default)
   --text       direct text input instead of a script file
+  --speed      TTS speed multiplier (default: 1.0, range: 0.7–1.2)
   --dry-run    validate paths and print output target without API call
   --help       show this message`);
 }
@@ -205,6 +207,7 @@ async function main() {
   const topic = args.topic;
   const scene = args.scene;
   const sceneName = args.name;
+  const speed = args.speed ? Number.parseFloat(args.speed) : 1.0;
   const dryRun = Boolean(args["dry-run"]);
 
   if (!topic || !scene || !sceneName) {
@@ -254,7 +257,13 @@ async function main() {
   const chunkPaths = [];
 
   for (let i = 0; i < chunks.length; i += 1) {
-    const buffer = await synthesizeSpeechChunk(apiKey, chunks[i]);
+    const audioStream = await client.textToSpeech.convert(VOICE_ID, {
+      text: chunks[i],
+      modelId: MODEL_ID,
+      outputFormat: OUTPUT_FORMAT,
+      voiceSettings: { speed },
+    });
+    const buffer = await streamToBuffer(audioStream);
     const chunkPath = path.join(tempDir, `${String(i + 1).padStart(2, "0")}.mp3`);
     await fs.writeFile(chunkPath, buffer);
     chunkPaths.push(chunkPath);

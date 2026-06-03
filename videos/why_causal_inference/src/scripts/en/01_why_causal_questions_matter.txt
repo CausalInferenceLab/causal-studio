@@ -1,0 +1,17 @@
+Why should we care about causal inference?
+
+At its core, causal inference is about answering "what if" questions.
+
+Consider an education policy decision.
+With a limited budget, should we give every student a tablet?
+Or would it be better to spend the same money on libraries and learning spaces?
+
+The heart of this question is causal — not just descriptive.
+
+And questions like this are everywhere.
+Does higher education actually increase income?
+Does raising cigarette prices reduce smoking rates?
+Does a new ad campaign really drive more sales?
+
+We encounter causal questions constantly, across every field.
+Yet while "correlation is not causation" is a familiar saying, explaining exactly why is not so easy.

@@ -1,0 +1,22 @@
+RCTs are simple and powerful — but they're not always possible in the real world.
+
+The costs can be prohibitive, the design ethically impossible,
+or the intervention too large-scale to control.
+We can't randomly assign pregnant women to smoke, for example,
+just because we want to know how smoking affects birth weight.
+
+Even so, when approaching a causal question, it always helps to ask:
+"If we could run the ideal experiment, how would we design it?"
+That thought experiment becomes a benchmark for observational research.
+
+This is where quasi-experimental methods come in.
+We can't directly secure the independence between treatment and potential outcomes that an RCT provides —
+but we can think carefully about which covariates to control,
+and design our comparison to make treatment assignment look as good as random.
+
+The methods ahead — matching, difference-in-differences, synthetic control,
+instrumental variables, and regression discontinuity —
+are each a different way of satisfying that core assumption.
+
+Different tools, one goal: making groups comparable.
+That single objective is the unifying thread running through all of causal inference.

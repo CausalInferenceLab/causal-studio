@@ -58,29 +58,29 @@ Manim CE 기반 교육 영상 제작 워크플로우.
 
 ## 프로젝트 구조
 
+언어별 영상을 지원한다. 기본 언어는 `ko`(한국어)이며, `en`(영어) 등 추가 언어를 병행 제작할 수 있다.
+
 ```text
 videos/{topic}/
 ├── src/
-│   ├── {topic}.py              # Manim Scene 클래스 모음
+│   ├── {topic}_ko.py           # 한국어 버전 Manim Scene 클래스 모음
+│   ├── {topic}_en.py           # 영어 버전 Manim Scene 클래스 모음
 │   └── scripts/
-│       ├── 01_{scene_name}.txt # 씬별 내레이션 스크립트
-│       └── ...
-├── preview/
-│   ├── 01_{scene_name}_mux.mp4
-│   └── ...
-└── build/
-    ├── manim/                  # Manim 내부 캐시/중간 산출물 전용
-    │   ├── Tex/
-    │   ├── texts/
-    │   ├── images/
-    │   └── videos/
+│       ├── ko/                 # 한국어 내레이션 스크립트 (커밋됨)
+│       │   ├── 01_{scene_name}.txt
+│       │   └── ...
+│       └── en/                 # 영어 내레이션 스크립트 (커밋됨)
+│           ├── 01_{scene_name}.txt
+│           └── ...
+└── build/                      # gitignore — 작업자가 자유롭게 관리
+    ├── manim/
     ├── audio/
-    │   ├── 01_{scene_name}.mp3 # 씬별 오디오 (TTS 생성)
-    │   └── ...
     └── final/
-        ├── 01_{scene_name}_hq.mp4
-        └── {topic}_full.mp4
 ```
+
+- `src/scripts/ko/`, `src/scripts/en/`은 커밋되는 소스 파일이다.
+- `build/`는 gitignore이므로 언어별 하위 폴더 구조는 작업자가 자유롭게 결정한다.
+- 영어 버전 `.py`가 추가되기 전에는 `src/{topic}.py`(한국어 단일 파일)를 그대로 써도 된다.
 
 ## 관련 코드북 노트북
 
@@ -307,7 +307,8 @@ Scene 구조 기반 내레이션 스크립트 생성 (한국어).
 
 ### Scene 렌더
 ```bash
-cd videos/{topic} && manim -pql --media_dir build/manim src/{topic}.py Scene{NN}_{ClassName}
+# 언어별 py 파일 사용 (예: _en, _ko suffix)
+cd videos/{topic} && manim -pql --media_dir build/manim src/{topic}_{lang}.py Scene{NN}_{ClassName}
 ```
 
 ### 오디오 합성
@@ -318,23 +319,18 @@ cd videos/{topic} && manim -pql --media_dir build/manim src/{topic}.py Scene{NN}
 ### 최종 합본 + BGM
 ```bash
 cd videos/{topic} && ../../.claude/skills/manim-video-pipeline/scripts/mix_bgm.sh \
-  build/final/{topic}_full.mp4 \
+  build/final/{lang}/{topic}_{lang}_full.mp4 \
   path/to/bgm.mp3 \
-  build/final/{topic}_full_bgm.mp4 \
+  build/final/{lang}/{topic}_{lang}_full_bgm.mp4 \
   --bgm-volume 0.10
 ```
 
-### OpenAI gpt-4o-mini-tts 오디오 생성
+### ElevenLabs 오디오 생성
+`--script`로 언어별 scripts 경로를 명시한다. build 출력 위치는 작업자가 자유롭게 관리한다:
 ```bash
 cd .claude/skills/manim-video-pipeline && \
-npm run openai-audio -- --topic {topic} --scene 01 --name {scene_name}
-```
-
-직접 script 경로를 줄 수도 있다:
-```bash
-cd .claude/skills/manim-video-pipeline && \
-npm run openai-audio -- --topic {topic} --scene 01 --name {scene_name} \
-  --script ../../../videos/{topic}/src/scripts/01_{scene_name}.txt
+npm run elevenlabs-audio -- --topic {topic} --scene 01 --name {scene_name} \
+  --script ../../../videos/{topic}/src/scripts/{lang}/01_{scene_name}.txt
 ```
 
 voice 또는 톤을 바꾸려면 환경변수로:
@@ -346,18 +342,18 @@ OPENAI_TTS_VOICE=nova OPENAI_TTS_INSTRUCTIONS="차분한 한국어 설명 톤" \
 ### 현재 Scene 반복 루프 예시
 ```bash
 # 1) Scene 01 코드 작성 후 debug 렌더
-cd videos/{topic} && manim -pql --media_dir build/manim src/{topic}.py Scene01_{ClassName}
+cd videos/{topic} && manim -pql --media_dir build/manim src/{topic}_{lang}.py Scene01_{ClassName}
 
 # 2) mp3를 받은 뒤 480p 테스트 mux (build/manim 결과 직접 사용)
 ../../.claude/skills/manim-video-pipeline/scripts/mux_audio.sh \
-  build/manim/videos/{topic}/480p15/Scene01_{ClassName}.mp4 \
-  build/audio/01_{scene_name}.mp3 \
-  preview/01_{scene_name}_mux.mp4
+  build/manim/videos/{topic}_{lang}/480p15/Scene01_{ClassName}.mp4 \
+  build/audio/{lang}/01_{scene_name}.mp3 \
+  preview/{lang}/01_{scene_name}_mux.mp4
 
-# 4) 사용자가 만족하면 고화질 저장
-manim -pqh --media_dir build/manim src/{topic}.py Scene01_{ClassName}
-# 또는 고화질 렌더 결과와 오디오를 mux하여
-# build/final/01_{scene_name}_hq.mp4 로 저장
+# 3) 사용자가 만족하면 고화질 저장
+manim -pqh --media_dir build/manim src/{topic}_{lang}.py Scene01_{ClassName}
+# 고화질 렌더 결과와 오디오를 mux하여
+# build/final/{lang}/01_{scene_name}_hq.mp4 로 저장
 ```
 
 ### 전체 합본
