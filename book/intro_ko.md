@@ -25,7 +25,8 @@ YouTube에서도 영상 시리즈를 볼 수 있습니다: <https://www.youtube.
       </td>
       <td align="center" valign="top" width="33.33%">
         <b>손지우</b><br />
-        <a href="https://github.com/bungaedm">GitHub</a>
+        <a href="https://github.com/bungaedm">GitHub</a> ·
+        <a href="https://www.linkedin.com/in/jiwoo-son-3207021a7/">LinkedIn</a>
       </td>
       <td align="center" valign="top" width="33.33%">
         <b>김정현</b><br />

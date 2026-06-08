@@ -63,6 +63,14 @@ project:
       file: videos_en.md
     - file: videos_ko.md
       hidden: true
+    - title: RDD Basics
+      file: rdd/01_rdd_basic_en.ipynb
+    - file: rdd/01_rdd_basic_ko.ipynb
+      hidden: true
+    - title: Fuzzy RDD
+      file: rdd/02_fuzzy_rdd_en.ipynb
+    - file: rdd/02_fuzzy_rdd_ko.ipynb
+      hidden: true
 
 site:
   template: book-theme
