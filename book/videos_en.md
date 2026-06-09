@@ -15,4 +15,15 @@
     <p style="margin-top:8px; font-size:0.9rem; color:#555;">Through counterfactuals and potential outcomes, explains why correlation isn't causation — and how RCTs solve it.</p>
   </div>
 
+  <div style="width:45%; margin-bottom:24px; margin-right:24px;">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Regression Discontinuity Design (RDD)</h3>
+    <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden;">
+      <iframe src="https://www.youtube.com/embed/Rpd3k6Boftk?si=U5iX_8BKKK29qiNh"
+        style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+    <p style="margin-top:8px; font-size:0.9rem; color:#555;">Introduces regression discontinuity design and how cutoff-based assignment can support causal comparison near a threshold.</p>
+  </div>
+
 </div>

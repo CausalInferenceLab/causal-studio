@@ -36,6 +36,16 @@ project:
               file: regression/grouped_dummy_regression_en.ipynb
             - file: regression/grouped_dummy_regression_ko.ipynb
               hidden: true
+        - title: RDD
+          children:
+            - title: Basics
+              file: rdd/rdd_basic_en.ipynb
+            - file: rdd/rdd_basic_ko.ipynb
+              hidden: true
+            - title: Fuzzy RDD
+              file: rdd/fuzzy_rdd_en.ipynb
+            - file: rdd/fuzzy_rdd_ko.ipynb
+              hidden: true
         - title: IPW
           children:
             - title: Basics
@@ -62,14 +72,6 @@ project:
     - title: 🎬 Videos
       file: videos_en.md
     - file: videos_ko.md
-      hidden: true
-    - title: RDD Basics
-      file: rdd/01_rdd_basic_en.ipynb
-    - file: rdd/01_rdd_basic_ko.ipynb
-      hidden: true
-    - title: Fuzzy RDD
-      file: rdd/02_fuzzy_rdd_en.ipynb
-    - file: rdd/02_fuzzy_rdd_ko.ipynb
       hidden: true
 
 site:
