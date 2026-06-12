@@ -26,4 +26,15 @@
     <p style="margin-top:8px; font-size:0.9rem; color:#555;">임계값 근처의 비교를 활용해 처치 효과를 추정하는 regression discontinuity design의 핵심 아이디어를 소개합니다.</p>
   </div>
 
+  <div style="width:45%; margin-bottom:24px; margin-right:24px;">
+    <h3 style="font-size:1rem; margin-bottom:8px;">역확률 가중치 (Inverse Probability Weighting, IPW)</h3>
+    <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden;">
+      <iframe src="https://www.youtube.com/embed/eUBoSXqsrOE?si=KBHrZhPsrTX5L821"
+        style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen></iframe>
+    </div>
+    <p style="margin-top:8px; font-size:0.9rem; color:#555;">처치 확률의 역수로 표본에 가중치를 부여해 교란을 보정하고 처치 효과를 추정하는 IPW의 핵심 아이디어를 소개합니다.</p>
+  </div>
+
 </div>
