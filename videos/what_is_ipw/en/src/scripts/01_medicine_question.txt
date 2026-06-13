@@ -1,0 +1,33 @@
+Let's look at an example.
+
+If you take a cold medicine and recover in a few days, you naturally think it was thanks to the medicine.
+
+But was it really because of the medicine?
+
+Today, we'll talk about how to tell whether a difference we see is truly caused by that factor.
+
+It does feel obvious that taking medicine helps you recover faster.
+
+And checking it seems simple. We just compare the recovery time of people who took the medicine with those who didn't.
+
+Let's look at data from one hospital.
+
+People who took the medicine recovered in 5.6 days on average. But people who didn't take it recovered in just 4.7 days.
+
+So the group that took the medicine was actually sick 0.9 days longer. At this rate, the medicine looks harmful.
+
+But is that really true? This is exactly where the trap is.
+
+This time, let's split the patients into severe and mild cases.
+
+First, the severe patients. With the medicine, recovery took 7 days on average; without it, 8 days. So the medicine sped up recovery by one day.
+
+What about the mild patients? With the medicine, recovery took 2 days; without it, 3 days. Here too, the medicine cut recovery by a day.
+
+Isn't that strange? In both severe and mild cases, the medicine clearly sped up recovery.
+
+But when we combine them and look at the whole, the result flips, and the medicine looks harmful instead.
+
+Why on earth does this happen?
+
+To solve this puzzle, today we'll explore IPW.

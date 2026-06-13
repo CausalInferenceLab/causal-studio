@@ -1,0 +1,25 @@
+Now let's generalize what we just did with a formula.
+
+Let's check just a few symbols together.
+
+T indicates whether the medicine was taken: 1 if taken, 0 if not.
+
+X represents the patient's state, that is, whether they are severe or mild.
+
+And we'll write the probability that a person in state X takes the medicine as follows.
+
+Now let's define the weight. We give the reciprocal of the probability of the event that actually happened.
+
+For a person who took the medicine, we give the reciprocal of the probability of taking it.
+
+For a person who didn't take it, we give the reciprocal of the probability of not taking it, that is, one minus the probability of taking it.
+
+The rarer the event, the smaller its probability, so its reciprocal, the weight, becomes larger.
+
+Shall we combine these two cases into a single formula?
+
+The left term is for people who took the medicine, and the right term is for people who didn't.
+
+If T is 1, only the left term remains; if T is 0, only the right term remains.
+
+This way, each person is given exactly one weight that fits their own case.

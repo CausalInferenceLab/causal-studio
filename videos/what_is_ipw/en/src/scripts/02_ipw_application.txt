@@ -1,0 +1,71 @@
+Let's revisit the problem we just saw.
+
+In both severe and mild patients, the medicine clearly sped up recovery by one day each.
+
+But looking at the whole, the group that took the medicine actually takes 0.9 days longer to recover. The effect is completely reversed.
+
+When we split the data the medicine clearly helps, but when we combine it the medicine looks worse. This phenomenon is called Simpson's Paradox.
+
+So why does this happen?
+
+Let's take a look at the makeup of each group.
+
+The group that took the medicine was originally packed with severe patients, who recover slowly.
+
+On the other hand, the group that didn't take it had many mild patients, who recover quickly.
+
+From the start, the makeup of the two groups was completely different.
+
+So the group that took the medicine looked slower to recover overall, and the medicine appeared harmful, flipping the result.
+
+A variable that affects both whether you take the medicine and your recovery time is called a confounder.
+
+In other words, being severe or mild is the confounder here.
+
+So what should we do?
+
+The key idea is simple.
+
+We imagine what it would look like if the two groups had the same ratio of severe and mild patients from the start.
+
+We don't change the data itself. Instead, we give each person a weight.
+
+First, let's find each patient's probability of taking the medicine.
+
+Let's mark each patient with a circle, and color in only those who took the medicine.
+
+Among the six severe patients, five took the medicine. So the probability that a severe person takes it is five out of six, about 83 percent.
+
+Among the mild patients, two of four took it, so that probability is two out of four, that is, 50 percent.
+
+Now we use the reciprocal of this probability as the weight.
+
+Common cases get a small weight, and rare cases get a large weight.
+
+For example, a severe person who took the medicine gets 1.2 times, while one who didn't take it gets 6 times the weight.
+
+For mild patients, the two sides are similar, so we multiply both by 2.
+
+Once we apply these weights, the ratio of severe to mild becomes the same in both groups.
+
+A rare person with a large weight comes to represent several people, while a common person with a small weight has less influence.
+
+Then, as if the patients had been fairly divided from the start, the data becomes balanced.
+
+This method is called Inverse Probability Weighting, or IPW.
+
+Now we just compare the averages again on the balanced data.
+
+We multiply each person's recovery days by their weight, add them all up, and divide by the sum of the weights.
+
+Doing this, the weighted average for the group that took the medicine is 5 days.
+
+And the weighted average for the group that didn't take it is 6 days.
+
+Now the group that took the medicine recovers one day faster. The medicine that looked harmful was actually speeding up recovery by a day.
+
+Only after removing the effect of severe and mild does the medicine's true, hidden effect appear.
+
+In this way, IPW reweights the data as if the medicine had been randomly assigned from the start.
+
+Now we can compare the data in a balanced way, just like a randomized experiment.

@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { spawn } from "node:child_process";
+import dotenv from "dotenv";
 
 import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 
@@ -94,7 +95,7 @@ function splitIntoChunks(text, maxChars = 650) {
 
 async function ensureEnv(repoRoot) {
   const envPath = path.join(repoRoot, ".env");
-  process.loadEnvFile(envPath);
+  dotenv.config({ path: envPath });
   const apiKey = process.env.ELEVENLABS_API_KEY;
   if (!apiKey) {
     throw new Error(`ELEVENLABS_API_KEY not found in ${envPath}`);
