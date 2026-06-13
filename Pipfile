@@ -1,0 +1,20 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+jupyter-book = ">=2.0.0"
+manim = ">=0.18.0"
+numpy = "*"
+pandas = "*"
+matplotlib = "*"
+seaborn = "*"
+scikit-learn = "*"
+statsmodels = "*"
+graphviz = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.11"
