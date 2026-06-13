@@ -1,0 +1,20 @@
+If we look closely at how the tablet assignment moves schools, three types appear.
+
+First, compliers.
+If the coin says treatment, they use the tablet. If it says control, they don't.
+These schools follow the coin faithfully.
+
+Second, always-takers.
+No matter how the coin lands, they end up with a tablet somehow.
+Treatment or control, they're using the tablet either way.
+
+Third, never-takers.
+Even if the coin says treatment, they refuse.
+No matter the assignment, they don't use the tablet.
+
+If you've already caught the key idea, you deserve a round of applause.
+Only the compliers change their behavior based on the coin.
+The other two types do the same thing regardless of what the coin says.
+
+So the comparison the coin creates is, in fact, limited to compliers.
+In the literature, this is called LATE — the Local Average Treatment Effect.

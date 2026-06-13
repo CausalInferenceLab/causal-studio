@@ -1,0 +1,18 @@
+So how do we actually compute this LATE in numbers? The formula is surprisingly simple.
+
+First, we compare average scores across coin outcomes.
+We take the average score of schools assigned to treatment, and subtract the average score of schools assigned to control.
+Since the coin was random, this difference is a candidate for the causal effect.
+
+But this difference usually comes out small. Why?
+Because only the compliers followed the coin.
+Always-takers and never-takers behaved the same in both groups, so they create no difference between them.
+
+So we divide this difference by the share of people the coin actually moved.
+
+What goes in the denominator?
+We take the share of schools that actually used tablets among those assigned to treatment, minus the share that used tablets among those assigned to control.
+That's the share of compliers.
+
+This ratio — the score difference divided by the share of compliers — is called the Wald estimator.
+Intuitively, it converts the effect the coin produced back into the effect on one mover.

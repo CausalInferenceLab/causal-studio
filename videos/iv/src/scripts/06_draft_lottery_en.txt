@@ -1,0 +1,15 @@
+This trick isn't just for small experiments. It works at national scale too.
+
+The United States, 1969. To draft people for the Vietnam War, a lottery system was introduced.
+Balls labeled with all 365 birthdays were drawn in bingo fashion, and the lowest numbers were called up first.
+Your birthday is something you can't choose. And the lottery number had no relation to your education or job.
+It was a perfect coin flipped by nature.
+
+The economist Joshua Angrist used this lottery as an instrumental variable.
+The question was this: what's the effect of military service on lifetime earnings?
+
+Simply comparing veterans to non-veterans gives you bias.
+People who chose to serve and people who avoided service were already different to begin with.
+
+If you use the lottery number as an instrument, you isolate the part that chance actually moved, and you get a clean effect.
+John Snow's water company trick worked, a century later, in the American labor market too.

@@ -2,6 +2,10 @@
 a.myst-toc-item[href$="/intro-ko"],
 a.myst-toc-item[href$="/intro-ko/"],
 a.myst-toc-item[href$="/why-causal-inference-ko"],
-a.myst-toc-item[href$="/why-causal-inference-ko/"] {
+a.myst-toc-item[href$="/why-causal-inference-ko/"],
+a.myst-toc-item[href$="/regression/05-the-unreasonable-effectiveness-of-linear-regression-minimal-ko"],
+a.myst-toc-item[href$="/regression/05-the-unreasonable-effectiveness-of-linear-regression-minimal-ko/"],
+a.myst-toc-item[href$="/regression/06-grouped-and-dummy-regression-minimal-ko"],
+a.myst-toc-item[href$="/regression/06-grouped-and-dummy-regression-minimal-ko/"] {
   display: none !important;
 }

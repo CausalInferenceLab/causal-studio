@@ -25,7 +25,8 @@ Main contributors of this project are:
       </td>
       <td align="center" valign="top" width="33.33%">
         <b>Jiwoo Son</b><br />
-        <a href="https://github.com/bungaedm">GitHub</a>
+        <a href="https://github.com/bungaedm">GitHub</a> ·
+        <a href="https://www.linkedin.com/in/jiwoo-son-3207021a7/">LinkedIn</a>
       </td>
       <td align="center" valign="top" width="33.33%">
         <b>Junghyun Kim</b><br />

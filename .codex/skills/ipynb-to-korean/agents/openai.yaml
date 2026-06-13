@@ -1,0 +1,4 @@
+interface:
+  display_name: "IPYNB to Korean"
+  short_description: "Translate notebooks from English to Korean"
+  default_prompt: "Use $ipynb-to-korean to translate this English notebook into a Korean sibling notebook."
