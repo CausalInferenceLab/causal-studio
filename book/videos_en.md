@@ -26,4 +26,15 @@
     <p style="margin-top:8px; font-size:0.9rem; color:#555;">Introduces regression discontinuity design and how cutoff-based assignment can support causal comparison near a threshold.</p>
   </div>
 
+  <div style="width:45%; margin-bottom:24px; margin-right:24px;">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Inverse Probability Weighting (IPW)</h3>
+    <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden;">
+      <iframe src="https://www.youtube.com/embed/Ij3dd8XYSIM?si=xSMg1exSdLBjXaLK"
+        style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen></iframe>
+    </div>
+    <p style="margin-top:8px; font-size:0.9rem; color:#555;">Introduces the core idea of IPW: correcting for confounding by weighting samples by the inverse of their treatment probability to estimate treatment effects.</p>
+  </div>
+
 </div>
