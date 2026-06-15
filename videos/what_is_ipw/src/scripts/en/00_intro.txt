@@ -1,0 +1,3 @@
+Today's topic is Inverse Probability Weighting, or IPW.
+
+Let's explore how to uncover the true cause using only observational data.

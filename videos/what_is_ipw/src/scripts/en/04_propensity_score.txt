@@ -1,0 +1,37 @@
+Until now, we could count the probabilities by hand, because there were only two cases: severe and mild.
+
+But here, a problem arises.
+
+In reality, there's much more to consider: sex, age, weight, even pre-existing conditions.
+
+When there are this many confounders, counting probabilities one by one by hand becomes impractical.
+
+So we change our approach.
+
+The probability that a person takes the medicine, given their information. This is called the propensity score.
+
+It's just a name for the same probability we used before.
+
+So how do we find this probability? We train a statistical model on the data to estimate it.
+
+A common method is logistic regression.
+
+When we feed in patient information like sex and symptoms, a curve called the sigmoid squeezes the value to between 0 and 1.
+
+This curve sticks close to 0 when the input is very small, and approaches 1 when the input is very large.
+
+So no matter what information comes in, the output is always between 0 and 1, in other words, a probability.
+
+The probability the model estimates this way is called the estimated propensity score.
+
+Once we have the estimated propensity score, the rest is the same. Just as we learned, we make the weights from the reciprocal of the score.
+
+But there's one thing to watch out for.
+
+All of this only holds when the propensity score is estimated well.
+
+For example, imagine a formula with only sex and symptoms. Suppose age strongly affects whether someone takes the medicine, but the model has no variable for age. In that case, we miss the real effect of age on taking the medicine.
+
+As a result, the estimated probability differs from reality, and the confounding isn't cleanly removed.
+
+So in real analysis, which information you put into the model matters more than anything.

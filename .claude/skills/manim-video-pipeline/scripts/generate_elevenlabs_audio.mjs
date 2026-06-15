@@ -108,12 +108,13 @@ async function ensureEnv(repoRoot) {
   return apiKey;
 }
 
-async function synthesizeSpeechChunk(apiKey, text) {
+async function synthesizeSpeechChunk(apiKey, text, speed = 1.0) {
   const payload = {
     model: MODEL_ID,
     voice: VOICE,
     input: text,
     response_format: OUTPUT_FORMAT,
+    speed: speed,
   };
   if (INSTRUCTIONS) {
     payload.instructions = INSTRUCTIONS;
@@ -257,13 +258,7 @@ async function main() {
   const chunkPaths = [];
 
   for (let i = 0; i < chunks.length; i += 1) {
-    const audioStream = await client.textToSpeech.convert(VOICE_ID, {
-      text: chunks[i],
-      modelId: MODEL_ID,
-      outputFormat: OUTPUT_FORMAT,
-      voiceSettings: { speed },
-    });
-    const buffer = await streamToBuffer(audioStream);
+    const buffer = await synthesizeSpeechChunk(apiKey, chunks[i], speed);
     const chunkPath = path.join(tempDir, `${String(i + 1).padStart(2, "0")}.mp3`);
     await fs.writeFile(chunkPath, buffer);
     chunkPaths.push(chunkPath);

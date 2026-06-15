@@ -1,0 +1,31 @@
+Let's wrap up what we've learned.
+
+We wanted to know whether the medicine really speeds up recovery.
+
+But we couldn't just compare those who took the medicine with those who didn't.
+
+Because the group that took it was crowded with severe patients, and the group that didn't with mild patients.
+
+When the two groups start from different baselines like this, the confounder hides the true effect.
+
+What solved this problem was IPW.
+
+By giving each person a weight equal to the reciprocal of the probability, we make the makeup of the two groups the same.
+
+Then the medicine that looked harmful revealed its true effect: speeding up recovery by one day.
+
+In real data with many variables, we estimate this probability with a model like logistic regression.
+
+The probability estimated this way is the estimated propensity score.
+
+Using this estimated propensity score, we assign a weight to each individual.
+
+Then, overall, we can make the makeup of the two groups the same.
+
+Of course, if the model is inaccurate, IPW wavers too, so we must be careful about what information we include.
+
+The greatest appeal of IPW is that, even when experiments are hard, it can estimate causal effects from observational data alone.
+
+If there are confounders we couldn't measure, its limits are clear,
+
+but used carefully, knowing those limits, IPW gives answers that a simple average comparison never could.
