@@ -1,0 +1,29 @@
+{
+  "sets": {},
+
+  "policy-learning-targeting": {
+    "question": {
+      "en": "What does it mean when a learned policy has a higher AIPW-estimated value than the best single-treatment baseline?",
+      "ko": "학습된 정책의 AIPW 추정 value가 가장 좋은 단일 처치 baseline보다 높다는 것은 무엇을 의미하나요?"
+    },
+    "options": [
+      {
+        "en": "The treatment assignment model no longer needs a separate test set",
+        "ko": "처치 배정 모델을 별도 test set에서 평가할 필요가 없다는 뜻이다"
+      },
+      {
+        "en": "Assigning treatments by customer features is more effective than applying the same treatment to everyone",
+        "ko": "고객 특성에 따라 처치를 다르게 배정하는 것이 모두에게 같은 처치를 적용하는 것보다 효과적이라는 뜻이다"
+      },
+      {
+        "en": "The policy should choose the treatment with the largest individual AIPW score for every observed row",
+        "ko": "각 관측치에서 개별 AIPW score가 가장 큰 처치를 그대로 선택해야 한다는 뜻이다"
+      }
+    ],
+    "answer": 1,
+    "explanation": {
+      "en": "A higher policy value means the learned targeting rule is estimated to produce more net value than any uniform treatment rule. It should still be evaluated on held-out data to avoid overestimating performance.",
+      "ko": "더 높은 policy value는 학습된 타기팅 규칙이 모든 고객에게 같은 처치를 적용하는 규칙보다 더 높은 순가치를 낼 것으로 추정된다는 뜻입니다. 다만 성능 과대추정을 피하려면 학습에 쓰지 않은 데이터에서 평가해야 합니다."
+    }
+  }
+}

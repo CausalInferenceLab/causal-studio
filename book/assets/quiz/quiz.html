@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Quiz</title>
+<style>
+  :root {
+    --bg: transparent;
+    --card-bg: rgba(49, 46, 129, 0.06);
+    --card-border: rgba(49, 46, 129, 0.30);
+    --card-border-hover: rgba(49, 46, 129, 0.55);
+    --accent: #312e81;
+    --text: #1f2330;
+    --muted: #555b6e;
+    --correct-bg: #15803d;
+    --correct-border: #15803d;
+    --correct-soft: rgba(21, 128, 61, 0.12);
+    --wrong-bg: #b91c1c;
+    --wrong-border: #b91c1c;
+    --wrong-soft: rgba(185, 28, 28, 0.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --card-bg: rgba(99, 102, 241, 0.10);
+      --card-border: rgba(129, 140, 248, 0.30);
+      --card-border-hover: rgba(129, 140, 248, 0.55);
+      --accent: #c7d2fe;
+      --text: #e5e7eb;
+      --muted: #a6adbb;
+      --correct-bg: #16a34a;
+      --correct-border: #16a34a;
+      --correct-soft: rgba(22, 163, 74, 0.18);
+      --wrong-bg: #dc2626;
+      --wrong-border: #dc2626;
+      --wrong-soft: rgba(220, 38, 38, 0.16);
+    }
+  }
+  html[data-theme="light"] {
+    --card-bg: rgba(49, 46, 129, 0.06);
+    --card-border: rgba(49, 46, 129, 0.30);
+    --card-border-hover: rgba(49, 46, 129, 0.55);
+    --accent: #312e81; --text: #1f2330; --muted: #555b6e;
+    --correct-bg: #15803d; --correct-border: #15803d; --correct-soft: rgba(21,128,61,0.12);
+    --wrong-bg: #b91c1c; --wrong-border: #b91c1c; --wrong-soft: rgba(185,28,28,0.10);
+  }
+  html[data-theme="dark"] {
+    --card-bg: rgba(99,102,241,0.10);
+    --card-border: rgba(129,140,248,0.30);
+    --card-border-hover: rgba(129,140,248,0.55);
+    --accent: #c7d2fe; --text: #e5e7eb; --muted: #a6adbb;
+    --correct-bg: #16a34a; --correct-border: #16a34a; --correct-soft: rgba(22,163,74,0.18);
+    --wrong-bg: #dc2626; --wrong-border: #dc2626; --wrong-soft: rgba(220,38,38,0.16);
+  }
+
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; background: var(--bg); }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue",
+      "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+    color: var(--text);
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { display: flex; flex-direction: column; gap: 16px; padding: 2px; }
+  .q {
+    border-left: 4px solid var(--card-border);
+    background: var(--card-bg);
+    border-radius: 10px;
+    padding: 16px 18px;
+  }
+  .q-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .q-head svg { width: 18px; height: 18px; color: var(--accent); flex: none; }
+  .q-tag { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .02em; }
+  .q-title { font-size: 16px; font-weight: 650; margin: 0 0 12px; color: var(--text); }
+  .opts { display: flex; flex-direction: column; gap: 8px; }
+  .opt {
+    display: flex; align-items: center; gap: 12px;
+    border: 2px solid var(--card-border);
+    border-radius: 10px;
+    padding: 11px 14px;
+    cursor: pointer;
+    transition: border-color .15s ease, background .15s ease;
+    background: transparent;
+    text-align: left; width: 100%; font: inherit; color: var(--text);
+  }
+  .opt:hover:not(:disabled) { border-color: var(--card-border-hover); }
+  .opt:disabled { cursor: default; }
+  .dot {
+    width: 16px; height: 16px; border-radius: 50%;
+    border: 2px solid var(--card-border); flex: none;
+    display: inline-flex; align-items: center; justify-content: center;
+  }
+  .dot i { width: 6px; height: 6px; border-radius: 50%; background: #fff; display: none; }
+  .opt-text { font-size: 14px; }
+  .badge {
+    font-size: 12px; font-weight: 700; padding: 2px 12px; border-radius: 999px;
+    margin-right: 4px; display: none; color: #fff;
+  }
+  /* states */
+  .opt.correct { border-color: var(--correct-border); background: var(--correct-soft); }
+  .opt.correct .dot { border-color: var(--correct-border); background: var(--correct-bg); }
+  .opt.correct .dot i { display: block; }
+  .opt.correct .badge.ok { display: inline-block; background: var(--correct-bg); }
+  .opt.wrong { border-color: var(--wrong-border); background: var(--wrong-soft); }
+  .opt.wrong .dot { border-color: var(--wrong-border); background: var(--wrong-bg); }
+  .opt.wrong .dot i { display: block; }
+  .opt.wrong .badge.no { display: inline-block; background: var(--wrong-bg); }
+
+  .explain {
+    margin-top: 10px; font-size: 13.5px; color: var(--muted);
+    border-top: 1px dashed var(--card-border); padding-top: 10px; display: none;
+  }
+  .explain.show { display: block; }
+  .reset {
+    align-self: flex-start; margin-top: 8px; font-size: 12.5px; color: var(--accent);
+    background: none; border: none; cursor: pointer; padding: 2px 0; display: none;
+  }
+  .reset.show { display: inline-block; }
+  .error { color: var(--wrong-bg); font-size: 14px; padding: 8px; }
+</style>
+</head>
+<body>
+  <div class="wrap" id="root"><div class="error" id="err" style="display:none"></div></div>
+
+  <script>
+  (function () {
+    var params = new URLSearchParams(location.search);
+    var embed = window.__QUIZ_EMBED__ || {};
+    var lang = (embed.lang || params.get("lang") || "ko").toLowerCase();
+    var theme = params.get("theme");
+    if (theme === "light" || theme === "dark") {
+      document.documentElement.setAttribute("data-theme", theme);
+    }
+    var setId = embed.setId || params.get("set");
+    var oneId = embed.oneId || params.get("id");
+    var dataUrl = params.get("src") || "./quizzes.json";
+
+    var HELP_ICON =
+      '<svg fill="none" viewBox="0 0 24 24" stroke-width="1.6" stroke="currentColor">' +
+      '<path stroke-linecap="round" stroke-linejoin="round" d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 ' +
+      '1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 ' +
+      '1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z"/></svg>';
+
+    function t(val) {
+      if (val == null) return "";
+      if (typeof val === "string") return val;
+      return val[lang] != null ? val[lang] : (val.en != null ? val.en : val.ko || "");
+    }
+
+    var L = {
+      tag: { ko: "퀴즈", en: "Reader exercise" },
+      ok: { ko: "정답이에요! 🎉", en: "Yay! Correct! 🎉" },
+      no: { ko: "다시 생각해봐요", en: "Not quite" },
+      reset: { ko: "다시 풀기", en: "Try again" }
+    };
+
+    function reportHeight() {
+      var h = document.documentElement.scrollHeight;
+      try { parent.postMessage({ type: "quiz-height", height: h }, "*"); } catch (e) {}
+    }
+
+    function renderQuestion(q) {
+      var card = document.createElement("div");
+      card.className = "q";
+
+      var head = document.createElement("div");
+      head.className = "q-head";
+      head.innerHTML = HELP_ICON + '<span class="q-tag">' + t(L.tag) + "</span>";
+      card.appendChild(head);
+
+      var title = document.createElement("h3");
+      title.className = "q-title";
+      title.textContent = t(q.question);
+      card.appendChild(title);
+
+      var opts = document.createElement("div");
+      opts.className = "opts";
+      var buttons = [];
+      var answered = false;
+
+      (q.options || []).forEach(function (optVal, idx) {
+        var btn = document.createElement("button");
+        btn.className = "opt";
+        btn.type = "button";
+        btn.innerHTML =
+          '<span class="dot"><i></i></span>' +
+          '<span class="badge ok">' + t(L.ok) + '</span>' +
+          '<span class="badge no">' + t(L.no) + '</span>' +
+          '<span class="opt-text"></span>';
+        btn.querySelector(".opt-text").textContent = t(optVal);
+        btn.addEventListener("click", function () {
+          if (answered) return;
+          answered = true;
+          buttons.forEach(function (b) { b.disabled = true; });
+          var correctIdx = q.answer;
+          buttons[correctIdx] && buttons[correctIdx].classList.add("correct");
+          if (idx !== correctIdx) btn.classList.add("wrong");
+          if (q.explanation) {
+            explain.classList.add("show");
+          }
+          resetBtn.classList.add("show");
+          requestAnimationFrame(reportHeight);
+        });
+        buttons.push(btn);
+        opts.appendChild(btn);
+      });
+      card.appendChild(opts);
+
+      var explain = document.createElement("div");
+      explain.className = "explain";
+      explain.textContent = t(q.explanation);
+      card.appendChild(explain);
+
+      var resetBtn = document.createElement("button");
+      resetBtn.className = "reset";
+      resetBtn.type = "button";
+      resetBtn.textContent = t(L.reset);
+      resetBtn.addEventListener("click", function () {
+        answered = false;
+        buttons.forEach(function (b) {
+          b.disabled = false;
+          b.classList.remove("correct", "wrong");
+        });
+        explain.classList.remove("show");
+        resetBtn.classList.remove("show");
+        requestAnimationFrame(reportHeight);
+      });
+      card.appendChild(resetBtn);
+
+      return card;
+    }
+
+    function fail(msg) {
+      var err = document.getElementById("err");
+      err.style.display = "block";
+      err.textContent = msg;
+      requestAnimationFrame(reportHeight);
+    }
+
+    var dataPromise = embed.data
+      ? Promise.resolve(embed.data)
+      : fetch(dataUrl).then(function (r) {
+          if (!r.ok) throw new Error("HTTP " + r.status);
+          return r.json();
+        });
+
+    dataPromise
+      .then(function (data) {
+        var root = document.getElementById("root");
+        var questions = [];
+        if (oneId && data[oneId]) {
+          questions = [data[oneId]];
+        } else if (setId && data.sets && data.sets[setId]) {
+          questions = data.sets[setId].map(function (id) { return data[id]; }).filter(Boolean);
+        } else if (oneId) {
+          throw new Error('Quiz id not found: "' + oneId + '"');
+        } else if (setId) {
+          throw new Error('Quiz set not found: "' + setId + '"');
+        } else {
+          throw new Error("No ?id= or ?set= given");
+        }
+        questions.forEach(function (q) { root.appendChild(renderQuestion(q)); });
+        requestAnimationFrame(reportHeight);
+        window.addEventListener("load", reportHeight);
+        window.addEventListener("resize", reportHeight);
+      })
+      .catch(function (e) { fail("퀴즈를 불러오지 못했습니다: " + e.message); });
+  })();
+  </script>
+</body>
+</html>

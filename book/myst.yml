@@ -15,6 +15,8 @@ project:
       repo: CausalInferenceLab/causal-studio
       ref: main
     lite: false
+  plugins:
+    - quiz.mjs
   toc:
     - file: intro_en.md
     - file: intro_ko.md

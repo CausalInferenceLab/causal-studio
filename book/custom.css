@@ -9,3 +9,23 @@ a.myst-toc-item[href$="/regression/06-grouped-and-dummy-regression-minimal-ko"],
 a.myst-toc-item[href$="/regression/06-grouped-and-dummy-regression-minimal-ko/"] {
   display: none !important;
 }
+
+/* Quiz embeds ({quiz} directive).
+   The book theme wraps every iframe in a fixed 60%-aspect-ratio box, which is
+   wrong for variable-height quiz content. The directive wraps the iframe in
+   `.quiz-embed` with an inline pixel height; here we neutralize the aspect-ratio
+   box so the iframe fills that height instead. */
+.quiz-embed > div {
+  height: 100% !important;
+  margin: 0 !important;
+}
+.quiz-embed > div > div {
+  height: 100% !important;
+  width: 100% !important;
+  padding-bottom: 0 !important;
+}
+.quiz-embed iframe {
+  position: static !important;
+  height: 100% !important;
+  border: none;
+}
