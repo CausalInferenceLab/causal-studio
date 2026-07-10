@@ -124,6 +124,7 @@ A good quiz question:
 
 Avoid:
 
+- a correct option that is noticeably longer or more detailed than the distractors — before saving, compute each option's rendered length (strip `$...$` TeX markup first) and confirm the correct option is never the longest,
 - trivia about exact numeric output unless the number is the concept,
 - vague “which is best?” wording without a clear criterion,
 - all-of-the-above or none-of-the-above,

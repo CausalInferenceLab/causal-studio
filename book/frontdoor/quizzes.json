@@ -1,0 +1,103 @@
+{
+  "sets": {},
+  "frontdoor-why-mediator": {
+    "question": {
+      "ko": "절약 성향(U)이 공유 승인(X)과 팁(Y)을 모두 교란하는데도 FDC로 인과효과를 식별할 수 있는 이유는 무엇인가요?",
+      "en": "Why can the front-door criterion identify the causal effect even though frugality (U) confounds both share approval (X) and tips (Y)?"
+    },
+    "options": [
+      {
+        "ko": "회귀에 M을 통제변수로 추가하면 U가 만드는 X와 Y 사이의 허위 상관이 흡수되어 편향이 사라지기 때문입니다.",
+        "en": "Because adding M to the regression as a control absorbs the spurious correlation U creates between X and Y, removing the bias."
+      },
+      {
+        "ko": "플랫폼의 매칭이 무작위 실험과 같아서, M이 아무 조건 없이도 완전히 랜덤하게 할당되기 때문입니다.",
+        "en": "Because platform matching works like a randomized experiment, assigning M completely at random without any conditioning."
+      },
+      {
+        "ko": "X의 효과가 전부 M을 경유하고, 통제 후 M은 매칭 알고리즘이 외생적으로 결정하기 때문입니다.",
+        "en": "Because the effect of X flows entirely through M, and after controls M is set exogenously by the matching algorithm."
+      }
+    ],
+    "answer": 2,
+    "explanation": {
+      "ko": "FDC는 M을 통제하는 방법이 아니라 X→M→Y 경로를 두 단계로 분리해 곱하는 방법입니다. M은 무조건부로 랜덤인 것이 아니라 요금(F)·시공간(FE) 조건부로 외생적이라고 가정하며, 이 조건부 외생성 덕분에 관찰 불가능한 U를 우회해 효과를 식별합니다.",
+      "en": "The FDC does not control for M; it splits the X→M→Y path into two stages and multiplies them. M is not unconditionally random — it is assumed exogenous conditional on fare (F) and time–place fixed effects — and this conditional exogeneity lets us bypass the unobservable U."
+    }
+  },
+  "frontdoor-att-not-ate": {
+    "question": {
+      "ko": "이 분석에서 FDC가 ATE가 아닌 ATT를 추정하게 되는 이유는 무엇인가요?",
+      "en": "Why does the FDC in this analysis estimate the ATT rather than the ATE?"
+    },
+    "options": [
+      {
+        "ko": "공유를 거부한 승객(X=0)은 매칭될 수 없어, 미처치 집단에는 효과를 식별할 M의 변동이 없기 때문입니다.",
+        "en": "Since decliners (X=0) can never be matched, the untreated group has no variation in M to identify the effect."
+      },
+      {
+        "ko": "전체 모집단 2.3억 행이 아니라 무작위 추출한 5백만 행 표본만 사용해 모집단 대표성이 제한되기 때문입니다.",
+        "en": "Because the analysis uses a random 5M-row sample rather than the full 230M-row population, limiting how representative it is."
+      },
+      {
+        "ko": "X=0이면서 M=1인 위반 관측치 0.66%를 제거하는 과정에서 표본이 처치 집단 쪽으로 치우쳤기 때문입니다.",
+        "en": "Because dropping the 0.66% of violating observations (M=1 despite X=0) tilted the sample toward the treated group."
+      }
+    ],
+    "answer": 0,
+    "explanation": {
+      "ko": "one-sided noncompliance 구조에서는 X=0이면 M이 사실상 0으로 고정되므로, 효과는 공유를 승인한 집단(X=1)의 매칭 변동에서만 식별됩니다. 표본 크기나 위반 관측치 제거와는 무관하며, 위반 셀을 제외한 sensitivity check에서도 ATT는 거의 변하지 않았습니다.",
+      "en": "Under one-sided noncompliance, M is effectively fixed at 0 whenever X=0, so the effect is identified only from matching variation among approvers (X=1). It has nothing to do with sample size or dropping violators — the sensitivity check excluding violating cells barely moved the ATT."
+    }
+  },
+  "frontdoor-why-sur": {
+    "question": {
+      "ko": "$\\text{ATT} = \\gamma \\times \\delta$의 표준오차를 구할 때, 두 개의 별도 OLS 대신 SUR을 사용하는 이유는 무엇인가요?",
+      "en": "When computing the standard error of $\\text{ATT} = \\gamma \\times \\delta$, why do we use SUR instead of two separate OLS regressions?"
+    },
+    "options": [
+      {
+        "ko": "두 방정식의 오차 상관을 반영하는 SUR이 OLS보다 $\\gamma$와 $\\delta$의 점추정치를 항상 더 정확하게 추정하기 때문입니다.",
+        "en": "Because SUR exploits the error correlation between the two equations, always giving more accurate point estimates of $\\gamma$ and $\\delta$."
+      },
+      {
+        "ko": "$\\hat{\\gamma}$와 $\\hat{\\delta}$가 독립이 아니어서, 델타법에 필요한 $\\text{Cov}(\\gamma, \\delta)$를 두 단계 동시 추정으로만 얻을 수 있기 때문입니다.",
+        "en": "Because $\\hat{\\gamma}$ and $\\hat{\\delta}$ are not independent, so the delta method's $\\text{Cov}(\\gamma, \\delta)$ term requires joint estimation."
+      },
+      {
+        "ko": "별도의 OLS 회귀로는 델타법 분산에 들어가는 $\\text{Var}(\\gamma)$와 $\\text{Var}(\\delta)$조차 직접 구할 수 없기 때문입니다.",
+        "en": "Because separate OLS regressions cannot even produce the $\\text{Var}(\\gamma)$ and $\\text{Var}(\\delta)$ that enter the delta-method variance."
+      }
+    ],
+    "answer": 1,
+    "explanation": {
+      "ko": "델타법 분산의 앞 두 항($\\delta^2\\text{Var}(\\gamma)$, $\\gamma^2\\text{Var}(\\delta)$)은 별도 OLS로도 구할 수 있지만, 마지막 공분산 항은 두 회귀를 독립으로 취급하는 별도 OLS로는 구할 수 없습니다. SUR은 두 단계를 동시에 추정해 $\\text{Cov}(\\gamma, \\delta)$를 직접 계산합니다.",
+      "en": "The first two delta-method terms ($\\delta^2\\text{Var}(\\gamma)$ and $\\gamma^2\\text{Var}(\\delta)$) are available from separate OLS runs, but the covariance term is not, because separate OLS treats the two regressions as independent. SUR estimates both stages jointly and computes $\\text{Cov}(\\gamma, \\delta)$ directly."
+    }
+  },
+  "frontdoor-x-coef-selection": {
+    "question": {
+      "ko": "Second stage에서 실제 공유(M)의 계수는 양수인데 공유 승인(X)의 계수는 유의하게 음수입니다. 이 X 계수의 올바른 해석은 무엇인가요?",
+      "en": "In the second stage, the coefficient on actual sharing (M) is positive while the coefficient on share approval (X) is significantly negative. What is the correct interpretation of the X coefficient?"
+    },
+    "options": [
+      {
+        "ko": "매칭 여부(M)와 무관하게, 공유를 승인하는 행위 자체가 팁을 낮추는 음(−)의 인과효과를 갖는다는 뜻입니다.",
+        "en": "It means the act of approving a shared ride itself causally lowers tips, independent of whether a match (M) actually occurs."
+      },
+      {
+        "ko": "X와 M이 강하게 상관되어 생기는 다중공선성의 부작용이므로, 통계적 잡음으로 보고 무시해야 합니다.",
+        "en": "It is a side effect of multicollinearity from the strong correlation between X and M, and should be dismissed as statistical noise."
+      },
+      {
+        "ko": "절약 성향 승객일수록 공유를 승인하고 팁도 적게 주는 자기선택의 흔적일 뿐, 인과효과가 아닙니다.",
+        "en": "It is a trace of self-selection — frugal passengers approve sharing and also tip less — not a causal effect."
+      }
+    ],
+    "answer": 2,
+    "explanation": {
+      "ko": "인과효과는 M의 계수(와 first stage 계수의 곱)로 식별됩니다. 매칭 여부를 통제한 뒤에도 남는 X의 음(−) 계수는 승인자 집단의 특성 차이, 즉 절약 성향(U)에 의한 자기선택을 반영하며, 이것이 바로 Naive OLS가 음수로 편향됐던 이유입니다.",
+      "en": "The causal effect is identified by the coefficient on M (times the first-stage coefficient). The negative X coefficient that remains after conditioning on matching reflects compositional differences of approvers driven by frugality (U) — self-selection — which is exactly why the naive OLS was biased negative."
+    }
+  }
+}

@@ -1,29 +1,103 @@
 {
   "sets": {},
-
-  "policy-learning-targeting": {
+  "policy-learning-doubly-robust": {
     "question": {
-      "en": "What does it mean when a learned policy has a higher AIPW-estimated value than the best single-treatment baseline?",
-      "ko": "학습된 정책의 AIPW 추정 value가 가장 좋은 단일 처치 baseline보다 높다는 것은 무엇을 의미하나요?"
+      "ko": "AIPW score 기반 추정이 'doubly robust(이중 견고)'라고 불리는 이유는 무엇인가요?",
+      "en": "Why is estimation based on the AIPW score called 'doubly robust'?"
     },
     "options": [
       {
-        "en": "The treatment assignment model no longer needs a separate test set",
-        "ko": "처치 배정 모델을 별도 test set에서 평가할 필요가 없다는 뜻이다"
+        "ko": "outcome model과 propensity model 중 하나만 정확해도 불편성이 유지되기 때문입니다.",
+        "en": "Because unbiasedness holds as long as either the outcome model or the propensity model is correct."
       },
       {
-        "en": "Assigning treatments by customer features is more effective than applying the same treatment to everyone",
-        "ko": "고객 특성에 따라 처치를 다르게 배정하는 것이 모두에게 같은 처치를 적용하는 것보다 효과적이라는 뜻이다"
+        "ko": "outcome model과 propensity model이 모두 정확할 때 편향이 두 배 빠르게 줄어들기 때문입니다.",
+        "en": "Because when both the outcome and propensity models are correct, the bias shrinks twice as fast as with one model."
       },
       {
-        "en": "The policy should choose the treatment with the largest individual AIPW score for every observed row",
-        "ko": "각 관측치에서 개별 AIPW score가 가장 큰 처치를 그대로 선택해야 한다는 뜻이다"
+        "ko": "동일한 AIPW score를 정책 학습과 평가에 두 번 재사용해 데이터 효율을 높이기 때문입니다.",
+        "en": "Because the same AIPW scores are reused twice, once for learning the policy and once for evaluating it."
+      }
+    ],
+    "answer": 0,
+    "explanation": {
+      "ko": "outcome model이 정확하면 IPW 보정항의 기댓값이 0에 가까워지고, propensity model이 정확하면 보정항이 outcome model의 편향을 제거합니다. 둘 중 하나만 성립해도 불편성이 유지되므로 '이중으로 견고'합니다.",
+      "en": "If the outcome model is correct, the IPW correction term has near-zero expectation; if the propensity model is correct, the correction removes the outcome model's bias. Either one alone suffices — hence 'doubly' robust."
+    }
+  },
+  "policy-learning-pointwise-argmax": {
+    "question": {
+      "ko": "각 고객마다 개별 AIPW score $\\hat\\Gamma_{i,a}$가 가장 큰 처치를 그대로 배정하는 정책이 권장되지 않는 이유는 무엇인가요?",
+      "en": "Why is it not recommended to assign each customer the treatment with the largest individual AIPW score $\\hat\\Gamma_{i,a}$?"
+    },
+    "options": [
+      {
+        "ko": "AIPW score는 baseline과의 상대효과만 담고 있어 처치 간 절대 수준을 비교할 수 없기 때문입니다.",
+        "en": "Because AIPW scores only capture effects relative to the baseline, so absolute levels across treatments cannot be compared."
+      },
+      {
+        "ko": "개별 관측치의 AIPW score는 분산이 매우 커서, 정책이 노이즈에 과적합되기 때문입니다.",
+        "en": "Because individual AIPW scores have very high variance, so the resulting policy overfits to noise."
+      },
+      {
+        "ko": "AIPW score 계산에 test set 정보가 새어 들어가 정책 평가가 낙관적으로 치우치기 때문입니다.",
+        "en": "Because test-set information leaks into the AIPW score computation, biasing the policy evaluation upward."
       }
     ],
     "answer": 1,
     "explanation": {
-      "en": "A higher policy value means the learned targeting rule is estimated to produce more net value than any uniform treatment rule. It should still be evaluated on held-out data to avoid overestimating performance.",
-      "ko": "더 높은 policy value는 학습된 타기팅 규칙이 모든 고객에게 같은 처치를 적용하는 규칙보다 더 높은 순가치를 낼 것으로 추정된다는 뜻입니다. 다만 성능 과대추정을 피하려면 학습에 쓰지 않은 데이터에서 평가해야 합니다."
+      "ko": "AIPW score는 개별 수준에서는 노이즈가 크므로 반드시 집계된 형태로 사용해야 합니다. 정책 value처럼 여러 관측치를 합산하거나, DRPolicyTree/Forest처럼 노드 평균을 최적화하거나, DRLearner처럼 pseudo-outcome 회귀에 쓰는 방식이 그 예입니다.",
+      "en": "AIPW scores are too noisy at the individual level and must be used in aggregated form — summed into a policy value, averaged within nodes as in DRPolicyTree/Forest, or regressed as pseudo-outcomes as in DRLearner."
+    }
+  },
+  "policy-learning-targeting": {
+    "question": {
+      "ko": "학습된 정책의 AIPW 추정 value가 가장 좋은 단일 처치 baseline보다 높다는 것은 무엇을 의미하나요?",
+      "en": "What does it mean when a learned policy has a higher AIPW-estimated value than the best single-treatment baseline?"
+    },
+    "options": [
+      {
+        "ko": "value가 가장 높은 plug-in 정책이 다른 학습 정책보다 우수하다는 것도 통계적으로 확정되었다는 뜻이다",
+        "en": "That the plug-in policy's top value also statistically settles its superiority over the other learned policies."
+      },
+      {
+        "ko": "고객 특성에 따라 처치를 다르게 배정하는 것이 단일 처치보다 효과적이라는 뜻이다",
+        "en": "That assigning treatments by customer features beats giving everyone the same treatment."
+      },
+      {
+        "ko": "학습된 정책을 실제로 배포하면 추정된 value만큼의 순이익이 보장된다는 뜻이다",
+        "en": "That deploying the learned policy guarantees the estimated value as actual net profit."
+      }
+    ],
+    "answer": 1,
+    "explanation": {
+      "ko": "가장 좋은 단일 처치 baseline보다 value가 높다는 것은 고객별 targeting이 균일 배정보다 낫다는 뜻입니다. 학습 정책 간 순위는 신뢰구간이 겹쳐 확정적이지 않으며, 추정 value가 배포 후 성과를 보장하는 것도 아닙니다.",
+      "en": "Beating the best single-treatment baseline means targeting outperforms uniform assignment. The ranking among learned policies is not settled (their confidence intervals overlap), and the estimated value does not guarantee deployed performance."
+    }
+  },
+  "policy-learning-budget-ratio": {
+    "question": {
+      "ko": "예산이 제한되어 있을 때, 순수익이 큰 고객이 아니라 순수익/비용 비율이 높은 고객부터 처치하는 이유는 무엇인가요?",
+      "en": "Under a limited budget, why treat customers with the highest net-benefit-to-cost ratio first, rather than those with the largest net benefit?"
+    },
+    "options": [
+      {
+        "ko": "비율로 정렬하면 비용 모델의 예측 오차가 서로 상쇄되어 정렬이 더 정확해지기 때문입니다.",
+        "en": "Because sorting by the ratio cancels out prediction errors in the cost model, making the ordering more accurate."
+      },
+      {
+        "ko": "순수익이 큰 고객은 처치 비용도 커서 대부분 positivity 가정을 위반하기 때문입니다.",
+        "en": "Because customers with large net benefits also have large costs and therefore mostly violate positivity."
+      },
+      {
+        "ko": "같은 예산으로 얻을 수 있는 총 순수익이 최대가 되기 때문입니다.",
+        "en": "Because it maximizes the total net benefit attainable with the same budget."
+      }
+    ],
+    "answer": 2,
+    "explanation": {
+      "ko": "순수익 1만 달러·비용 10만 달러인 A(비율 0.10)보다 순수익 3천 달러·비용 5천 달러인 B(비율 0.60)가 예산 효율이 훨씬 높습니다. 예산 제약 하에서는 비율이 높은 고객부터 처치해야 같은 돈으로 더 많은 순수익을 얻습니다.",
+      "en": "Customer A (net benefit 10,000, cost 100,000; ratio 0.10) is far less budget-efficient than customer B (3,000 and 5,000; ratio 0.60). With a binding budget, treating high-ratio customers first yields more total net benefit for the same spend."
     }
   }
 }
