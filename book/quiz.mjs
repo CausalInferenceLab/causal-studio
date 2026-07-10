@@ -19,22 +19,9 @@ import path from 'node:path';
 // that box in custom.css so the iframe gets a real pixel height instead.
 //
 const quizHtml = readFileSync(new URL('./assets/quiz/quiz.html', import.meta.url), 'utf8');
-const katexDir = new URL('./assets/quiz/katex/', import.meta.url);
-const katexCss = readFileSync(new URL('katex.min.css', katexDir), 'utf8');
 const bookDir = fileURLToPath(new URL('.', import.meta.url));
 const require = createRequire(import.meta.url);
 const katex = require('./assets/quiz/katex/katex.min.js');
-
-function inlineKatexFonts(css) {
-  return css.replace(/url\((fonts\/[^)]+)\)/g, (_, fontPath) => {
-    if (!fontPath.endsWith('.woff2')) {
-      return 'url("")';
-    }
-    const fontUrl = new URL(fontPath, katexDir);
-    const fontBytes = readFileSync(fontUrl);
-    return `url("data:font/woff2;base64,${fontBytes.toString('base64')}")`;
-  });
-}
 
 function escapeHtml(value) {
   return String(value)
@@ -50,7 +37,9 @@ function renderQuizText(value) {
   return parts.map((part) => {
     if (!part) return '';
     if (part[0] === '$' && part[part.length - 1] === '$') {
-      return katex.renderToString(part.slice(1, -1), { throwOnError: false });
+      // MathML-only output renders natively in the browser, so the iframe
+      // needs no KaTeX CSS or fonts (~370KB per embed with HTML output).
+      return katex.renderToString(part.slice(1, -1), { throwOnError: false, output: 'mathml' });
     }
     return escapeHtml(part);
   }).join('');
@@ -74,6 +63,24 @@ function preRenderQuizBank(data) {
         en: renderQuizText(value.explanation?.en ?? value.explanation),
       };
     }
+  }
+  return out;
+}
+
+function filterQuizBank(data, { oneId, setId }) {
+  if (oneId) {
+    if (!data[oneId]) {
+      throw new Error(`Quiz id not found in bank: "${oneId}"`);
+    }
+    return { [oneId]: data[oneId] };
+  }
+  const ids = data.sets?.[setId];
+  if (!ids) {
+    throw new Error(`Quiz set not found in bank: "${setId}"`);
+  }
+  const out = { sets: { [setId]: ids } };
+  for (const id of ids) {
+    if (data[id]) out[id] = data[id];
   }
   return out;
 }
@@ -108,15 +115,16 @@ function loadQuizData(bank) {
 }
 
 function buildQuizSrcdoc(arg, opts) {
+  const oneId = opts.single ? arg : undefined;
+  const setId = opts.single ? undefined : arg;
   const embed = {
     lang: opts.lang || undefined,
-    oneId: opts.single ? arg : undefined,
-    setId: opts.single ? undefined : arg,
-    data: preRenderQuizBank(loadQuizData(opts.bank)),
+    oneId,
+    setId,
+    data: preRenderQuizBank(filterQuizBank(loadQuizData(opts.bank), { oneId, setId })),
   };
   const bootstrap = `<script>window.__QUIZ_EMBED__=${scriptSafeJson(embed)};</script>`;
-  const mathAssets = `<style>${inlineKatexFonts(katexCss)}</style>`;
-  return quizHtml.replace('</head>', `${mathAssets}\n${bootstrap}\n</head>`);
+  return quizHtml.replace('</head>', `${bootstrap}\n</head>`);
 }
 
 const quizDirective = {
