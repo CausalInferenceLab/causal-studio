@@ -12,6 +12,10 @@ Use this skill to add topic-specific interactive quizzes to notebooks in `book/`
 - Shared quiz runtime: `book/assets/quiz/quiz.html`
 - MyST directive plugin: `book/quiz.mjs`
 - Topic quiz banks: `book/<topic>/quizzes.json`
+- Quiz runtime supports lightweight inline math in question/options/explanation:
+  - Use `$...$` for simple inline math such as `$Y_1-Y_0$`, `$E[Y|T=1]-E[Y|T=0]$`, and `$(Y_0,Y_1) \perp T$`.
+  - The renderer handles common inline tokens used in this book (`_`, `^`, `\mid`, `\perp`, `\cdots`) inside the quiz iframe.
+  - Do not remove `$...$` delimiters from quiz text just because page-level Markdown/MathJax is unavailable; quiz rendering is handled by `book/assets/quiz/quiz.html`.
 - Notebook embed syntax:
 
 ~~~md
@@ -90,6 +94,12 @@ python -m json.tool book/<topic>/<notebook>.ipynb >/dev/null
 
 ```bash
 node --check book/quiz.mjs
+```
+
+   - When `book/assets/quiz/quiz.html` changed, validate the embedded script:
+
+```bash
+node -e "const fs=require('fs'); const html=fs.readFileSync('book/assets/quiz/quiz.html','utf8'); const m=html.match(/<script>([\\s\\S]*)<\\/script>/); new Function(m[1]);"
 ```
 
    - If the preview server is running, fetch the target page and confirm the rendered iframe payload contains the question ID and does not contain unrelated topic question IDs.

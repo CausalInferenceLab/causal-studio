@@ -73,6 +73,16 @@
   .q-head svg { width: 18px; height: 18px; color: var(--accent); flex: none; }
   .q-tag { font-size: 12px; font-weight: 700; color: var(--accent); letter-spacing: .02em; }
   .q-title { font-size: 16px; font-weight: 650; margin: 0 0 12px; color: var(--text); }
+  .math {
+    font-family: ui-serif, Georgia, "Times New Roman", serif;
+    font-style: italic;
+    white-space: nowrap;
+  }
+  .math sub,
+  .math sup {
+    font-size: 0.72em;
+    line-height: 0;
+  }
   .opts { display: flex; flex-direction: column; gap: 8px; }
   .opt {
     display: flex; align-items: center; gap: 12px;
@@ -148,6 +158,55 @@
       return val[lang] != null ? val[lang] : (val.en != null ? val.en : val.ko || "");
     }
 
+    function appendMath(el, raw) {
+      var span = document.createElement("span");
+      span.className = "math";
+      var text = raw
+        .replaceAll("\\mid", "|")
+        .replaceAll("\\perp", "⊥")
+        .replaceAll("\\cdots", "…")
+        .replaceAll("\\{", "{")
+        .replaceAll("\\}", "}");
+
+      for (var i = 0; i < text.length; i += 1) {
+        var ch = text[i];
+        if ((ch === "_" || ch === "^") && i + 1 < text.length) {
+          var tag = ch === "_" ? "sub" : "sup";
+          var node = document.createElement(tag);
+          if (text[i + 1] === "{") {
+            var end = text.indexOf("}", i + 2);
+            if (end !== -1) {
+              node.textContent = text.slice(i + 2, end);
+              i = end;
+            } else {
+              node.textContent = text[i + 1];
+              i += 1;
+            }
+          } else {
+            node.textContent = text[i + 1];
+            i += 1;
+          }
+          span.appendChild(node);
+        } else if (ch !== "\\") {
+          span.appendChild(document.createTextNode(ch));
+        }
+      }
+      el.appendChild(span);
+    }
+
+    function renderInline(el, text) {
+      el.textContent = "";
+      var parts = String(text || "").split(/(\$[^$]+\$)/g);
+      parts.forEach(function (part) {
+        if (!part) return;
+        if (part[0] === "$" && part[part.length - 1] === "$") {
+          appendMath(el, part.slice(1, -1));
+        } else {
+          el.appendChild(document.createTextNode(part));
+        }
+      });
+    }
+
     var L = {
       tag: { ko: "퀴즈", en: "Reader exercise" },
       ok: { ko: "정답이에요! 🎉", en: "Yay! Correct! 🎉" },
@@ -171,7 +230,7 @@
 
       var title = document.createElement("h3");
       title.className = "q-title";
-      title.textContent = t(q.question);
+      renderInline(title, t(q.question));
       card.appendChild(title);
 
       var opts = document.createElement("div");
@@ -188,7 +247,7 @@
           '<span class="badge ok">' + t(L.ok) + '</span>' +
           '<span class="badge no">' + t(L.no) + '</span>' +
           '<span class="opt-text"></span>';
-        btn.querySelector(".opt-text").textContent = t(optVal);
+        renderInline(btn.querySelector(".opt-text"), t(optVal));
         btn.addEventListener("click", function () {
           if (answered) return;
           answered = true;
@@ -209,7 +268,7 @@
 
       var explain = document.createElement("div");
       explain.className = "explain";
-      explain.textContent = t(q.explanation);
+      renderInline(explain, t(q.explanation));
       card.appendChild(explain);
 
       var resetBtn = document.createElement("button");

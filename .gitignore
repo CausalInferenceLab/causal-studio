@@ -5,6 +5,7 @@
 # Build outputs
 /_build/
 book/_build/
+**/tmp/matplotlib-cache/
 videos/*/build/
 videos/*/preview/
 

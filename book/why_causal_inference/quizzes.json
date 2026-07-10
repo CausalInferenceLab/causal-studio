@@ -1,0 +1,153 @@
+{
+  "sets": {},
+  "potential-outcomes-missing": {
+    "question": {
+      "ko": "현실의 관찰 데이터에서 개별 처치 효과(ITE)를 보통 직접 계산할 수 없는 이유는 무엇인가요?",
+      "en": "Why can we usually not compute an individual treatment effect (ITE) directly from observed data?"
+    },
+    "options": [
+      {
+        "ko": "각 단위마다 처치 결과와 비처치 결과 중 하나만 관찰되기 때문이다",
+        "en": "For each unit, we observe only one of the treated and untreated potential outcomes"
+      },
+      {
+        "ko": "ATE는 항상 0이기 때문이다",
+        "en": "Because the ATE is always zero"
+      },
+      {
+        "ko": "처치 변수는 수치형이어야만 하기 때문이다",
+        "en": "Because the treatment variable must be numeric"
+      }
+    ],
+    "answer": 0,
+    "explanation": {
+      "ko": "ITE는 같은 단위의 $Y_1-Y_0$입니다. 하지만 한 단위는 처치를 받거나 받지 않는 한 상태만 관찰되므로, 다른 잠재적 결과는 반사실로 남습니다.",
+      "en": "The ITE is $Y_1-Y_0$ for the same unit. But each unit is observed either treated or untreated, so the other potential outcome remains counterfactual."
+    }
+  },
+  "observed-difference-bias": {
+    "question": {
+      "ko": "관찰 데이터에서 단순 평균 차이 $E[Y|T=1]-E[Y|T=0]$에는 무엇이 섞여 있을 수 있나요?",
+      "en": "In observational data, what can be mixed into the simple mean difference $E[Y|T=1]-E[Y|T=0]$?"
+    },
+    "options": [
+      {
+        "ko": "처치 효과만 포함된다",
+        "en": "Only the treatment effect"
+      },
+      {
+        "ko": "처치 효과와 처치 전부터 존재하던 집단 차이, 즉 편향이 함께 포함될 수 있다",
+        "en": "Both the treatment effect and pre-existing group differences, that is, bias"
+      },
+      {
+        "ko": "표본 크기만 포함된다",
+        "en": "Only the sample size"
+      }
+    ],
+    "answer": 1,
+    "explanation": {
+      "ko": "단순 평균 차이는 ATT와 $E[Y_0|T=1]-E[Y_0|T=0]$ 편향 항으로 분해됩니다. 두 집단이 애초에 달랐다면 평균 차이는 인과효과만을 나타내지 않습니다.",
+      "en": "The simple mean difference decomposes into the ATT plus the bias term $E[Y_0|T=1]-E[Y_0|T=0]$. If the groups differed beforehand, the mean difference is not purely causal."
+    }
+  },
+  "confounder-common-cause": {
+    "question": {
+      "ko": "태블릿 예시에서 학교 재정/기반 여건이 교란변수로 작동하는 이유는 무엇인가요?",
+      "en": "In the tablet example, why can school resources act as a confounder?"
+    },
+    "options": [
+      {
+        "ko": "태블릿 도입 여부와 시험 성적 모두에 영향을 줄 수 있기 때문이다",
+        "en": "Because they can affect both tablet adoption and test scores"
+      },
+      {
+        "ko": "시험 성적에는 영향을 주지만 태블릿 도입과는 무관하기 때문이다",
+        "en": "Because they affect test scores but are unrelated to tablet adoption"
+      },
+      {
+        "ko": "태블릿 도입 이후에만 결정되는 변수이기 때문이다",
+        "en": "Because they are determined only after tablet adoption"
+      }
+    ],
+    "answer": 0,
+    "explanation": {
+      "ko": "교란변수는 처치와 결과 모두의 공통 원인입니다. 학교 재정은 태블릿 도입 가능성과 시험 성적 모두를 높일 수 있으므로 평균 차이에 편향을 만들 수 있습니다.",
+      "en": "A confounder is a common cause of treatment and outcome. School resources may raise both the chance of adopting tablets and test scores, creating bias in the mean difference."
+    }
+  },
+  "mean-difference-no-bias": {
+    "question": {
+      "ko": "단순 평균 차이 $E[Y|T=1]-E[Y|T=0]$가 처치 효과로 해석되려면, 적어도 어떤 조건이 필요할까요?",
+      "en": "For the simple mean difference $E[Y|T=1]-E[Y|T=0]$ to be interpreted as a treatment effect, what condition is needed at minimum?"
+    },
+    "options": [
+      {
+        "ko": "처치 집단과 비교 집단의 관찰된 결과 평균이 항상 같아야 한다",
+        "en": "The observed outcome means of the treated and comparison groups must always be equal"
+      },
+      {
+        "ko": "처치가 없었을 때의 평균 결과가 두 집단에서 같아야 한다",
+        "en": "The average untreated potential outcome must be the same across the two groups"
+      },
+      {
+        "ko": "모든 개별 단위의 처치 효과가 동일해야 한다",
+        "en": "Every unit must have the same individual treatment effect"
+      }
+    ],
+    "answer": 1,
+    "explanation": {
+      "ko": "편향 항은 $E[Y_0|T=1]-E[Y_0|T=0]$입니다. 이 값이 0이면 처치가 없었을 때 두 집단이 평균적으로 비교 가능하다는 뜻입니다.",
+      "en": "The bias term is $E[Y_0|T=1]-E[Y_0|T=0]$. If it is zero, the two groups are comparable on average in the untreated state."
+    }
+  },
+  "randomization-independence": {
+    "question": {
+      "ko": "무작위 배정이 편향을 줄이는 핵심 이유는 무엇인가요?",
+      "en": "What is the key reason random assignment reduces bias?"
+    },
+    "options": [
+      {
+        "ko": "처치 여부가 잠재적 결과와 독립이 되도록 만들어 두 집단을 평균적으로 비교 가능하게 하기 때문이다",
+        "en": "It makes treatment assignment independent of potential outcomes, making groups comparable on average"
+      },
+      {
+        "ko": "모든 사람에게 같은 결과를 보장하기 때문이다",
+        "en": "It guarantees the same outcome for everyone"
+      },
+      {
+        "ko": "반사실 결과를 실제로 관찰하게 해주기 때문이다",
+        "en": "It lets us directly observe counterfactual outcomes"
+      }
+    ],
+    "answer": 0,
+    "explanation": {
+      "ko": "무작위 배정은 $(Y_0, Y_1) \\perp T$를 목표로 합니다. 그러면 처치 여부 외의 조건이 평균적으로 균형을 이루어 단순 평균 차이를 인과효과로 해석할 수 있습니다.",
+      "en": "Random assignment aims for $(Y_0, Y_1) \\perp T$. Then conditions other than treatment are balanced on average, so the mean difference can be interpreted causally."
+    }
+  },
+  "rct-mean-comparison": {
+    "question": {
+      "ko": "RCT 데이터에서 온라인 수업의 효과를 추정할 때 단순히 집단 평균을 비교할 수 있는 이유는 무엇인가요?",
+      "en": "Why can we compare group means directly to estimate the effect of online classes in an RCT?"
+    },
+    "options": [
+      {
+        "ko": "무작위 배정 덕분에 수업 방식 외의 요인이 평균적으로 균형을 이루기 때문이다",
+        "en": "Because random assignment balances factors other than class format on average"
+      },
+      {
+        "ko": "온라인 수업을 선택한 학생은 모두 같은 능력을 갖고 있기 때문이다",
+        "en": "Because all students who chose online classes have the same ability"
+      },
+      {
+        "ko": "평균 비교는 어떤 관찰 데이터에서도 항상 인과효과를 준다",
+        "en": "Because mean comparisons always give causal effects in any observational data"
+      }
+    ],
+    "answer": 0,
+    "explanation": {
+      "ko": "RCT에서는 배정이 무작위이므로 처치 집단과 비교 집단이 평균적으로 비교 가능해집니다. 따라서 집단 평균 차이를 ATE 추정치로 사용할 수 있습니다.",
+      "en": "In an RCT, assignment is random, so treatment and comparison groups are comparable on average. The difference in group means can therefore estimate the ATE."
+    }
+  }
+}
