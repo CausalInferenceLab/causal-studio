@@ -14,7 +14,7 @@ Use this skill to add topic-specific interactive quizzes to notebooks in `book/`
 - Topic quiz banks: `book/<topic>/quizzes.json`
 - Quiz runtime supports KaTeX inline math in question/options/explanation:
   - Use `$...$` for simple inline math such as `$Y_1-Y_0$`, `$E[Y|T=1]-E[Y|T=0]$`, and `$(Y_0,Y_1) \perp T$`.
-  - KaTeX assets are vendored under `book/assets/quiz/katex/` and inlined by `book/quiz.mjs` into the quiz iframe, including font data; do not rely on CDN assets.
+  - KaTeX assets are vendored under `book/assets/quiz/katex/`; `book/quiz.mjs` pre-renders math at build time and inlines only the required CSS/font data into the quiz iframe. Do not rely on CDN assets.
   - Do not remove `$...$` delimiters from quiz text just because page-level Markdown/MathJax is unavailable; quiz rendering is handled by `book/assets/quiz/quiz.html`.
 - Notebook embed syntax:
 

@@ -1,6 +1,7 @@
 // MyST plugin: `{quiz}` directive.
 //
 import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 
@@ -20,21 +21,61 @@ import path from 'node:path';
 const quizHtml = readFileSync(new URL('./assets/quiz/quiz.html', import.meta.url), 'utf8');
 const katexDir = new URL('./assets/quiz/katex/', import.meta.url);
 const katexCss = readFileSync(new URL('katex.min.css', katexDir), 'utf8');
-const katexJs = readFileSync(new URL('./assets/quiz/katex/katex.min.js', import.meta.url), 'utf8');
 const bookDir = fileURLToPath(new URL('.', import.meta.url));
+const require = createRequire(import.meta.url);
+const katex = require('./assets/quiz/katex/katex.min.js');
 
 function inlineKatexFonts(css) {
   return css.replace(/url\((fonts\/[^)]+)\)/g, (_, fontPath) => {
+    if (!fontPath.endsWith('.woff2')) {
+      return 'url("")';
+    }
     const fontUrl = new URL(fontPath, katexDir);
     const fontBytes = readFileSync(fontUrl);
-    const ext = path.extname(fontPath).toLowerCase();
-    const mime =
-      ext === '.woff2' ? 'font/woff2' :
-      ext === '.woff' ? 'font/woff' :
-      ext === '.ttf' ? 'font/ttf' :
-      'application/octet-stream';
-    return `url("data:${mime};base64,${fontBytes.toString('base64')}")`;
+    return `url("data:font/woff2;base64,${fontBytes.toString('base64')}")`;
   });
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function renderQuizText(value) {
+  const parts = String(value || '').split(/(\$[^$]+\$)/g);
+  return parts.map((part) => {
+    if (!part) return '';
+    if (part[0] === '$' && part[part.length - 1] === '$') {
+      return katex.renderToString(part.slice(1, -1), { throwOnError: false });
+    }
+    return escapeHtml(part);
+  }).join('');
+}
+
+function preRenderQuizBank(data) {
+  const out = JSON.parse(JSON.stringify(data));
+  for (const value of Object.values(out)) {
+    if (!value || typeof value !== 'object') continue;
+    if (Array.isArray(value.options)) {
+      value.question = {
+        ko: renderQuizText(value.question?.ko ?? value.question),
+        en: renderQuizText(value.question?.en ?? value.question),
+      };
+      value.options = value.options.map((opt) => ({
+        ko: renderQuizText(opt?.ko ?? opt),
+        en: renderQuizText(opt?.en ?? opt),
+      }));
+      value.explanation = {
+        ko: renderQuizText(value.explanation?.ko ?? value.explanation),
+        en: renderQuizText(value.explanation?.en ?? value.explanation),
+      };
+    }
+  }
+  return out;
 }
 
 function escapeAttribute(value) {
@@ -71,12 +112,10 @@ function buildQuizSrcdoc(arg, opts) {
     lang: opts.lang || undefined,
     oneId: opts.single ? arg : undefined,
     setId: opts.single ? undefined : arg,
-    data: loadQuizData(opts.bank),
+    data: preRenderQuizBank(loadQuizData(opts.bank)),
   };
   const bootstrap = `<script>window.__QUIZ_EMBED__=${scriptSafeJson(embed)};</script>`;
-  const mathAssets =
-    `<style>${inlineKatexFonts(katexCss)}</style>` +
-    `<script>${katexJs.replaceAll('</script', '<\\/script')}</script>`;
+  const mathAssets = `<style>${inlineKatexFonts(katexCss)}</style>`;
   return quizHtml.replace('</head>', `${mathAssets}\n${bootstrap}\n</head>`);
 }
 

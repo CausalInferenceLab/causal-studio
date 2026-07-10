@@ -148,24 +148,14 @@
       return val[lang] != null ? val[lang] : (val.en != null ? val.en : val.ko || "");
     }
 
-    function renderInline(el, text) {
-      el.textContent = "";
-      var parts = String(text || "").split(/(\$[^$]+\$)/g);
-      parts.forEach(function (part) {
-        if (!part) return;
-        if (part[0] === "$" && part[part.length - 1] === "$") {
-          var span = document.createElement("span");
-          var expr = part.slice(1, -1);
-          if (window.katex && window.katex.render) {
-            window.katex.render(expr, span, { throwOnError: false });
-          } else {
-            span.textContent = expr;
-          }
-          el.appendChild(span);
-        } else {
-          el.appendChild(document.createTextNode(part));
-        }
-      });
+    function tHtml(val) {
+      if (val == null) return "";
+      if (typeof val === "string") return val;
+      return val[lang] != null ? val[lang] : (val.en != null ? val.en : val.ko || "");
+    }
+
+    function renderHtml(el, html) {
+      el.innerHTML = html || "";
     }
 
     var L = {
@@ -191,7 +181,7 @@
 
       var title = document.createElement("h3");
       title.className = "q-title";
-      renderInline(title, t(q.question));
+      renderHtml(title, tHtml(q.question));
       card.appendChild(title);
 
       var opts = document.createElement("div");
@@ -208,7 +198,7 @@
           '<span class="badge ok">' + t(L.ok) + '</span>' +
           '<span class="badge no">' + t(L.no) + '</span>' +
           '<span class="opt-text"></span>';
-        renderInline(btn.querySelector(".opt-text"), t(optVal));
+        renderHtml(btn.querySelector(".opt-text"), tHtml(optVal));
         btn.addEventListener("click", function () {
           if (answered) return;
           answered = true;
@@ -229,7 +219,7 @@
 
       var explain = document.createElement("div");
       explain.className = "explain";
-      renderInline(explain, t(q.explanation));
+      renderHtml(explain, tHtml(q.explanation));
       card.appendChild(explain);
 
       var resetBtn = document.createElement("button");
