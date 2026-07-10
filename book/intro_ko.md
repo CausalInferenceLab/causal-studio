@@ -28,13 +28,13 @@ YouTube에서도 영상 시리즈를 볼 수 있습니다: <https://www.youtube.
         <a href="https://github.com/jhkimon">GitHub</a> ·
         <a href="https://www.linkedin.com/in/%EC%A0%95%ED%98%84-%EA%B9%80-883a442b2/?skipRedirect=true">LinkedIn</a>
       </td>
-    </tr>
-    <tr>
       <td align="center" valign="top" width="33.33%">
         <b>권명석</b><br />
         <a href="https://github.com/myeongseok-gwon">GitHub</a> ·
         <a href="https://www.linkedin.com/in/myeongseok-gwon/?skipRedirect=true">LinkedIn</a>
       </td>
+    </tr>
+    <tr>
       <td align="center" valign="top" width="33.33%">
         <b>조해창</b><br />
         <a href="https://github.com/Funbucket">GitHub</a> ·
@@ -45,14 +45,10 @@ YouTube에서도 영상 시리즈를 볼 수 있습니다: <https://www.youtube.
         <a href="https://github.com/kwonhwijun">GitHub</a> ·
         <a href="https://www.linkedin.com/in/kwonhwijun/">LinkedIn</a>
       </td>
-    </tr>
-    <tr>
       <td align="center" valign="top" width="33.33%">
         <b>이채린</b><br />
         <a href="https://github.com/cloudyflavor">GitHub</a>
       </td>
-      <td align="center" valign="top" width="33.33%"></td>
-      <td align="center" valign="top" width="33.33%"></td>
     </tr>
   </tbody>
 </table>
