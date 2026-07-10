@@ -18,7 +18,24 @@ import path from 'node:path';
 // that box in custom.css so the iframe gets a real pixel height instead.
 //
 const quizHtml = readFileSync(new URL('./assets/quiz/quiz.html', import.meta.url), 'utf8');
+const katexDir = new URL('./assets/quiz/katex/', import.meta.url);
+const katexCss = readFileSync(new URL('katex.min.css', katexDir), 'utf8');
+const katexJs = readFileSync(new URL('./assets/quiz/katex/katex.min.js', import.meta.url), 'utf8');
 const bookDir = fileURLToPath(new URL('.', import.meta.url));
+
+function inlineKatexFonts(css) {
+  return css.replace(/url\((fonts\/[^)]+)\)/g, (_, fontPath) => {
+    const fontUrl = new URL(fontPath, katexDir);
+    const fontBytes = readFileSync(fontUrl);
+    const ext = path.extname(fontPath).toLowerCase();
+    const mime =
+      ext === '.woff2' ? 'font/woff2' :
+      ext === '.woff' ? 'font/woff' :
+      ext === '.ttf' ? 'font/ttf' :
+      'application/octet-stream';
+    return `url("data:${mime};base64,${fontBytes.toString('base64')}")`;
+  });
+}
 
 function escapeAttribute(value) {
   return value
@@ -57,7 +74,10 @@ function buildQuizSrcdoc(arg, opts) {
     data: loadQuizData(opts.bank),
   };
   const bootstrap = `<script>window.__QUIZ_EMBED__=${scriptSafeJson(embed)};</script>`;
-  return quizHtml.replace('</head>', `${bootstrap}\n</head>`);
+  const mathAssets =
+    `<style>${inlineKatexFonts(katexCss)}</style>` +
+    `<script>${katexJs.replaceAll('</script', '<\\/script')}</script>`;
+  return quizHtml.replace('</head>', `${mathAssets}\n${bootstrap}\n</head>`);
 }
 
 const quizDirective = {
