@@ -1,15 +1,17 @@
 #!/usr/bin/env node
 
 import fs from "node:fs/promises";
+import { readFileSync } from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { ElevenLabsClient } from "@elevenlabs/elevenlabs-js";
 
-const MODEL_ID = "gpt-4o-mini-tts";
-const VOICE = process.env.OPENAI_TTS_VOICE || "coral";
-const OUTPUT_FORMAT = "mp3";
-const INSTRUCTIONS = process.env.OPENAI_TTS_INSTRUCTIONS || "";
+const VOICE_ID = process.env.ELEVENLABS_VOICE_ID || "7Nah3cbXKVmGX7gQUuwz";
+const MODEL_ID = "eleven_multilingual_v2";
+const OUTPUT_FORMAT = "mp3_44100_128";
 
 function printUsage() {
   console.log(`Usage:
@@ -48,6 +50,23 @@ function parseArgs(argv) {
     i += 1;
   }
   return args;
+}
+
+function loadEnvFile(envPath) {
+  try {
+    const raw = readFileSync(envPath, "utf8");
+    for (const line of raw.split(/\r?\n/)) {
+      const trimmed = line.trim();
+      if (!trimmed || trimmed.startsWith("#")) continue;
+      const eqIdx = trimmed.indexOf("=");
+      if (eqIdx < 1) continue;
+      const key = trimmed.slice(0, eqIdx).trim();
+      const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, "");
+      if (!process.env[key]) process.env[key] = val;
+    }
+  } catch {
+    // .env not found — rely on existing env vars
+  }
 }
 
 async function readText(scriptPath, directText) {
@@ -98,44 +117,25 @@ function splitIntoChunks(text, maxChars = 650) {
   return chunks;
 }
 
-async function ensureEnv(repoRoot) {
-  const envPath = path.join(repoRoot, ".env");
-  process.loadEnvFile(envPath);
-  const apiKey = process.env.OPENAI_API_KEY;
-  if (!apiKey) {
-    throw new Error(`OPENAI_API_KEY not found in ${envPath}`);
+async function streamToBuffer(stream) {
+  const reader = stream.getReader();
+  const out = [];
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    out.push(Buffer.from(value));
   }
-  return apiKey;
+  return Buffer.concat(out);
 }
 
-async function synthesizeSpeechChunk(apiKey, text, speed = 1.0) {
-  const payload = {
-    model: MODEL_ID,
-    voice: VOICE,
-    input: text,
-    response_format: OUTPUT_FORMAT,
-    speed: speed,
-  };
-  if (INSTRUCTIONS) {
-    payload.instructions = INSTRUCTIONS;
-  }
-
-  const response = await fetch("https://api.openai.com/v1/audio/speech", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
+async function synthesizeSpeechChunk(client, text, speed = 1.0) {
+  const stream = await client.textToSpeech.convert(VOICE_ID, {
+    text,
+    modelId: MODEL_ID,
+    outputFormat: OUTPUT_FORMAT,
+    voiceSettings: { speed },
   });
-
-  if (!response.ok) {
-    const body = await response.text();
-    throw new Error(`Status code: ${response.status}\nBody: ${body}`);
-  }
-
-  const arrayBuffer = await response.arrayBuffer();
-  return Buffer.from(arrayBuffer);
+  return streamToBuffer(stream);
 }
 
 async function runFfmpeg(fileListPath, outputPath) {
@@ -164,12 +164,9 @@ async function probeDurationSeconds(filePath) {
     const child = spawn(
       "ffprobe",
       [
-        "-v",
-        "error",
-        "-show_entries",
-        "format=duration",
-        "-of",
-        "default=noprint_wrappers=1:nokey=1",
+        "-v", "error",
+        "-show_entries", "format=duration",
+        "-of", "default=noprint_wrappers=1:nokey=1",
         filePath,
       ],
       { stdio: ["ignore", "pipe", "pipe"] },
@@ -177,12 +174,8 @@ async function probeDurationSeconds(filePath) {
 
     let stdout = "";
     let stderr = "";
-    child.stdout.on("data", (chunk) => {
-      stdout += chunk.toString();
-    });
-    child.stderr.on("data", (chunk) => {
-      stderr += chunk.toString();
-    });
+    child.stdout.on("data", (chunk) => { stdout += chunk.toString(); });
+    child.stderr.on("data", (chunk) => { stderr += chunk.toString(); });
     child.on("close", (code) => {
       if (code !== 0) {
         reject(new Error(stderr || `ffprobe failed with code ${code}`));
@@ -216,7 +209,9 @@ async function main() {
     throw new Error("--topic, --scene, and --name are required");
   }
 
-  const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../../../..");
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
+  loadEnvFile(path.join(repoRoot, ".env"));
+
   const topicDir = path.join(repoRoot, "videos", topic);
   const scriptPath =
     args.script || path.join(topicDir, "src", "scripts", `${scene}_${sceneName}.txt`);
@@ -236,29 +231,26 @@ async function main() {
 
   if (dryRun) {
     console.log(JSON.stringify({
-      topic,
-      scene,
-      sceneName,
-      scriptPath,
-      outputPath,
-      timingsPath,
-      provider: "openai",
-      voice: VOICE,
-      modelId: MODEL_ID,
-      outputFormat: OUTPUT_FORMAT,
-      charCount: text.length,
-      chunkCount: chunks.length,
-      chunks,
+      topic, scene, sceneName, scriptPath, outputPath, timingsPath,
+      provider: "elevenlabs", voiceId: VOICE_ID, modelId: MODEL_ID,
+      outputFormat: OUTPUT_FORMAT, charCount: text.length,
+      chunkCount: chunks.length, chunks,
     }, null, 2));
     return;
   }
 
-  const apiKey = await ensureEnv(repoRoot);
+  const apiKey = process.env.ELEVENLABS_API_KEY;
+  if (!apiKey) {
+    throw new Error(`ELEVENLABS_API_KEY not found in .env`);
+  }
+
+  const client = new ElevenLabsClient({ apiKey });
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "elevenlabs-scene-"));
   const chunkPaths = [];
 
   for (let i = 0; i < chunks.length; i += 1) {
-    const buffer = await synthesizeSpeechChunk(apiKey, chunks[i], speed);
+    console.error(`chunk ${i + 1}/${chunks.length} ...`);
+    const buffer = await synthesizeSpeechChunk(client, chunks[i], speed);
     const chunkPath = path.join(tempDir, `${String(i + 1).padStart(2, "0")}.mp3`);
     await fs.writeFile(chunkPath, buffer);
     chunkPaths.push(chunkPath);
@@ -279,37 +271,19 @@ async function main() {
     const duration = await probeDurationSeconds(chunkPaths[i]);
     const start = cursor;
     const end = start + duration;
-    timingChunks.push({
-      index: i + 1,
-      text: chunks[i],
-      duration,
-      start,
-      end,
-    });
+    timingChunks.push({ index: i + 1, text: chunks[i], duration, start, end });
     cursor = end;
   }
 
   const mergedDuration = await probeDurationSeconds(outputPath);
   await fs.writeFile(
     timingsPath,
-    JSON.stringify(
-      {
-        topic,
-        scene,
-        sceneName,
-        scriptPath,
-        outputPath,
-        provider: "openai",
-        voice: VOICE,
-        modelId: MODEL_ID,
-        outputFormat: OUTPUT_FORMAT,
-        totalDuration: mergedDuration,
-        chunkCount: timingChunks.length,
-        chunks: timingChunks,
-      },
-      null,
-      2,
-    ),
+    JSON.stringify({
+      topic, scene, sceneName, scriptPath, outputPath,
+      provider: "elevenlabs", voiceId: VOICE_ID, modelId: MODEL_ID,
+      outputFormat: OUTPUT_FORMAT, totalDuration: mergedDuration,
+      chunkCount: timingChunks.length, chunks: timingChunks,
+    }, null, 2),
   );
 
   console.log(outputPath);
