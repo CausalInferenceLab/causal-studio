@@ -1,0 +1,5 @@
+Let's recap. Fuzzy RDD is a method that uses eligibility as an instrument to estimate the effect on compliers — the local average treatment effect, or LATE — for cases where the cutoff doesn't fully determine treatment.
+
+We saw that this value can be estimated in the form of the Wald estimator, and that its confidence interval can be obtained through 2SLS.
+
+If you've followed along this far, you can now handle both Sharp RDD and Fuzzy RDD. We'll see you in the next video with another causal inference method.

@@ -1,0 +1,24 @@
+In this video, we'll explore RDD — Regression Discontinuity Design — one of the key methods in causal inference.
+
+Let's start with an example to build intuition.
+Suppose University A awards scholarships to freshmen who score 370 or above on the Korean CSAT, the Suneung.
+
+A student who scored 369 and a student who scored 371 are just 2 points apart.
+The student above 370 receives the scholarship; the other does not.
+Yet we can't say there's a meaningful gap in ability between them.
+That 2-point difference is far more likely the result of luck or how they felt on test day.
+
+If we want to estimate the causal effect of the scholarship on academic achievement — on college GPA — what should we do?
+How about comparing exactly these two students?
+Since they differ by only 2 points, they are essentially equivalent in every way except for whether they received the scholarship. That makes them the ideal comparison pair.
+
+This is the core idea of RDD — Regression Discontinuity Design.
+
+When treatment is assigned based on whether a continuous variable crosses a specific cutoff, we compare units just on either side of that cutoff to estimate the causal effect.
+
+Even without a randomized experiment, the situation near the cutoff naturally approximates random assignment — and RDD exploits that.
+
+Beyond this example, there are more real-world settings for RDD than you might expect.
+Scholarship eligibility, welfare benefit thresholds, legal drinking age, drug insurance coverage.
+
+Wherever a clear rule determines treatment, RDD is worth considering.

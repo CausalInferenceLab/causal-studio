@@ -1,0 +1,15 @@
+So how do we actually compute the Wald estimator with real data?
+
+As mentioned, the Wald estimator is the change in the outcome divided by the change in treatment probability. A single ratio gives us an intuitive sense of the effect size.
+
+Getting just the point estimate isn't hard — you compute the numerator and denominator separately and divide. The real problem comes next. We need a confidence interval to know how much to trust this value, but since the numerator's and denominator's errors are tangled together, getting the uncertainty of a ratio directly is tricky.
+
+This is where we use 2SLS, two-stage least squares. Its point estimate is exactly the same as dividing the numerator by the denominator separately, but it also gives us a standard error and confidence interval.
+
+By the way, 2SLS isn't specific to Fuzzy RDD — it's a general method for estimating the causal effect of an endogenous variable using an instrument.
+
+In our Fuzzy RDD setting, eligibility is the instrument and treatment is the endogenous variable, which is exactly why we can apply this method.
+
+As the name suggests, 2SLS has two stages. In the first stage, we regress treatment D on the instrument, eligibility Z. This gives us D-hat, the part of treatment that eligibility exogenously predicts — the part unrelated to the error term.
+
+In the second stage, we regress the outcome Y on D-hat instead of the original D. This yields beta-hat-1, the treatment effect with endogeneity removed — this is exactly the causal effect, the LATE.

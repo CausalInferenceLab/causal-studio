@@ -1,0 +1,13 @@
+As we saw, Fuzzy RDD is the case where the cutoff doesn't force treatment 100% of the time.
+
+Say that scoring 370 or above on the CSAT makes you eligible to apply for a scholarship. Under Sharp RDD, everyone who's eligible would receive it — but that's not how it works in reality.
+
+Some students score 371 but miss the application window, get rejected for incomplete paperwork, or simply don't apply because they don't need it. Others fall short of the cutoff but still receive it through a secondary review.
+
+To handle this precisely, we need to distinguish four variables.
+
+First, X is the running variable — in this example, the CSAT score. Z is the instrument, indicating whether a student crossed 370 and became eligible.
+
+D is the treatment variable — whether the student actually received the scholarship — and Y is the outcome variable, the GPA.
+
+In Sharp RDD, eligibility was treatment, so Z and D were the same. But in Fuzzy RDD, Z and D differ. Eligibility affects treatment, but doesn't fully determine it.

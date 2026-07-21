@@ -1,0 +1,17 @@
+In the last video, we looked at a structure where treatment is fully determined the moment you cross the cutoff.
+
+For example, if scoring 370 or above on the CSAT — Korea's college entrance exam — gets you a scholarship, and scoring below doesn't, we called this structure Sharp RDD.
+
+But in reality, things aren't usually this clean.
+
+There are students who scored 371, above the cutoff, but missed the scholarship because they missed the application deadline.
+
+And there are students who scored 369, below the cutoff, but received the scholarship anyway through a secondary review.
+
+Crossing the cutoff doesn't mean everyone gets treated, and falling short doesn't mean no one does.
+
+When the cutoff has a discontinuous effect on the probability of treatment without fully determining it, we call this Fuzzy RDD.
+
+In Fuzzy RDD, crossing the cutoff causes only a partial jump in treatment probability — say, from 15% to 65%.
+
+In this video, we'll look at how to handle Fuzzy RDD, where the jump is only partial.

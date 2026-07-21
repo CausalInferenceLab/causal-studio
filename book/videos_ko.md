@@ -27,6 +27,17 @@
   </div>
 
   <div style="width:45%; margin-bottom:24px; margin-right:24px;">
+    <h3 style="font-size:1rem; margin-bottom:8px;">Fuzzy RDD</h3>
+    <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden;">
+      <iframe src="https://www.youtube.com/embed/PPYkTG79ff0"
+        style="position:absolute; top:0; left:0; width:100%; height:100%; border:0;"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+    <p style="margin-top:8px; font-size:0.9rem; color:#555;">임계값이 처치 여부를 완전히 결정하지 않는 경우, Wald 추정량과 2SLS를 통해 순응자(Complier)에 대한 인과효과(LATE)를 추정하는 방법을 소개합니다.</p>
+  </div>
+
+  <div style="width:45%; margin-bottom:24px; margin-right:24px;">
     <h3 style="font-size:1rem; margin-bottom:8px;">역확률 가중치 (Inverse Probability Weighting, IPW)</h3>
     <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden;">
       <iframe src="https://www.youtube.com/embed/eUBoSXqsrOE?si=KBHrZhPsrTX5L821"

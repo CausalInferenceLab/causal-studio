@@ -1,0 +1,9 @@
+So how do we estimate the treatment effect in Fuzzy RDD?
+
+In Fuzzy RDD, only some people get treated even after crossing the cutoff. For example, 10% receive the scholarship when ineligible, and 65% receive it when eligible.
+
+So the treatment rate rises from 10% to 65%, an increase of only 55 percentage points. If GPA rose by 0.5 points, that's the result of the additional recipients, not everyone.
+
+So to find the effect per person who actually got treated, we divide the jump in the outcome by the jump in the treatment rate. 0.5 divided by 0.55 is about 0.91.
+
+This is called the Wald estimator. The numerator is the change eligibility caused in the outcome; the denominator is the change eligibility caused in treatment.

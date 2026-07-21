@@ -1,0 +1,11 @@
+The eligibility variable Z that we've been leaning on is, more precisely, an instrumental variable. So Fuzzy RDD is fundamentally a structure that uses instrumental variables to estimate effects.
+
+For an instrument to be valid, three assumptions must hold.
+
+First, relevance. Becoming eligible must actually raise the probability of treatment. Statistically, the covariance between eligibility and treatment must not be zero — in terms of the Wald estimator, the denominator must not be zero. We usually check the first-stage F-statistic; if it exceeds 10, we treat the instrument as strong and consider this assumption satisfied.
+
+Second, the exclusion restriction. Eligibility must affect the outcome only through treatment. For example, if trial assignment is the instrument, being assigned itself shouldn't directly affect health — only actually taking the drug should.
+
+Third, monotonicity. There must be no defiers — people who refuse treatment precisely because they became eligible. This assumption is what lets us cleanly interpret the increase in treatment at the cutoff as coming entirely from compliers.
+
+If these three assumptions hold, we can interpret the Wald estimator as the causal effect on compliers — the LATE.
