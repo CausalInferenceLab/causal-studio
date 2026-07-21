@@ -1,0 +1,25 @@
+RDD estimates the treatment effect at the cutoff — known as LATE, the Local Average Treatment Effect.
+
+This is the expected outcome just to the right of the cutoff minus the expected outcome just to the left.
+If the assumptions we discussed hold, this difference is a pure causal effect.
+
+Given data, how do we estimate this in practice?
+We fit separate regression lines on each side of the cutoff, then measure the difference in their intercepts at the cutoff.
+
+To do this, we fit the following regression equation.
+In other words, fitting this equation gives us two lines — one on each side of the cutoff — each with its own slope and intercept.
+
+Let's walk through each parameter.
+
+Beta zero is the expected outcome just below the cutoff — the intercept for the untreated side.
+
+Beta two is the key parameter.
+It's the jump in outcomes at the cutoff due to treatment — the treatment effect itself.
+
+Beta one is the slope for the untreated side. Beta three captures how much the slope changes on the treated side.
+
+The left limit at the cutoff is beta zero. The right limit is beta zero plus beta two.
+Therefore, the estimated treatment effect is simply the estimate of beta two.
+
+Keep in mind: this is a local effect, limited to units near the cutoff.
+If the scholarship cutoff is 370 on the Korean CSAT, we cannot use RDD to learn how a scholarship would affect a student who scored 200.

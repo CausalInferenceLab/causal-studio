@@ -1,0 +1,15 @@
+We just calculated the treatment effect using the Wald estimator. But in Fuzzy RDD, some people can't get treated even when they become eligible, and some get treated even without eligibility.
+
+In that case, the effect we just calculated isn't the treatment effect for everyone. So whose effect did we actually calculate?
+
+Here's the key: people who would have received the scholarship regardless of eligibility, or who would never have received it regardless, aren't captured by the Wald estimator.
+
+That's because the numerator, delta Y, is the change eligibility caused in the outcome, and the denominator, delta D, is the change eligibility caused in treatment. Both only reflect people whose behavior changed because of eligibility.
+
+To make this clearer, let's split people into four types based on eligibility.
+
+Always-takers always receive treatment regardless of eligibility, and never-takers never receive it regardless. Neither group's treatment status changes with Z, so they don't contribute to the effect estimate.
+
+Defiers are people who refuse treatment precisely when they become eligible — they're ruled out by the monotonicity assumption, which we'll cover next.
+
+What's left are compliers — people who receive treatment only because they became eligible. What Fuzzy RDD estimates is the local average treatment effect on these compliers, or LATE.

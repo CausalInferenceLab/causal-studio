@@ -1,0 +1,18 @@
+For RDD to produce valid causal estimates, two important assumptions must hold.
+Let's use a new example: credit scores and mortgage loans.
+Suppose a credit score of 700 or above qualifies someone for a mortgage, and we want to estimate the causal effect of that loan on home purchase.
+
+The first is the continuity assumption.
+Both the expected home purchase rate without the loan and the expected rate with it must vary smoothly near the cutoff — no sudden jumps.
+If this holds, any sharp discontinuity in outcomes near the cutoff can only be attributed to the loan approval.
+
+What happens if this assumption breaks down?
+Suppose people with credit scores below 700 are eligible for public rental housing — meaning they don't need to buy a home.
+But the moment someone crosses 700, they become eligible for a mortgage and simultaneously lose their rental housing eligibility.
+In that case, we can't tell whether a rise in home purchase rates is because they can now get a loan, or because they lost access to rental housing.
+
+The second assumption is local randomization.
+This means units must be unable to precisely manipulate their running variable value.
+
+For example, if a customer with a score in the 690s files a complaint with the financial regulator to force their score above 700 — or if a bank officer intentionally adjusts a client's score — local randomization is violated.
+This is called manipulation, and it must be tested before any RDD analysis.

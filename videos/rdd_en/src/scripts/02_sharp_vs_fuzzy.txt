@@ -1,0 +1,11 @@
+RDD comes in two main forms: Sharp RDD and Fuzzy RDD.
+
+Sharp RDD is the case where treatment is fully determined by crossing the cutoff.
+For example, if every student who scores 370 or above is guaranteed a scholarship, that's Sharp RDD.
+The graph shows treatment being perfectly determined at the 370-point cutoff.
+
+Fuzzy RDD, on the other hand, is the case where the cutoff affects the probability of treatment, but doesn't fully determine it.
+For example, if a student can score above 370 but still not apply for the scholarship, or fail a secondary review, that's Fuzzy RDD.
+The treatment probability jumps at the cutoff, but it doesn't go from 0 to 1 completely — as you can see in the graph.
+
+This video focuses on Sharp RDD. Fuzzy RDD will be covered in a separate video.

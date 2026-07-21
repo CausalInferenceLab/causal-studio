@@ -1,0 +1,23 @@
+Now let's build intuition through a visualization.
+
+The graph gives us three layers of information:
+a scatter plot, regression lines, and the discontinuous jump.
+
+The scatter plot shows each student's exam score and college GPA.
+Students who received the scholarship and those who didn't are color-coded.
+
+The regression lines are fitted separately on the left and right of the cutoff.
+The two lines are estimated independently.
+
+The size of the discontinuous jump is the treatment effect.
+We estimate it from the difference in intercepts between the two lines at the cutoff.
+
+The core of RDD estimation is visually confirming how the regression lines differ on each side of the cutoff.
+But there are a few important things to keep in mind when reading this graph.
+
+As we keep emphasizing, causal interpretation holds only near the cutoff.
+The fact that students scoring around 340 and those scoring around 390 have different GPAs may reflect differences in ability — not the scholarship effect.
+
+Also, the slopes on the two sides are allowed to differ.
+That is, the regression lines for the treated and untreated groups can have different slopes.
+The relationship between exam score and GPA may vary depending on treatment status.

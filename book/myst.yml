@@ -41,12 +41,12 @@ project:
         - title: RDD
           children:
             - title: Basics
-              file: rdd/rdd_basic_en.ipynb
-            - file: rdd/rdd_basic_ko.ipynb
+              file: rdd/01_rdd_basic_en.ipynb
+            - file: rdd/01_rdd_basic_ko.ipynb
               hidden: true
             - title: Fuzzy RDD
-              file: rdd/fuzzy_rdd_en.ipynb
-            - file: rdd/fuzzy_rdd_ko.ipynb
+              file: rdd/02_fuzzy_rdd_en.ipynb
+            - file: rdd/02_fuzzy_rdd_ko.ipynb
               hidden: true
         - title: IPW
           children:

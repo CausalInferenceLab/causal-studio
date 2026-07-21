@@ -1,0 +1,78 @@
+{
+  "sets": {},
+  "fuzzy-rdd-complier": {
+    "question": {
+      "ko": "Fuzzy RDD의 $\\tau^{Fuzzy}$는 어떤 집단의 처치 효과를 추정하는가?",
+      "en": "Whose treatment effect does the Fuzzy RDD estimand $\\tau^{Fuzzy}$ identify?"
+    },
+    "options": [
+      {
+        "ko": "임계점 근방의 모든 개체 (Always-taker, Never-taker 포함)",
+        "en": "All individuals near the cutoff (including Always-takers and Never-takers)"
+      },
+      {
+        "ko": "임계점 근방의 순응자(Complier) — 자격 때문에 비로소 처치를 받게 된 사람",
+        "en": "Compliers near the cutoff — those who take treatment only because they crossed the threshold"
+      },
+      {
+        "ko": "임계점 근방에서 실제로 처치를 받은 모든 개체 (Always-taker 포함)",
+        "en": "All treated individuals near the cutoff (including Always-takers)"
+      }
+    ],
+    "answer": 1,
+    "explanation": {
+      "ko": "Wald 추정량($\\widehat{\\text{ITT}}_Y / \\widehat{\\text{ITT}}_D$)의 분자·분모 모두 자격 때문에 행동이 바뀐 순응자만 반영합니다. 자격과 무관하게 항상 받거나(Always-taker) 항상 거부하는(Never-taker) 사람은 분자·분모에서 상쇄되어 추정량에 잡히지 않습니다.",
+      "en": "Both the numerator and denominator of the Wald estimator capture only Compliers — those whose treatment status changes because of the instrument. Always-takers and Never-takers cancel out and do not contribute to the estimate."
+    }
+  },
+  "fuzzy-rdd-jump-size": {
+    "question": {
+      "ko": "Fuzzy RDD 시각화에서 Reduced Form의 Y 점프($\\widehat{\\text{ITT}}_Y$)와 First Stage의 D 점프($\\widehat{\\text{ITT}}_D$)의 관계로 옳은 것은?",
+      "en": "In a Fuzzy RDD plot, which statement about the Reduced Form Y-jump ($\\widehat{\\text{ITT}}_Y$) and the First Stage D-jump ($\\widehat{\\text{ITT}}_D$) is correct?"
+    },
+    "options": [
+      {
+        "ko": "순응률이 100% 미만이므로 Y 점프는 D 점프보다 항상 작다",
+        "en": "Since compliance is below 100%, the Y-jump is always smaller than the D-jump"
+      },
+      {
+        "ko": "둘은 단위가 달라 크기를 직접 비교할 수 없다 — Y 점프를 D 점프로 나눈 값이 순응자의 처치 효과(LATE)다",
+        "en": "They have different units and cannot be compared directly — dividing the Y-jump by the D-jump gives the compliers' treatment effect (LATE)"
+      },
+      {
+        "ko": "Y 점프가 D 점프보다 크면 반드시 배제 제약이 위반된 것이다",
+        "en": "If the Y-jump exceeds the D-jump, the exclusion restriction must be violated"
+      }
+    ],
+    "answer": 1,
+    "explanation": {
+      "ko": "$\\widehat{\\text{ITT}}_D$는 확률의 점프(0~1)이고 $\\widehat{\\text{ITT}}_Y$는 결과 $Y$의 단위(예: GPA 점수)이므로 둘의 크기를 직접 비교하는 것은 의미가 없습니다. 관계식은 $\\widehat{\\text{ITT}}_Y = \\text{LATE} \\times \\widehat{\\text{ITT}}_D$이므로, 부분적 순응 때문에 희석되는 것은 'Y 점프가 완전 처치 효과(LATE)보다 작아진다'는 것이지 'Y 점프가 D 점프보다 작아진다'가 아닙니다(①은 LATE<1일 때만 우연히 성립). LATE가 1보다 크면 Y 점프 > D 점프일 수 있고 이는 정상이며, 배제 제약 위반과도 무관합니다(③ 오답).",
+      "en": "$\\widehat{\\text{ITT}}_D$ is a jump in probability (0–1) while $\\widehat{\\text{ITT}}_Y$ carries the units of $Y$ (e.g., GPA points), so comparing their magnitudes directly is meaningless. Since $\\widehat{\\text{ITT}}_Y = \\text{LATE} \\times \\widehat{\\text{ITT}}_D$, partial compliance dilutes the Y-jump relative to the full treatment effect (LATE), not relative to the D-jump (option ① holds only by coincidence when LATE < 1). If LATE > 1, the Y-jump can exceed the D-jump, which is perfectly valid and unrelated to the exclusion restriction (so ③ is wrong)."
+    }
+  },
+  "rdd-late-scope": {
+    "question": {
+      "ko": "Sharp RDD로 추정한 처치 효과($\\tau_{SRD}$)의 적용 범위로 올바른 것은?",
+      "en": "Which best describes the scope of the treatment effect estimated by Sharp RDD ($\\tau_{SRD}$)?"
+    },
+    "options": [
+      {
+        "ko": "전체 표본의 평균 처치 효과 (ATE)",
+        "en": "Average treatment effect for the entire sample (ATE)"
+      },
+      {
+        "ko": "기준점 근방의 국소 평균 처치 효과 (LATE)",
+        "en": "Local average treatment effect near the cutoff (LATE)"
+      },
+      {
+        "ko": "처치를 받은 집단 전체의 평균 처치 효과 (ATT)",
+        "en": "Average treatment effect for the treated group (ATT)"
+      }
+    ],
+    "answer": 1,
+    "explanation": {
+      "ko": "RDD는 기준점(cutoff) 바로 좌우의 개체들만 비교하므로, 기준점 근방의 국소 평균 처치 효과(LATE)를 추정합니다. 기준점에서 멀리 떨어진 개체(예: 290점, 400점 학생)에는 이 추정치를 적용할 수 없습니다.",
+      "en": "RDD compares only individuals just above and below the cutoff, so it estimates a Local Average Treatment Effect (LATE) at the cutoff. This estimate cannot be generalized to individuals far from the cutoff."
+    }
+  }
+}

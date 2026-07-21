@@ -1,0 +1,16 @@
+Let's verify this with a simulation.
+
+We set the Korean CSAT scholarship cutoff at 370, with a true scholarship effect of 0.5 GPA points.
+We'll check whether RDD can recover this effect.
+
+We simulate data for 500 students.
+Korean CSAT scores are drawn uniformly between 340 and 400.
+GPA is generated as a function of the cutoff-centered score, plus the scholarship effect, plus some noise.
+
+We fit separate regression lines on the left and right of the cutoff.
+Then we estimate the treatment effect as the difference in intercepts at the cutoff.
+
+The results show a left intercept of approximately two point zero two, and a right intercept of approximately two point five.
+The estimated treatment effect is zero point four eight — close to the true effect of zero point five.
+
+This simulation confirms that by fitting separate regression lines on each side of the cutoff, RDD can successfully recover the treatment effect.

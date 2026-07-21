@@ -1,0 +1,20 @@
+To understand RDD, let's review three core concepts from causal inference.
+
+The first is the Running Variable.
+It's a continuous variable that determines treatment assignment.
+Exam scores, age, income level — each unit has a different value, and that value determines whether they receive treatment.
+As we discussed with the assumptions, units must not be able to manipulate this value to select into or out of treatment.
+
+The second is the Cutoff — the threshold that determines treatment.
+In Sharp RDD, units at or above the cutoff receive treatment, and those below do not.
+
+The third is Potential Outcomes.
+Y-one is the GPA if the scholarship is received; Y-zero is the GPA if it isn't.
+We can never observe both outcomes for the same student.
+A student who received the scholarship reveals only Y-one; one who didn't reveals only Y-zero.
+
+The cells marked with a question mark are the counterfactuals.
+With 70 as the scholarship cutoff, RDD uses data near the cutoff to estimate the causal effect.
+
+Note that RDD does not estimate the counterfactual for a student who scored, say, 90 points.
+This is both a defining feature and, at times, a limitation of RDD.

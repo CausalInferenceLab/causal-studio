@@ -1,0 +1,8 @@
+Let's wrap up Sharp RDD.
+
+When the running variable crosses the cutoff, treatment is fully determined. Under the continuity assumption near the cutoff, we can estimate the local treatment effect. The size of the jump at the cutoff — the estimate of beta two — is that treatment effect.
+
+In reality, though, some units above the cutoff may not receive treatment, and some below it may.
+
+That's Fuzzy RDD.
+This video focused on Sharp RDD — we'll cover Fuzzy RDD in the next video.
