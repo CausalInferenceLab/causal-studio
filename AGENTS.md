@@ -5,6 +5,8 @@
 Use REPO skills in `.codex/skills` instead of project command files.
 
 Project skills for previous command workflows:
+- `python-setup`: initial setup, including Python and both local video assets by default
+- `video-assets-setup`: install/update or validate local video references and icons
 - `book-serve`: local Jupyter Book server
 - `git-commit`: change analysis and commit workflow
 - `git-pr`: pull request workflow
@@ -32,6 +34,7 @@ Priority:
 ## Project Working Rules
 
 - Treat `.codex/skills/*` and `.claude/skills/*` as the default operating procedures for recurring tasks.
+- For initial environment setup (including "Python 환경 세팅"), run `bash scripts/setup_environment.sh`. Only use `--book-only` when the user explicitly requests a Book-only environment. Require dependency/import checks and both asset checks before reporting full setup complete; report partial completion when a step fails. Keep setup execution in the shared `scripts/setup_*.sh` files and have all skill copies delegate to them.
 - Keep dependency scopes separated:
   - `requirements.txt` for full local book + video work
   - `requirements-book.txt` for book, Binder, and deploy runtime

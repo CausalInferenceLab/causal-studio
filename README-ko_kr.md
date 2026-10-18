@@ -36,11 +36,30 @@ causal_studio/
 새 환경에서 처음 클론한 경우:
 
 ```text
-이 저장소 Python 환경 세팅해줘      → python-setup 스킬
-영상 작업용 로컬 자산 설치해줘      → video-assets-setup 스킬
+이 저장소 Python 환경 세팅해줘      → python-setup 스킬 (Python + 영상 에셋 2종)
+영상 작업용 로컬 자산 갱신해줘      → video-assets-setup 스킬
 ```
 
-`video-assets-setup`은 아래 두 저장소를 로컬에 clone합니다 (git 미추적):
+저장소 루트에서 전체 초기 세팅을 실행합니다.
+
+```bash
+bash scripts/setup_environment.sh
+source .venv/bin/activate
+```
+
+기존 `.venv`는 재사용합니다. 새 가상환경은 `Pipfile`의 Python 버전(현재 3.11,
+실행 파일은 `PYTHON_BIN`으로 지정 가능)으로 만들고, `requirements.txt`와 두 에셋
+저장소를 준비합니다. 해당 Python 버전은 먼저 설치해야 합니다. Manim의 wheel이
+없는 경우 시스템 Cairo/Pango 개발 라이브러리와 `pkg-config`도 필요합니다.
+
+Book 전용 세팅을 명시적으로 원할 때만 `bash scripts/setup_environment.sh --book-only`를
+사용합니다. 이 경우 `requirements-book.txt`를 설치하고 영상 에셋은 제외합니다.
+`--check`는 설치·갱신 없이 검증만 수행하며 `--book-only`와 함께 사용할 수 있습니다.
+전체 세팅은 의존성 충돌 검사, 주요 import, 두 에셋의 필수 파일 검증을 모두 통과해야
+완료로 보고합니다.
+
+두 스킬은 공통 스크립트를 사용하며, 아래 두 저장소를 로컬에 clone합니다 (git 미추적).
+
 - `3b1b/` — 3b1b/videos 참조용
 - `videos/assets/tabler-icons/` — Tabler Icons 아이콘셋
 

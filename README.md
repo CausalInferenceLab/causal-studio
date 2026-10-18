@@ -36,11 +36,31 @@ causal_studio/
 On a fresh clone:
 
 ```text
-Set up Python environment      → python-setup skill
-Install local video assets     → video-assets-setup skill
+Set up Python environment      → python-setup skill (Python + both video assets)
+Update local video assets      → video-assets-setup skill
 ```
 
-`video-assets-setup` clones the following repos locally (not git-tracked):
+Run the complete setup from the repository root:
+
+```bash
+bash scripts/setup_environment.sh
+source .venv/bin/activate
+```
+
+The script reuses `.venv`, selects the Python version specified in `Pipfile`
+(currently 3.11; override its executable with `PYTHON_BIN`), installs
+`requirements.txt`, and prepares both asset repositories. Install the matching
+Python version first; Manim also requires system Cairo/Pango development libraries
+and `pkg-config` when wheels are unavailable.
+
+Use `bash scripts/setup_environment.sh --book-only` only for a Book-only setup
+with `requirements-book.txt` and no video assets. Use `--check` (optionally with
+`--book-only`) to validate without installing or updating. Full setup reports
+success only after dependency, import, and required asset file checks pass.
+
+Both setup skills use shared scripts. The following repos are cloned locally
+(not git-tracked):
+
 - `3b1b/` — 3b1b/videos reference
 - `videos/assets/tabler-icons/` — Tabler Icons
 
