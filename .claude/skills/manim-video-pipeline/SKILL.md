@@ -3,10 +3,10 @@ name: manim-video-pipeline
 description: |
   Manim Community Edition 기반 교육 영상 제작 파이프라인.
   ipynb/개념 문서를 Scene 구조로 설계하고, 내레이션 스크립트 작성,
-  Manim 코드 생성, 오디오 싱크, 최종 합본까지 전 과정을 지원한다.
+  Manim 코드 생성, OpenAI TTS 음성·청크 타이밍 생성, 오디오 싱크, 최종 합본까지 지원한다.
 
   트리거: "manim 영상", "scene 설계", "scene 구조", "스크립트 작성",
-  "scene 렌더", "영상 합치기", "오디오 싱크", "debug 영상", "full video"
+  "scene 렌더", "영상 합치기", "오디오 싱크", "OpenAI TTS", "음성 생성", "debug 영상", "full video"
 ---
 
 # Manim Video Pipeline
@@ -204,18 +204,27 @@ Scene 구조 기반 내레이션 스크립트 생성 (한국어).
 - 이 단계의 종료 조건은 스크립트 파일 저장이 아니라 사용자 승인이다.
 - 사용자가 승인하기 전에는 mp3 생성이나 Scene 코드 작성으로 넘어가지 않는다.
 
-### 2. 오디오 생성 (외부)
-스크립트를 OpenAI gpt-4o-mini-tts로 mp3 변환.
-- 기본 생성 스크립트: `scripts/generate_elevenlabs_audio.mjs` (파일명은 레거시, 내부 구현은 OpenAI API)
-- API 키는 repo root `.env`의 `OPENAI_API_KEY`를 사용한다.
+### 2. 오디오 생성 (OpenAI TTS 기본 지원)
+승인된 스크립트를 OpenAI `gpt-4o-mini-tts`로 mp3 변환한다.
+- OpenAI TTS를 정식 기본 경로로 사용한다. ElevenLabs 계정·키·SDK는 필요하지 않다.
+- 사용자가 제공자를 지정하면 그 선택을 따른다. 한 제공자의 실패를 다른 제공자의 유료 호출로 자동 대체하지 않는다.
+- 기본 생성 스크립트: `scripts/generate_openai_audio.mjs`, 실행 명령: `npm run openai-audio -- ...`.
+- `OPENAI_API_KEY`는 셸 환경변수 또는 repo root `.env`에서 읽는다. 셸에 설정된 값이 우선이며 `.env`가 없어도 실행 가능하다.
+- 키를 출력하거나 코드·커밋·PR에 포함하지 않는다. `--dry-run`은 키와 API 호출 없이 입력·출력 경로를 검증한다.
+- Node.js 22 이상, `ffmpeg`, `ffprobe`가 필요하다. 추가 npm 패키지는 필요하지 않다.
 - model은 `gpt-4o-mini-tts`, output format은 `mp3`를 사용한다.
+- 키·voice·톤 설정은 `.env`를 읽은 뒤 적용한다.
 - voice 기본값은 `coral`. 변경하려면 `OPENAI_TTS_VOICE` 환경변수로 지정한다 (예: `nova`, `sage`, `ash`, `shimmer`).
 - 톤 지시는 `OPENAI_TTS_INSTRUCTIONS` 환경변수로 전달한다 (예: "차분한 한국어 설명 톤, 12세 청취자가 이해하기 쉽게").
 - 출력: `videos/{topic}/build/audio/{NN}_{scene_name}.mp3`
 - 동시에 chunk별 timing 메타데이터를 `videos/{topic}/build/audio/{NN}_{scene_name}.timings.json`에 저장한다.
-- 스크립트 파일을 그대로 읽어 음성을 만들고, 파일명은 scene 번호와 scene 이름을 유지한다.
+- `--lang ko` 또는 `--lang en`으로 `src/scripts/{lang}/{NN}_{scene_name}.txt`를 선택한다. `--script`를 주면 해당 파일을 우선한다.
+- `--lang`과 `--script`를 생략하면 `src/scripts/ko/`를 먼저 찾고, 없으면 기존 `src/scripts/` 경로를 사용한다.
+- 출력은 언어와 관계없이 `build/audio/{NN}_{scene_name}.*`이다. 한 토픽에서 두 언어를 만들 때는 `--name intro_ko`, `--name intro_en`처럼 이름을 구분해 덮어쓰기를 방지한다.
+- 스크립트 파일을 읽어 음성을 만들고, 파일명은 scene 번호와 scene 이름을 유지한다. `#`로 시작하는 주석 줄은 읽지 않는다.
 - 긴 스크립트는 문단 단위로 나눠 여러 번 생성한 뒤 하나의 mp3로 합쳐, 말 꼬임이나 글리치를 줄인다.
-- `.timings.json`에는 chunk별 `text`, `start`, `end`, `duration`이 들어가며, 이후 Scene 타이밍 조정의 1차 기준으로 사용한다.
+- `.timings.json`은 OpenAI API가 직접 반환하는 파일이 아니다. 로컬 `ffprobe`로 각 청크의 길이를 측정해 `text`, `start`, `end`, `duration`을 저장한다.
+- 이는 문단·청크 단위 타이밍이며 단어별·음소별 정렬이 아니다. 이후 Scene 타이밍 조정의 1차 기준으로 사용하고 실제 합성본으로 검수한다.
 - 이 파일은 mux 스크립트의 입력이 아니라, mux 전에 Scene 코드 타이밍을 맞추기 위한 기준 데이터다.
 - 이 단계가 끝나면 mp3와 `.timings.json`을 사용자에게 공유하고 승인을 받는다.
 - 사용자가 승인하기 전에는 Scene 코드를 작성하지 않는다.
@@ -325,19 +334,36 @@ cd videos/{topic} && ../../.claude/skills/manim-video-pipeline/scripts/mix_bgm.s
   --bgm-volume 0.10
 ```
 
-### ElevenLabs 오디오 생성
-`--script`로 언어별 scripts 경로를 명시한다. build 출력 위치는 작업자가 자유롭게 관리한다:
+### OpenAI TTS 음성 + timings.json 생성
+저장소 루트에서 실행한다. 아래 경로는 Claude와 Codex가 공통으로 사용하는 운영 소스다:
 ```bash
-cd .claude/skills/manim-video-pipeline && \
-npm run elevenlabs-audio -- --topic {topic} --scene 01 --name {scene_name} \
-  --script ../../../videos/{topic}/src/scripts/{lang}/01_{scene_name}.txt
+npm --prefix .claude/skills/manim-video-pipeline run openai-audio -- \
+  --topic {topic} --scene 01 --name {scene_name} --lang ko --dry-run
+
+# 입력 확인 후 실제 생성 (OPENAI_API_KEY 필요)
+npm --prefix .claude/skills/manim-video-pipeline run openai-audio -- \
+  --topic {topic} --scene 01 --name {scene_name} --lang ko
 ```
 
-voice 또는 톤을 바꾸려면 환경변수로:
+voice 또는 톤을 바꾸려면 환경변수를 사용한다. `.env`에서도 동일하게 설정할 수 있다:
 ```bash
 OPENAI_TTS_VOICE=nova OPENAI_TTS_INSTRUCTIONS="차분한 한국어 설명 톤" \
-  npm run openai-audio -- --topic {topic} --scene 01 --name {scene_name}
+  npm --prefix .claude/skills/manim-video-pipeline run openai-audio -- \
+  --topic {topic} --scene 01 --name {scene_name} --lang ko
 ```
+
+특정 파일을 사용할 때는 저장소 루트 기준 경로를 명시한다:
+```bash
+node .claude/skills/manim-video-pipeline/scripts/generate_openai_audio.mjs \
+  --topic {topic} --scene 01 --name {scene_name} \
+  --script videos/{topic}/src/scripts/ko/01_{scene_name}.txt
+```
+
+기존 `elevenlabs-audio` 명령과 `generate_elevenlabs_audio.mjs`는 OpenAI를 호출하던 호환 별칭이다. 새 작업에는 사용하지 않는다.
+실제 ElevenLabs 전용 `scripts/gen_en_slow.mjs`는 특정 IPW 영어 영상용 일회성 도구다. 일반 Scene 생성기로 사용하지 않는다. 사용자가 해당 도구를 명시적으로 요청한 경우에만 별도의 ElevenLabs 키·SDK 요구사항을 확인한다.
+
+OpenAI 요청 형식은 [공식 TTS 문서](https://developers.openai.com/api/docs/guides/text-to-speech)를 참고한다.
+공유·공개 시에는 README나 영상 설명에 AI 생성 음성 사용 사실을 표시한다.
 
 ### 현재 Scene 반복 루프 예시
 ```bash
@@ -347,8 +373,8 @@ cd videos/{topic} && manim -pql --media_dir build/manim src/{topic}_{lang}.py Sc
 # 2) mp3를 받은 뒤 480p 테스트 mux (build/manim 결과 직접 사용)
 ../../.claude/skills/manim-video-pipeline/scripts/mux_audio.sh \
   build/manim/videos/{topic}_{lang}/480p15/Scene01_{ClassName}.mp4 \
-  build/audio/{lang}/01_{scene_name}.mp3 \
-  preview/{lang}/01_{scene_name}_mux.mp4
+  build/audio/01_{scene_name}.mp3 \
+  preview/01_{scene_name}_mux.mp4
 
 # 3) 사용자가 만족하면 고화질 저장
 manim -pqh --media_dir build/manim src/{topic}_{lang}.py Scene01_{ClassName}

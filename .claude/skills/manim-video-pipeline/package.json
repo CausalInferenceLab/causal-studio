@@ -5,11 +5,15 @@
   "main": "index.js",
   "scripts": {
     "elevenlabs-audio": "node scripts/generate_elevenlabs_audio.mjs",
-    "openai-audio": "node scripts/generate_elevenlabs_audio.mjs"
+    "openai-audio": "node scripts/generate_openai_audio.mjs",
+    "test": "node --test scripts/generate_openai_audio.test.mjs"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "commonjs",
+  "engines": {
+    "node": ">=22"
+  },
   "dependencies": {}
 }
