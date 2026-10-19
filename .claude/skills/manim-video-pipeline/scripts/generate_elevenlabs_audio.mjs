@@ -5,6 +5,7 @@ import os from "node:os";
 import path from "node:path";
 import process from "node:process";
 import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
 
 const MODEL_ID = "gpt-4o-mini-tts";
 const VOICE = process.env.OPENAI_TTS_VOICE || "coral";
@@ -216,7 +217,7 @@ async function main() {
     throw new Error("--topic, --scene, and --name are required");
   }
 
-  const repoRoot = path.resolve(path.dirname(new URL(import.meta.url).pathname), "../../../..");
+  const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../..");
   const topicDir = path.join(repoRoot, "videos", topic);
   const scriptPath =
     args.script || path.join(topicDir, "src", "scripts", `${scene}_${sceneName}.txt`);
