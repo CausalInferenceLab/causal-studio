@@ -6,9 +6,20 @@ import path from "node:path";
 import process from "node:process";
 import { spawn } from "node:child_process";
 
-const MODEL_ID = "gpt-4o-mini-tts";
-const VOICE = process.env.OPENAI_TTS_VOICE || "coral";
-const OUTPUT_FORMAT = "mp3";
+const PROVIDERS = {
+  openai: {
+    envKey: "OPENAI_API_KEY",
+    modelId: "gpt-4o-mini-tts",
+    voice: process.env.OPENAI_TTS_VOICE || "coral",
+    outputFormat: "mp3",
+  },
+  elevenlabs: {
+    envKey: "ELEVENLABS_API_KEY",
+    modelId: process.env.ELEVENLABS_MODEL_ID || "eleven_multilingual_v2",
+    voice: process.env.ELEVENLABS_VOICE_ID || "7Nah3cbXKVmGX7gQUuwz",
+    outputFormat: "mp3_44100_128",
+  },
+};
 const INSTRUCTIONS = process.env.OPENAI_TTS_INSTRUCTIONS || "";
 
 function printUsage() {
@@ -24,6 +35,7 @@ Options:
   --script     explicit script file path (overrides --lang-based default)
   --text       direct text input instead of a script file
   --speed      TTS speed multiplier (default: 1.0, range: 0.7–1.2)
+  --provider   openai (default) or elevenlabs; also settable via TTS_PROVIDER
   --dry-run    validate paths and print output target without API call
   --help       show this message`);
 }
@@ -98,34 +110,55 @@ function splitIntoChunks(text, maxChars = 650) {
   return chunks;
 }
 
-async function ensureEnv(repoRoot) {
+async function ensureEnv(repoRoot, envKey) {
   const envPath = path.join(repoRoot, ".env");
   process.loadEnvFile(envPath);
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = process.env[envKey];
   if (!apiKey) {
-    throw new Error(`OPENAI_API_KEY not found in ${envPath}`);
+    throw new Error(`${envKey} not found in ${envPath}`);
   }
   return apiKey;
 }
 
-async function synthesizeSpeechChunk(apiKey, text, speed = 1.0) {
+function buildOpenAIRequest(apiKey, provider, text, speed) {
   const payload = {
-    model: MODEL_ID,
-    voice: VOICE,
+    model: provider.modelId,
+    voice: provider.voice,
     input: text,
-    response_format: OUTPUT_FORMAT,
+    response_format: provider.outputFormat,
     speed: speed,
   };
   if (INSTRUCTIONS) {
     payload.instructions = INSTRUCTIONS;
   }
+  return {
+    url: "https://api.openai.com/v1/audio/speech",
+    headers: { Authorization: `Bearer ${apiKey}` },
+    payload,
+  };
+}
 
-  const response = await fetch("https://api.openai.com/v1/audio/speech", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${apiKey}`,
-      "Content-Type": "application/json",
+function buildElevenLabsRequest(apiKey, provider, text, speed) {
+  const query = new URLSearchParams({ output_format: provider.outputFormat });
+  return {
+    url: `https://api.elevenlabs.io/v1/text-to-speech/${provider.voice}?${query}`,
+    headers: { "xi-api-key": apiKey },
+    payload: {
+      text,
+      model_id: provider.modelId,
+      voice_settings: { speed },
     },
+  };
+}
+
+async function synthesizeSpeechChunk(apiKey, providerName, text, speed = 1.0) {
+  const provider = PROVIDERS[providerName];
+  const buildRequest = providerName === "elevenlabs" ? buildElevenLabsRequest : buildOpenAIRequest;
+  const { url, headers, payload } = buildRequest(apiKey, provider, text, speed);
+
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { ...headers, "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
 
@@ -210,6 +243,11 @@ async function main() {
   const sceneName = args.name;
   const speed = args.speed ? Number.parseFloat(args.speed) : 1.0;
   const dryRun = Boolean(args["dry-run"]);
+  const providerName = args.provider || process.env.TTS_PROVIDER || "openai";
+  const provider = PROVIDERS[providerName];
+  if (!provider) {
+    throw new Error(`Unknown --provider: ${providerName} (expected: ${Object.keys(PROVIDERS).join(", ")})`);
+  }
 
   if (!topic || !scene || !sceneName) {
     printUsage();
@@ -242,10 +280,11 @@ async function main() {
       scriptPath,
       outputPath,
       timingsPath,
-      provider: "openai",
-      voice: VOICE,
-      modelId: MODEL_ID,
-      outputFormat: OUTPUT_FORMAT,
+      provider: providerName,
+      voice: provider.voice,
+      modelId: provider.modelId,
+      outputFormat: provider.outputFormat,
+      speed,
       charCount: text.length,
       chunkCount: chunks.length,
       chunks,
@@ -253,12 +292,12 @@ async function main() {
     return;
   }
 
-  const apiKey = await ensureEnv(repoRoot);
+  const apiKey = await ensureEnv(repoRoot, provider.envKey);
   const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), "elevenlabs-scene-"));
   const chunkPaths = [];
 
   for (let i = 0; i < chunks.length; i += 1) {
-    const buffer = await synthesizeSpeechChunk(apiKey, chunks[i], speed);
+    const buffer = await synthesizeSpeechChunk(apiKey, providerName, chunks[i], speed);
     const chunkPath = path.join(tempDir, `${String(i + 1).padStart(2, "0")}.mp3`);
     await fs.writeFile(chunkPath, buffer);
     chunkPaths.push(chunkPath);
@@ -299,10 +338,11 @@ async function main() {
         sceneName,
         scriptPath,
         outputPath,
-        provider: "openai",
-        voice: VOICE,
-        modelId: MODEL_ID,
-        outputFormat: OUTPUT_FORMAT,
+        provider: providerName,
+        voice: provider.voice,
+        modelId: provider.modelId,
+        outputFormat: provider.outputFormat,
+        speed,
         totalDuration: mergedDuration,
         chunkCount: timingChunks.length,
         chunks: timingChunks,

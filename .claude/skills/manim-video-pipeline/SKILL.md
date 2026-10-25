@@ -210,6 +210,7 @@ Scene 구조 기반 내레이션 스크립트 생성 (한국어).
 - API 키는 repo root `.env`의 `OPENAI_API_KEY`를 사용한다.
 - model은 `gpt-4o-mini-tts`, output format은 `mp3`를 사용한다.
 - voice 기본값은 `coral`. 변경하려면 `OPENAI_TTS_VOICE` 환경변수로 지정한다 (예: `nova`, `sage`, `ash`, `shimmer`).
+- ElevenLabs를 쓰려면 `--provider elevenlabs`(또는 `TTS_PROVIDER=elevenlabs`)를 붙인다. `.env`의 `ELEVENLABS_API_KEY`를 읽고, model은 `eleven_multilingual_v2`, voice는 `ELEVENLABS_VOICE_ID`로 바꿀 수 있다. 출력 파일과 `.timings.json` 형식은 OpenAI와 같고, `.timings.json`에 `provider`와 `speed`가 기록된다.
 - 톤 지시는 `OPENAI_TTS_INSTRUCTIONS` 환경변수로 전달한다 (예: "차분한 한국어 설명 톤, 12세 청취자가 이해하기 쉽게").
 - 출력: `videos/{topic}/build/audio/{NN}_{scene_name}.mp3`
 - 동시에 chunk별 timing 메타데이터를 `videos/{topic}/build/audio/{NN}_{scene_name}.timings.json`에 저장한다.
