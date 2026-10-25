@@ -1,4 +1,4 @@
-"""macOS에서 5컷 DID 영상 초안을 렌더한다."""
+"""ElevenLabs 음성으로 5컷 DID 영상 초안을 렌더한다."""
 
 import json
 import subprocess
@@ -27,14 +27,16 @@ def duration(path):
 
 
 run(REPO / ".venv" / "bin" / "python", TOPIC / "src" / "slides.py")
-timings = []
-for number, script in enumerate(sorted((TOPIC / "src" / "scripts" / "ko").glob("*.txt")), 1):
-    raw = AUDIO / f"{number:02d}.aiff"
-    run("say", "-v", "Yuna", "-r", "180", "-f", script, "-o", raw)
-    target = round(duration(raw) + 2.2, 2)
-    timings.append(target)
-    run("ffmpeg", "-y", "-loglevel", "error", "-i", raw, "-af", "apad", "-t", target,
-        "-ar", "48000", "-ac", "2", AUDIO / f"{number:02d}.wav")
+run("node", TOPIC / "src" / "generate_elevenlabs_audio.mjs")
+speech_lengths = [duration(AUDIO / f"{number:02d}.mp3") for number in range(1, 6)]
+tempo = max(1.0, sum(speech_lengths) / (120 - 5 * 1.1))
+adjusted_lengths = [length / tempo for length in speech_lengths]
+padding = max(1.1, (120 - sum(adjusted_lengths)) / 5)
+timings = [round(length + padding, 2) for length in adjusted_lengths]
+for number, target in enumerate(timings, 1):
+    run("ffmpeg", "-y", "-loglevel", "error", "-i", AUDIO / f"{number:02d}.mp3",
+        "-af", f"atempo={tempo:.5f},apad", "-t", target, "-ar", "48000", "-ac", "2",
+        AUDIO / f"{number:02d}.wav")
 
 (BUILD / "durations.json").write_text(json.dumps(timings, ensure_ascii=False))
 concat = AUDIO / "concat.txt"
@@ -53,3 +55,4 @@ run("ffmpeg", "-y", "-loglevel", "error", "-i", render, "-i", AUDIO / "narration
     "-c:v", "copy", "-c:a", "aac", "-b:a", "160k", "-shortest", output)
 print(f"video: {output}")
 print(f"durations: {timings}, total={sum(timings):.2f}s")
+print(f"audio tempo: {tempo:.3f}x")

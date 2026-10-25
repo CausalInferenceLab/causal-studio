@@ -9,21 +9,30 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "build" / "slides"
 OUT.mkdir(parents=True, exist_ok=True)
-plt.rcParams["font.family"] = "AppleGothic"
-plt.rcParams["axes.unicode_minus"] = False
+plt.rcParams.update({
+    "font.family": "AppleGothic",
+    "axes.unicode_minus": False,
+    "axes.facecolor": "#0D0F1F",
+    "text.color": "#FFFFFF",
+    "xtick.color": "#9CA3AF",
+    "ytick.color": "#9CA3AF",
+    "axes.edgecolor": "#374151",
+})
 
-BLUE = "#285B96"
-GREEN = "#5A8178"
-ORANGE = "#DF8A35"
-RED = "#C34E45"
-INK = "#22262A"
-MUTED = "#68727B"
+# Causal Studio의 RDD/Fuzzy RDD 팔레트와 AppleGothic 글꼴을 따른다.
+BG = "#0D0F1F"
+BLUE = "#4DD0C4"     # 기획전 참여군 (처치)
+GREEN = "#8AA6B2"    # 대조군
+ORANGE = "#C8A630"   # 기획전이 없었다면 (반사실)
+RED = "#EF4444"      # 추정 순증분
+INK = "#FFFFFF"
+MUTED = "#9CA3AF"
 
 
 def canvas(number, title):
-    fig = plt.figure(figsize=(12.8, 7.2), facecolor="#F7F5F1")
+    fig = plt.figure(figsize=(12.8, 7.2), facecolor=BG)
     fig.text(.055, .93, f"{number:02d}  {title}", fontsize=31, weight="bold", color=INK)
-    fig.text(.055, .055, "예약 서비스의 할인 기획전  ·  교육용 가상 수치", fontsize=14, color=MUTED)
+    fig.text(.055, .055, "예약 서비스의 할인 기획전 / 교육용 가상 수치", fontsize=14, color=MUTED)
     return fig
 
 
@@ -40,7 +49,7 @@ save(fig, 1)
 
 fig = canvas(2, "전후 차이가 곧 효과일까?")
 ax = fig.add_axes([.12, .23, .56, .56])
-ax.bar([0, 1], [10000, 12000], width=.38, color=["#A9C1D9", BLUE])
+ax.bar([0, 1], [10000, 12000], width=.38, color=["#536170", BLUE])
 ax.set_xticks([0, 1], ["기획전 이전 2주", "기획전 진행 2주"], fontsize=18)
 ax.set_ylim(0, 14500)
 ax.set_yticks([])
@@ -86,14 +95,14 @@ assert t[-2:].sum() == 12000 and cf.sum() == 11000
 assert (t[-2:].sum() - pre_t[-2:].sum()) - (c[-2:].sum() - pre_c[-2:].sum()) == 1000
 fig = canvas(5, "두 변화의 차이가 기획전의 순증분")
 ax = fig.add_axes([.075, .22, .61, .57])
-ax.axvspan(5.5, 7.5, color=ORANGE, alpha=.09)
+ax.axvspan(5.5, 7.5, color=ORANGE, alpha=.11)
 ax.plot(range(8), t, color=BLUE, marker="o", lw=3.5, ms=8, label="참여 매장")
 ax.plot(range(8), c, color=GREEN, marker="o", lw=3.5, ms=8, label="대조군")
 ax.plot([5, 6, 7], [5100, *cf], color=ORANGE, marker="o", ls="--", lw=3, ms=8, label="기획전이 없었다면")
 for i in [6, 7]:
     ax.fill_between([i-.4, i+.4], cf[i-6], t[i], color=RED, alpha=.27)
     ax.text(i, (cf[i-6]+t[i])/2, "+500", ha="center", color=RED, fontsize=16, weight="bold")
-ax.axvline(5.5, color="#BAB6AD", ls="--")
+ax.axvline(5.5, color=MUTED, ls="--")
 ax.set_xlim(-.3, 7.5)
 ax.set_ylim(3200, 6500)
 ax.set_xticks(range(8), ["6주 전", "5주 전", "4주 전", "3주 전", "2주 전", "직전", "1주차", "2주차"], fontsize=12)
