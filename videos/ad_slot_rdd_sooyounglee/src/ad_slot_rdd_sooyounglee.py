@@ -11,7 +11,8 @@ from manim import *
 #   - 아주 옅은 회백색 배경, 테두리 없는 평면 카드, 넓은 여백
 #   - 좌상단 작은 회색 챕터 라벨, 왼쪽 정렬 제목
 #   - 강조색은 한 번에 하나(주황)만, 나머지는 회색 톤
-config.background_color = "#F5F5F7"
+BG_COLOR = "#F5F5F7"
+config.background_color = BG_COLOR
 
 # 한글이 깔끔하게 보이도록 모든 Text에 Pretendard를 기본으로 쓴다.
 FONT = "Pretendard"
@@ -232,6 +233,28 @@ def make_pill(text: str, fill: str, font_size: int = 24) -> VGroup:
     return VGroup(pill, label)
 
 
+# 영상 3단 구성: 내 도메인의 상황 → 단순 비교하면 왜 안 될까 → 인과추론으로 보면
+PART_1 = (1, "상황: 1위 광고 자리")
+PART_2 = (2, "단순 비교하면 왜 안 될까?")
+PART_3 = (3, "인과추론으로 보면")
+
+
+def part_label(part: tuple[int, str]) -> str:
+    number, title = part
+    return f"Part {number} · {title}"
+
+
+def make_part_card(part: tuple[int, str]) -> VGroup:
+    """파트가 시작될 때 화면 전체를 덮는 표지 카드."""
+    number, title = part
+    bg = Rectangle(width=config.frame_width + 0.4, height=config.frame_height + 0.4)
+    bg.set_fill(BG_COLOR, opacity=1).set_stroke(width=0)
+    label = Text(f"Part {number}", font_size=34, weight=BOLD, color=HIGHLIGHT_COLOR)
+    title_text = Text(title, font_size=62, weight=BOLD, color=INK)
+    texts = VGroup(label, title_text).arrange(DOWN, buff=0.35)
+    return VGroup(bg, texts)
+
+
 def make_chapter_label(text: str) -> Text:
     """좌상단에 계속 떠 있는 작은 챕터 라벨."""
     label = Text(text, font_size=22, color=SUBTLE)
@@ -247,125 +270,82 @@ class TimedScene(Scene):
         if remaining > 0.01:
             self.wait(remaining)
 
+    def play_part_card(self, part: tuple[int, str], swap=None, hold: float = 0.6):
+        """파트 표지 카드를 띄웠다 걷는다. swap은 카드가 화면을 덮은 동안 뒤 화면을 바꾸는 함수."""
+        card = make_part_card(part)
+        self.play(FadeIn(card), run_time=0.35)
+        if swap is not None:
+            swap()
+            self.bring_to_front(card)
+        self.wait(hold)
+        self.play(FadeOut(card), run_time=0.4)
+
 
 class Scene01_Question(TimedScene):
     """
-    Scene 01: Question — 쿠팡 검색 1위 광고 자리는 정말 그만큼의 값어치가 있을까?
+    Scene 01: Question (Part 1 · 상황) — 2위 거북이 B 광고 담당자 수영 씨: 입찰가를 올려 1위로 갈 값어치가 있을까?
 
     Core Claim:
-    검색 결과 맨 위 광고 순서는 광고 경매(CPC 입찰)로 정해진다.
-    알고 싶은 것은 "2위 광고를 1위로 올리면 클릭이 얼마나 늘어나는가"라는 위치 자체의 효과다.
+    쿠팡 검색 결과 맨 위 두 칸은 광고 자리이고, 순서는 광고주들의 CPC 입찰(광고 경매)로 정해진다.
+    2위 광고 담당자에게 실제로 걸린 의사결정은 "입찰가를 올려 1위로 가는 데 광고비를 더 쓸 가치가 있는가"다.
 
     Expected Misconception:
-    "1위가 2위보다 클릭이 많으니, 1위로 올리면 그 차이만큼 클릭이 늘어난다."
-    (이 Scene에서는 오해를 교정하지 않고 질문만 던진다. 교정은 Scene 02~03 담당.)
+    "1위는 당연히 더 좋으니 입찰가를 올리면 된다." (이 Scene은 질문만 세우고, 반박은 Part 2 담당.)
 
     Visual Pivot:
-    두 광고 거북이 카드가 1위/2위 자리에 고정돼 있다가,
-    2위 카드가 1위 자리로 올라가는 순간 "자리만 바꾸면 클릭은?"이라는 질문으로 바뀐다.
+    휴대폰 속 2위 거북이 B 카드에 '담당자' 수영 씨가 연결되고, 입찰가 ↑와 함께 B가 1위 칸으로 올라가는 순간
+    "그만큼 광고비를 더 낼 값어치가 있나?"라는 업무 질문으로 바뀐다.
+
+    3단 구성에서의 역할:
+    Part 1 '내 도메인의 상황' — 광고 담당자 관점의 실제 의사결정(1위 입찰)으로 영상을 연다.
 
     Scene 경계:
     - 직전 Scene 마지막 문장: 없음 (첫 Scene)
-    - 현재 Scene 첫 문장: "직장에서 힘든 하루를 보낸 수영 씨는"
-    - 현재 Scene 마지막 문장: "클릭은 얼마나 더 늘어날까요?"
-    - 순위별 CTR 숫자(12%, 8%, 5%)는 Scene 02에서 처음 꺼낸다.
+    - 현재 Scene 첫 문장: "쿠팡에서 행운 거북이를 검색하면, 맨 위 두 칸에 광고가 뜹니다."
+    - 현재 Scene 마지막 문장: "그만큼 광고비를 더 낼 값어치가 있을까요?"
+    - 순위별 CTR 숫자(12%, 8%, 5%)는 Part 2(Scene 02)에서 처음 꺼낸다.
 
     Notebook Reference:
     book/why_causal_inference/why_causal_inference_ko.ipynb
-    - 셀 [3]: "새로운 광고 캠페인이 실제로 매출을 올려줄까?"처럼 일상 속 인과 질문을 던지는 도입 방식을 따른다.
-    - 이 Scene의 쇼핑 화면·상품명은 노트북 데이터가 아닌 설명용 가상 예시다.
+    - 셀 [3]: "새로운 광고 캠페인이 실제로 매출을 올려줄까?"처럼 업무 속 인과 질문으로 여는 도입을 따른다.
+    - 쇼핑 화면·상품명은 설명용 가상 예시다.
 
     Script Reference:
-    src/scripts/ko/01_question.txt  ("값어치"는 TTS 발음 때문에 스크립트에서만 "가버치"로 표기)
-    Audio: build/audio/01_question.mp3 (ElevenLabs eleven_multilingual_v2, speed 1.1, 22.93s)
+    src/scripts/ko/01_question.txt  ("값어치"→"가버치", "입찰가"→"입찰까"는 TTS 발음용 스크립트 표기)
+    Audio: build/audio/01_question.mp3 (ElevenLabs eleven_multilingual_v2, speed 1.1, 20.01s)
 
     Asset Reference:
-    Tabler Icons (MIT) — antenna-bars-5.svg, wifi.svg, battery-3.svg, battery-1.svg, cloud.svg, clover.svg,
-    search.svg, gavel.svg, hand-click.svg. 거북이·직장인·스마트폰은 도형으로 직접 그렸다.
+    Tabler Icons (MIT) — search.svg, gavel.svg, coins.svg, antenna-bars-5.svg, wifi.svg, battery-3.svg.
+    거북이·직장인·스마트폰은 도형으로 직접 그렸다.
 
     3Blue1Brown Reference:
     3b1b/_2022/wordle/scenes.py - DrawPhone
     Reason:
-    인물 옆에 휴대폰 화면을 띄워 "이 사람이 지금 이 화면을 보고 있다"를 먼저 세운 뒤
-    화면 속 내용으로 시선을 옮기는 도입 리듬이 수영 씨 → 쿠팡 검색 화면 흐름과 같아서 참고했다.
+    휴대폰 화면을 먼저 세우고 그 화면 속 대상(2위 카드)과 인물을 연결하는 도입 리듬이 같아서 참고했다.
 
     Script-to-Beat Mapping (.timings.json chunk 기준, 문장 경계는 음절 비율로 추정):
-      Beat 1 → chunk 1 "직장에서 힘든 하루를 보낸 수영 씨는"            (0.00~약 2.6s)
-      Beat 2 → chunk 1 "내일은 좋은 일이 생기길 바라며"                (약 2.6~4.4s)
-      Beat 3 → chunk 1 "쿠팡에서 귀여운 행운 거북이를 검색했습니다."    (약 4.4~7.38s)
-      Beat 4 → chunk 2 "맨 위 두 칸에는 광고 거북이가 떠 있습니다."      (7.38~약 10.3s)
-      Beat 5 → chunk 2 "이 순서는 쿠팡의 씨피씨 입찰, 즉 광고 경매로…"  (약 10.3~14.26s)
-      Beat 6 → chunk 3 "그렇다면 1위 자리는 정말 그만큼의 값어치가…"    (14.26~약 18.0s)
-      Beat 7 → chunk 3 "2위에 있던 거북이 광고를 1위로 올리면, 클릭은…" (약 18.0s~끝)
+      Beat 0 → Part 1 표지 카드                                                   (0.00~약 1.4s)
+      Beat 1 → chunk 1 "쿠팡에서 행운 거북이를 검색하면, 맨 위 두 칸에 광고가 뜹니다." (약 1.4~4.9s)
+      Beat 2 → chunk 1 "이 순서는 광고주들이 씨피씨 입찰로 겨루는 광고 경매로…"       (약 4.9~10.12s)
+      Beat 3 → chunk 2 "수영 씨는 지금 2위에 있는 거북이 B의 광고 담당자입니다."      (10.12~약 14.2s)
+      Beat 4 → chunk 2 "입찰가를 올리면 1위로 갈 수 있는데,"                         (약 14.2~16.9s)
+      Beat 5 → chunk 2 "그만큼 광고비를 더 낼 값어치가 있을까요?"                    (약 16.9s~끝)
 
     화면 구획 (가로 14.2 x 8):
-      좌측 설명 구역 x≈-3.6 (인물 → 경매 라벨 → 질문 순으로 한 번에 하나만)
-      우측 휴대폰 x≈+3.1 (Beat 3부터 끝까지 유지되는 기준축)
-      순위 라벨(1위/2위)은 휴대폰 바깥 왼쪽에 고정해, 카드가 움직여도 자리 번호는 그대로 남긴다.
+      우측 휴대폰 x≈+3.1 (기준축, 끝까지 유지) / 순위 라벨은 휴대폰 바깥 왼쪽
+      좌측 구역: Beat 2 경매 라벨 → Beat 3 담당자 수영 씨(크게) → Beat 4 왼쪽 위로 줄어든 수영 씨 + 입찰가 ↑
+      → Beat 5 좌측 아래 질문
     """
 
     SCENE_BASENAME = "01_question"
-    # chunk 안 문장 경계 비율 (음절 수 기준 추정)
-    CHUNK1_SPLITS = (0.35, 0.60)
-    CHUNK2_SPLIT = 0.42
-    CHUNK3_SPLIT = 0.43
+    CHUNK1_SPLIT = 0.48
+    CHUNK2_SPLITS = (0.41, 0.69)
     WAIT_TAIL = 0.8
+    OWNER_FINAL_SCALE = 0.68
 
-    def construct(self):
-        starts, audio_end = load_audio_timings(self.SCENE_BASENAME)
-        chunk_ends = starts[1:] + [audio_end]
-        c1_len = chunk_ends[0] - starts[0]
-        beat2_start = starts[0] + c1_len * self.CHUNK1_SPLITS[0]
-        beat3_start = starts[0] + c1_len * self.CHUNK1_SPLITS[1]
-        beat5_start = starts[1] + (chunk_ends[1] - starts[1]) * self.CHUNK2_SPLIT
-        beat7_start = starts[2] + (chunk_ends[2] - starts[2]) * self.CHUNK3_SPLIT
-
-        # ─── Beat 1: 힘든 하루를 보낸 수영 씨를 소개한다 ───
-        # 처리 문장: "직장에서 힘든 하루를 보낸 수영 씨는"
-        # 남는 요소: 없음 (첫 화면)
-        # 새로 등장: 수영 씨 그룹(정장 차림 직장인 일러스트 + 방전 배터리) — 화면 중앙에서 시작
-        # 비워 두는 영역: 우측 전체 (Beat 3에서 휴대폰이 들어올 자리)
-        # 단일 핵심 시선: 지친 수영 씨
-        person = make_office_worker(height=2.6)
-        battery = load_icon("battery-1.svg", RED_C, 0.55)
-        battery.next_to(person, UP, buff=0.2)
-        suyoung = VGroup(person, battery)
-        suyoung.move_to(ORIGIN)
-
-        chapter = make_chapter_label("Part 1 · 1위 자리의 값어치")
-        self.play(FadeIn(person, shift=UP * 0.2), FadeIn(chapter), run_time=0.8)
-        self.play(FadeIn(battery, shift=DOWN * 0.15), run_time=0.7)
-        self.wait_until(beat2_start)
-
-        # ─── Beat 2: 내일은 좋은 일이 생기길 바라는 마음 ───
-        # 처리 문장: "내일은 좋은 일이 생기길 바라며"
-        # 남는 요소: 수영 씨 (방전 배터리는 생각 구름에 자리를 내주며 사라진다)
-        # 새로 등장: 생각 구름 + 네잎클로버 (머리 오른쪽 위)
-        # 비워 두는 영역: 우측 하단
-        # 단일 핵심 시선: 구름 속 클로버(행운)
-        cloud = load_icon("cloud.svg", MUTED, 1.5)
-        cloud.next_to(person, UR, buff=0.1)
-        clover = load_icon("clover.svg", GREEN_D, 0.6)
-        clover.move_to(cloud.get_center() + DOWN * 0.05)
-        dots = VGroup(*[
-            Dot(radius=r, color=MUTED) for r in (0.05, 0.075)
-        ]).arrange(UR, buff=0.08)
-        dots.next_to(person, UR, buff=-0.15)
-        wish = VGroup(dots, cloud, clover)
-
-        self.play(FadeOut(battery), FadeIn(dots, lag_ratio=0.5), run_time=0.5)
-        # 그룹째 이동할 때 사라진 배터리가 다시 붙지 않도록 그룹에서도 뺀다.
-        suyoung.remove(battery)
-        self.play(FadeIn(cloud, scale=0.8), GrowFromCenter(clover), run_time=0.8)
-        self.wait_until(beat3_start)
-
-        # ─── Beat 3: 쿠팡에서 행운 거북이를 검색한다 ───
-        # 처리 문장: "쿠팡에서 귀여운 행운 거북이를 검색했습니다."
-        # 남는 요소: 수영 씨(좌측으로 이동)
-        # 지울 요소: 생각 구름 (휴대폰과 시선 경쟁하지 않도록 먼저 정리)
-        # 새로 등장: 휴대폰 화면(우측) + 검색창에 '행운 거북이' 타이핑
-        # 비워 두는 영역: 휴대폰 아래쪽 결과 영역(아직 비어 있음)
-        # 단일 핵심 시선: 검색창에 입력되는 '행운 거북이'
+    @staticmethod
+    def build_parts() -> dict:
+        """Scene 01 요소를 처음 자리에 만든다. Scene 02는 이것에 apply_final을 적용해 마지막 화면을 재현한다."""
         phone = make_phone()
         phone.move_to(RIGHT * PHONE_X).shift(UP * 0.1)
         device, header, bar, search_icon = phone
@@ -373,22 +353,6 @@ class Scene01_Question(TimedScene):
         query = Text("행운 거북이", font_size=24, color=INK)
         query.next_to(search_icon, RIGHT, buff=0.2)
 
-        self.play(
-            FadeOut(wish),
-            suyoung.animate.move_to(RIGHT * LEFT_ZONE_X),
-            FadeIn(phone, shift=LEFT * 0.4),
-            run_time=1.0,
-        )
-        self.play(AddTextLetterByLetter(query), run_time=1.0)
-        self.play(Indicate(bar, color=HIGHLIGHT_COLOR, scale_factor=1.04), run_time=0.6)
-        self.wait_until(starts[1])
-
-        # ─── Beat 4: 맨 위 두 칸은 광고 거북이 ───
-        # 처리 문장: "맨 위 두 칸에는 광고 거북이가 떠 있습니다."
-        # 남는 요소: 수영 씨(좌), 휴대폰 틀 + 검색창(우)
-        # 새로 등장: 검색 결과 카드 3장 (광고 2장 + 흐린 일반 상품 1장), 휴대폰 아래 '설명용 예시'
-        # 비워 두는 영역: 휴대폰 바깥 왼쪽 (순위 라벨 자리)
-        # 단일 핵심 시선: 맨 위 두 장의 광고 카드
         card_a = make_product_card(AD_A_COLOR, "거북이 A", is_ad=True)
         card_b = make_product_card(AD_B_COLOR, "거북이 B", is_ad=True)
         card_c = make_product_card(None, "일반 상품", is_ad=False)
@@ -398,90 +362,139 @@ class Scene01_Question(TimedScene):
         example_note = Text("화면은 설명용 예시", font_size=18, color=MUTED)
         example_note.next_to(body, DOWN, buff=0.12)
 
-        self.play(
-            LaggedStart(*[FadeIn(card, shift=UP * 0.2) for card in cards], lag_ratio=0.25),
-            FadeIn(example_note),
-            run_time=1.3,
-        )
-        ad_box = SurroundingRectangle(VGroup(card_a, card_b), color=HIGHLIGHT_COLOR, buff=0.04)
-        self.play(Create(ad_box), run_time=0.7)
-        self.wait_until(beat5_start)
-
-        # ─── Beat 5: 이 순서는 CPC 입찰, 즉 광고 경매로 정해진다 ───
-        # 처리 문장: "이 순서는 쿠팡의 씨피씨 입찰, 즉 광고 경매로 정해집니다."
-        # 남는 요소: 휴대폰 + 카드 (우)
-        # 지울 요소: 수영 씨 (좌측 구역을 경매 설명에 넘긴다), 광고 묶음 박스
-        # 새로 등장: 순위 라벨 1위/2위 (휴대폰 바깥 왼쪽), 경매봉 + 'CPC 입찰 = 광고 경매' (좌측 구역)
-        # 단일 핵심 시선: 경매봉 라벨 → 순위 라벨로 이어지는 '순서'
         rank_1 = Text("1위", font_size=30, weight=BOLD, color=HIGHLIGHT_COLOR)
         rank_2 = Text("2위", font_size=30, weight=BOLD, color=SUBTLE)
         rank_1.next_to(body, LEFT, buff=0.25).match_y(card_a)
         rank_2.next_to(body, LEFT, buff=0.25).match_y(card_b)
-        ranks = VGroup(rank_1, rank_2)
 
+        worker = make_office_worker(height=2.4)
+        owner_pill = make_pill("거북이 B 광고 담당자", AD_B_COLOR, font_size=24)
+        owner_pill.next_to(worker, DOWN, buff=0.3)
+        owner = VGroup(worker, owner_pill).move_to([-3.6, 0.2, 0])
+
+        coins = load_icon("coins.svg", HIGHLIGHT_COLOR, 0.9)
+        bid_label = Text("입찰가 ↑", font_size=34, weight=BOLD, color=INK)
+        bid = VGroup(coins, bid_label).arrange(RIGHT, buff=0.3)
+
+        question = VGroup(
+            Text("1위 자리,", font_size=46, weight=BOLD, color=HIGHLIGHT_COLOR),
+            Text("광고비를 더 낼 값어치가 있을까?", font_size=32, color=INK),
+        ).arrange(DOWN, buff=0.25, aligned_edge=LEFT)
+        question.move_to(DOWN * 1.3).to_edge(LEFT, buff=0.9)
+
+        return dict(
+            phone=phone, body=body, bar=bar, query=query, cards=cards, card_a=card_a, card_b=card_b,
+            example_note=example_note, rank_1=rank_1, rank_2=rank_2, owner=owner, bid=bid, question=question,
+        )
+
+    @classmethod
+    def owner_final(cls, owner: VGroup) -> VGroup:
+        return owner.scale(cls.OWNER_FINAL_SCALE).move_to(UP * 1.75).to_edge(LEFT, buff=0.9)
+
+    @classmethod
+    def apply_final(cls, p: dict) -> VGroup:
+        """마지막 화면 상태로 옮기고, 화면에 남는 요소 묶음을 돌려준다."""
+        pos_a, pos_b = p["card_a"].get_center(), p["card_b"].get_center()
+        p["card_b"].move_to(pos_a)
+        p["card_a"].move_to(pos_b)
+        cls.owner_final(p["owner"])
+        p["bid"].next_to(p["owner"], RIGHT, buff=0.6)
+        owner_box = SurroundingRectangle(p["card_b"], color=AD_B_COLOR, buff=0.04, stroke_width=5)
+        return VGroup(
+            p["phone"], p["query"], p["cards"], p["example_note"], p["rank_1"], p["rank_2"],
+            owner_box, p["owner"], p["bid"], p["question"],
+        )
+
+    def construct(self):
+        starts, audio_end = load_audio_timings(self.SCENE_BASENAME)
+        chunk_ends = starts[1:] + [audio_end]
+
+        def split(chunk: int, ratio: float) -> float:
+            return starts[chunk] + (chunk_ends[chunk] - starts[chunk]) * ratio
+
+        beat2_start = split(0, self.CHUNK1_SPLIT)
+        beat4_start, beat5_start = (split(1, r) for r in self.CHUNK2_SPLITS)
+        p = self.build_parts()
+
+        # ─── Beat 0: Part 1 표지 ───
+        chapter = make_chapter_label(part_label(PART_1))
+        self.add(chapter)
+        self.play_part_card(PART_1)
+
+        # ─── Beat 1: 쿠팡 검색 결과 맨 위 두 칸은 광고 ───
+        # 처리 문장: "쿠팡에서 행운 거북이를 검색하면, 맨 위 두 칸에 광고가 뜹니다."
+        # 남는 요소: 챕터 라벨
+        # 새로 등장: 우측 휴대폰 + 검색어 + 결과 카드 3장(광고 A·B, 흐린 일반 상품) + 광고 두 칸 강조
+        # 비워 두는 영역: 좌측 전체
+        # 단일 핵심 시선: 맨 위 광고 두 칸
+        self.play(FadeIn(p["phone"], shift=LEFT * 0.4), run_time=0.5)
+        self.play(AddTextLetterByLetter(p["query"]), run_time=0.6)
+        self.play(
+            LaggedStart(*[FadeIn(card, shift=UP * 0.2) for card in p["cards"]], lag_ratio=0.25),
+            FadeIn(p["example_note"]),
+            run_time=0.9,
+        )
+        ad_box = SurroundingRectangle(VGroup(p["card_a"], p["card_b"]), color=HIGHLIGHT_COLOR, buff=0.04)
+        self.play(Create(ad_box), run_time=0.5)
+        self.wait_until(beat2_start)
+
+        # ─── Beat 2: 순서는 CPC 입찰(광고 경매)로 정해진다 ───
+        # 처리 문장: "이 순서는 광고주들이 씨피씨 입찰로 겨루는 광고 경매로 정해집니다."
+        # 남는 요소: 휴대폰
+        # 지울 요소: 광고 두 칸 강조
+        # 새로 등장: 좌측 경매봉 + 'CPC 입찰 = 광고 경매', 휴대폰 옆 1위·2위 라벨
+        # 단일 핵심 시선: 경매봉 라벨 → 순위 라벨
         gavel = load_icon("gavel.svg", HIGHLIGHT_COLOR, 1.5)
-        auction_title = Text("CPC 입찰", font_size=44, weight=BOLD, color=INK)
-        auction_sub = Text("= 광고 경매", font_size=34, color=SUBTLE)
-        auction_text = VGroup(auction_title, auction_sub).arrange(DOWN, buff=0.2, aligned_edge=LEFT)
+        auction_text = VGroup(
+            Text("CPC 입찰", font_size=44, weight=BOLD, color=INK),
+            Text("= 광고 경매", font_size=34, color=SUBTLE),
+        ).arrange(DOWN, buff=0.2, aligned_edge=LEFT)
         auction = VGroup(gavel, auction_text).arrange(DOWN, buff=0.4, aligned_edge=LEFT)
         auction.move_to(ORIGIN).to_edge(LEFT, buff=0.9)
 
-        self.play(FadeOut(suyoung), FadeOut(ad_box), run_time=0.5)
-        self.play(
-            FadeIn(gavel, shift=DOWN * 0.3),
-            Write(auction_text),
-            run_time=1.0,
-        )
+        self.play(FadeOut(ad_box), FadeIn(gavel, shift=DOWN * 0.3), Write(auction_text), run_time=1.0)
         self.play(Wiggle(gavel, scale_value=1.08), run_time=0.6)
-        self.play(FadeIn(ranks, shift=RIGHT * 0.2, lag_ratio=0.3), run_time=0.7)
-        self.wait_until(starts[2])
+        self.play(FadeIn(VGroup(p["rank_1"], p["rank_2"]), shift=RIGHT * 0.2, lag_ratio=0.3), run_time=0.7)
+        self.wait_until(starts[1])
 
-        # ─── Beat 6: 1위 자리는 정말 그만큼의 값어치가 있을까? ───
-        # 처리 문장: "그렇다면 1위 자리는 정말 그만큼의 값어치가 있을까요?"
-        # 남는 요소: 휴대폰 + 카드 + 순위 라벨 (우)
-        # 지울 요소: 경매 그룹 (좌측 구역을 질문에 넘긴다)
-        # 새로 등장: 1위 카드 강조 박스, 좌측 질문 '1위 자리의 값어치?'
-        # 비워 두는 영역: 좌측 하단 (Beat 7의 클릭 라벨 자리)
-        # 단일 핵심 시선: 1위 자리
-        slot_box = SurroundingRectangle(card_a, color=HIGHLIGHT_COLOR, buff=0.04, stroke_width=5)
-        question_1 = Text("1위 자리,", font_size=46, weight=BOLD, color=HIGHLIGHT_COLOR)
-        question_2 = Text("그만큼의 값어치가 있을까?", font_size=34, color=INK)
-        question = VGroup(question_1, question_2).arrange(DOWN, buff=0.25, aligned_edge=LEFT)
-        question.move_to(UP * 1.0).to_edge(LEFT, buff=0.9)
+        # ─── Beat 3: 수영 씨는 2위 거북이 B의 광고 담당자 ───
+        # 처리 문장: "수영 씨는 지금 2위에 있는 거북이 B의 광고 담당자입니다."
+        # 남는 요소: 휴대폰, 순위 라벨
+        # 지울 요소: 경매 라벨
+        # 새로 등장: 좌측 직장인 수영 씨 + '거북이 B 광고 담당자' 태그, 2위 B 카드 금색 테두리
+        # 단일 핵심 시선: 수영 씨 ↔ 2위 B 카드
+        owner_box = SurroundingRectangle(p["card_b"], color=AD_B_COLOR, buff=0.04, stroke_width=5)
+        self.play(FadeOut(auction), run_time=0.4)
+        self.play(FadeIn(p["owner"], shift=UP * 0.2), run_time=0.8)
+        self.play(Create(owner_box), Indicate(p["owner"][1], color=AD_B_COLOR, scale_factor=1.05), run_time=0.8)
+        self.wait_until(beat4_start)
 
-        self.play(FadeOut(auction), run_time=0.5)
-        self.play(Create(slot_box), FadeIn(question, shift=UP * 0.2), run_time=1.0)
-        self.wait_until(beat7_start)
-
-        # ─── Beat 7: 2위 광고를 1위로 올리면 클릭은 얼마나 늘까? ───
-        # 처리 문장: "2위에 있던 거북이 광고를 1위로 올리면, 클릭은 얼마나 더 늘어날까요?"
-        # 남는 요소: 휴대폰, 순위 라벨(고정), 1위 자리 박스(고정 — '자리'를 뜻함)
-        # 지울 요소: Beat 6 질문 (같은 좌측 상단을 새 질문으로 교체)
-        # 새로 등장: 카드 A/B 자리 바꾸기, 좌측 '2위 → 1위로 올리면?' + 클릭 아이콘 '+?'
-        # 단일 핵심 시선: 1위 자리로 올라가는 거북이 B 카드 → 클릭 '+?'
-        swap_q1 = Text(
-            "2위 → 1위로 올리면", font_size=40, weight=BOLD, color=INK, t2c={"2위": AD_B_COLOR}
-        )
-        swap_q2 = Text("클릭은 얼마나 늘까?", font_size=34, color=SUBTLE)
-        swap_question = VGroup(swap_q1, swap_q2).arrange(DOWN, buff=0.25, aligned_edge=LEFT)
-        swap_question.move_to(question).align_to(question, LEFT)
-
-        self.play(FadeOut(question, shift=UP * 0.2), FadeIn(swap_question, shift=UP * 0.2), run_time=0.7)
-        pos_a, pos_b = card_a.get_center(), card_b.get_center()
+        # ─── Beat 4: 입찰가를 올리면 1위로 갈 수 있다 ───
+        # 처리 문장: "입찰가를 올리면 1위로 갈 수 있는데,"
+        # 남는 요소: 휴대폰, 순위 라벨, 수영 씨(왼쪽 위로 줄어듦)
+        # 새로 등장: 수영 씨 옆 '동전 + 입찰가 ↑', B 카드가 1위 칸으로 올라가고 A가 2위로 내려간다
+        # 비워 두는 영역: 좌측 아래 (Beat 5 질문 자리)
+        # 단일 핵심 시선: 1위 칸으로 올라가는 B 카드
+        self.play(self.owner_final(p["owner"].animate), run_time=0.7)
+        p["bid"].next_to(p["owner"], RIGHT, buff=0.6)
+        self.play(FadeIn(p["bid"], shift=UP * 0.2), run_time=0.5)
+        pos_a, pos_b = p["card_a"].get_center(), p["card_b"].get_center()
         self.play(
-            card_b.animate.move_to(pos_a),
-            card_a.animate.move_to(pos_b),
+            p["card_b"].animate.move_to(pos_a),
+            owner_box.animate.move_to(pos_a),
+            p["card_a"].animate.move_to(pos_b),
             path_arc=-PI / 3,
-            run_time=1.3,
+            run_time=1.1,
         )
-        self.play(Indicate(rank_1, color=HIGHLIGHT_COLOR), run_time=0.6)
+        self.wait_until(beat5_start)
 
-        click_icon = load_icon("hand-click.svg", AD_B_COLOR, 1.1)
-        click_gain = Text("+ ?", font_size=56, weight=BOLD, color=AD_B_COLOR)
-        click_group = VGroup(click_icon, click_gain).arrange(RIGHT, buff=0.35)
-        click_group.next_to(swap_question, DOWN, buff=0.8, aligned_edge=LEFT)
-        self.play(FadeIn(click_icon, shift=UP * 0.2), Write(click_gain), run_time=0.9)
-        self.play(Indicate(click_gain, color=HIGHLIGHT_COLOR, scale_factor=1.2), run_time=0.8)
+        # ─── Beat 5: 그만큼 광고비를 더 낼 값어치가 있을까? ───
+        # 처리 문장: "그만큼 광고비를 더 낼 값어치가 있을까요?"
+        # 남는 요소: 휴대폰(1위 B), 수영 씨 + 입찰가 ↑
+        # 새로 등장: 좌측 아래 질문 '1위 자리, 광고비를 더 낼 값어치가 있을까?'
+        # 단일 핵심 시선: 질문
+        self.play(FadeIn(p["question"], shift=UP * 0.2), run_time=0.8)
+        self.play(Indicate(p["question"][0], color=HIGHLIGHT_COLOR, scale_factor=1.06), run_time=0.8)
 
         self.wait_until(audio_end)
         self.wait(self.WAIT_TAIL)
@@ -505,7 +518,7 @@ class Scene02_NaiveComparison(TimedScene):
 
     Scene 경계:
     - 직전 Scene 마지막 문장: "클릭은 얼마나 더 늘어날까요?"
-    - 현재 Scene 첫 문장: "가상의 광고 기록을 하나 살펴봅시다."
+    - 현재 Scene 첫 문장: "수영 씨는 먼저 광고 기록을 열어 단순 비교부터 해 봅니다." (Part 2 시작)
     - 현재 Scene 마지막 문장: "클릭률도 사 퍼센트포인트 오를까요?"
     - "반드시 그렇지는 않다"와 경매가 좋은 광고를 위에 올린다는 설명은 Scene 03에서 꺼낸다.
 
@@ -517,7 +530,7 @@ class Scene02_NaiveComparison(TimedScene):
 
     Script Reference:
     src/scripts/ko/02_naive_comparison.txt
-    Audio: build/audio/02_naive_comparison.mp3 (ElevenLabs eleven_multilingual_v2, speed 1.1, 23.02s)
+    Audio: build/audio/02_naive_comparison.mp3 (ElevenLabs eleven_multilingual_v2, speed 1.1, 25.53s)
 
     Asset Reference:
     Tabler Icons (MIT) — file-analytics.svg(outline), user.svg(filled), hand-click.svg
@@ -530,7 +543,8 @@ class Scene02_NaiveComparison(TimedScene):
     톤앤매너는 Scene 01과 같은 WWDC 슬라이드 스타일(평면 막대, 회색 + 주황 강조 하나)을 따른다.
 
     Script-to-Beat Mapping (.timings.json chunk 기준, 문장 경계는 음절 비율로 추정):
-      Beat 1 → chunk 1 "가상의 광고 기록을 하나 살펴봅시다."                  (0.00~약 2.5s)
+      Beat 0 → Part 2 표지 카드                                              (0.00~약 1.4s)
+      Beat 1 → chunk 1 "수영 씨는 먼저 광고 기록을 열어 단순 비교부터 해 봅니다." (약 1.4~3.9s)
       Beat 2 → chunk 1 "광고를 본 사람 중 몇 퍼센트가 눌렀는지, 즉 클릭률을…" (약 2.5~7.7s)
       Beat 3 → chunk 1 "1위 광고는 십이 퍼센트, 2위는 팔 퍼센트, 3위는 오…"   (약 7.7~13.0s)
       Beat 4 → chunk 2 "위로 갈수록 클릭률이 높아지네요."                     (13.0~약 15.2s)
@@ -548,7 +562,7 @@ class Scene02_NaiveComparison(TimedScene):
     """
 
     SCENE_BASENAME = "02_naive_comparison"
-    CHUNK1_SPLITS = (0.19, 0.59)
+    CHUNK1_SPLITS = (0.27, 0.63)
     CHUNK2_SPLIT = 0.46
     CHUNK3_SPLIT = 0.60
     WAIT_TAIL = 0.8
@@ -560,39 +574,8 @@ class Scene02_NaiveComparison(TimedScene):
     BAR_XS = (0.2, 2.6, 5.0)
 
     def build_scene01_end_state(self) -> VGroup:
-        """Scene 01 마지막 화면의 휴대폰 부분을 그대로 다시 세운다 (1위 자리에 거북이 B)."""
-        phone = make_phone()
-        phone.move_to(RIGHT * PHONE_X).shift(UP * 0.1)
-        device, header, bar, search_icon = phone
-        body = device[0]
-        query = Text("행운 거북이", font_size=24, color=INK)
-        query.next_to(search_icon, RIGHT, buff=0.2)
-        card_b = make_product_card(AD_B_COLOR, "거북이 B", is_ad=True)
-        card_a = make_product_card(AD_A_COLOR, "거북이 A", is_ad=True)
-        card_c = make_product_card(None, "일반 상품", is_ad=False)
-        cards = VGroup(card_b, card_a, card_c).arrange(DOWN, buff=0.2)
-        cards.next_to(bar, DOWN, buff=0.3)
-        card_c.set_opacity(0.45)
-        example_note = Text("화면은 설명용 예시", font_size=18, color=MUTED)
-        example_note.next_to(body, DOWN, buff=0.12)
-        rank_1 = Text("1위", font_size=30, weight=BOLD, color=HIGHLIGHT_COLOR)
-        rank_2 = Text("2위", font_size=30, weight=BOLD, color=SUBTLE)
-        rank_1.next_to(body, LEFT, buff=0.25).match_y(card_b)
-        rank_2.next_to(body, LEFT, buff=0.25).match_y(card_a)
-        slot_box = SurroundingRectangle(card_b, color=HIGHLIGHT_COLOR, buff=0.04, stroke_width=5)
-
-        # Scene 01 마지막 좌측 질문과 클릭 '+?'도 같은 자리에 다시 세워 Scene 경계에서 화면이 튀지 않게 한다.
-        swap_q1 = Text(
-            "2위 → 1위로 올리면", font_size=40, weight=BOLD, color=INK, t2c={"2위": AD_B_COLOR}
-        )
-        swap_q2 = Text("클릭은 얼마나 늘까?", font_size=34, color=SUBTLE)
-        swap_question = VGroup(swap_q1, swap_q2).arrange(DOWN, buff=0.25, aligned_edge=LEFT)
-        swap_question.move_to(UP * 1.0).to_edge(LEFT, buff=0.9)
-        click_icon = load_icon("hand-click.svg", AD_B_COLOR, 1.1)
-        click_gain = Text("+ ?", font_size=56, weight=BOLD, color=AD_B_COLOR)
-        click_group = VGroup(click_icon, click_gain).arrange(RIGHT, buff=0.35)
-        click_group.next_to(swap_question, DOWN, buff=0.8, aligned_edge=LEFT)
-        return VGroup(phone, query, cards, example_note, rank_1, rank_2, slot_box, swap_question, click_group)
+        """Scene 01 마지막 화면(1위 B 카드, 담당자 수영 씨, 입찰가 ↑, 질문)을 같은 좌표로 다시 세운다."""
+        return Scene01_Question.apply_final(Scene01_Question.build_parts())
 
     def construct(self):
         starts, audio_end = load_audio_timings(self.SCENE_BASENAME)
@@ -603,23 +586,32 @@ class Scene02_NaiveComparison(TimedScene):
         beat5_start = starts[1] + (chunk_ends[1] - starts[1]) * self.CHUNK2_SPLIT
         beat7_start = starts[2] + (chunk_ends[2] - starts[2]) * self.CHUNK3_SPLIT
 
-        chapter = make_chapter_label("Part 1 · 1위 자리의 값어치")
+        chapter_1 = make_chapter_label(part_label(PART_1))
         phone_state = self.build_scene01_end_state()
-        self.add(chapter, phone_state)
+        self.add(chapter_1, phone_state)
+        chapter = make_chapter_label(part_label(PART_2))
 
-        # ─── Beat 1: 가상의 광고 기록을 펼친다 ───
-        # 처리 문장: "가상의 광고 기록을 하나 살펴봅시다."
+        # ─── Beat 0: Part 2 표지 (카드가 덮은 동안 Scene 01 화면을 걷고 챕터 라벨을 바꾼다) ───
+        def swap_to_part_2():
+            self.remove(phone_state, chapter_1)
+            self.add(chapter)
+
+        self.play_part_card(PART_2, swap=swap_to_part_2)
+
+        # ─── Beat 1: 수영 씨가 광고 기록을 열어 단순 비교부터 ───
+        # 처리 문장: "수영 씨는 먼저 광고 기록을 열어 단순 비교부터 해 봅니다."
         # 남는 요소: 챕터 라벨
-        # 지울 요소: Scene 01의 마지막 화면 전체 (휴대폰 + 좌측 질문, 오른쪽으로 빠지며 퇴장)
-        # 새로 등장: 기록 아이콘 + '가상의 광고 기록' (화면 중앙)
+        # 새로 등장: 기록 아이콘 + '광고 기록 · 단순 비교' (화면 중앙, 가상 데이터)
         # 비워 두는 영역: 하단 전체
-        # 단일 핵심 시선: '가상의 광고 기록' 카드
+        # 단일 핵심 시선: 기록 카드
         record_icon = load_icon("file-analytics.svg", INK, 1.4)
-        record_title = Text("가상의 광고 기록", font_size=44, weight=BOLD, color=INK)
+        record_title = VGroup(
+            Text("광고 기록 단순 비교", font_size=44, weight=BOLD, color=INK),
+            Text("가상 데이터", font_size=24, color=MUTED),
+        ).arrange(DOWN, buff=0.15, aligned_edge=LEFT)
         record = VGroup(record_icon, record_title).arrange(RIGHT, buff=0.45)
         record.move_to(ORIGIN)
 
-        self.play(FadeOut(phone_state, shift=RIGHT * 0.6), run_time=0.7)
         self.play(FadeIn(record, shift=UP * 0.2), run_time=0.7)
         self.wait_until(beat2_start)
 
@@ -909,7 +901,7 @@ class Scene03_SelectionTrap(TimedScene):
         beat6_start = split(1, self.CHUNK2_SPLIT)
         beat8_start, beat9_start = (split(2, r) for r in self.CHUNK3_SPLITS)
 
-        chapter = make_chapter_label("Part 1 · 1위 자리의 값어치")
+        chapter = make_chapter_label(part_label(PART_2))
         chart, gap_question = self.build_scene02_end_state()
         self.add(chapter, chart)
 
@@ -1136,7 +1128,7 @@ class Scene04_CloseAuction(TimedScene):
 
     Scene 경계:
     - 직전 Scene 마지막 문장: "이것이 바로 인과추론의 질문입니다."
-    - 현재 Scene 첫 문장: "하지만 같은 광고를 두 자리에 동시에 띄울 수는 없습니다."
+    - 현재 Scene 첫 문장: "그럼 인과추론으로 보면 어떨까요?" (Part 3 시작)
     - 현재 Scene 마지막 문장: "RDD, Regression Discontinuity Design이라고 부릅니다."
     - cutoff에서 클릭률이 뛰는 그래프(7.9% → 9.8%)는 Scene 05에서 꺼낸다.
 
@@ -1149,7 +1141,7 @@ class Scene04_CloseAuction(TimedScene):
 
     Script Reference:
     src/scripts/ko/04_close_auction.txt  ("cutoff"는 TTS가 끊어 읽도록 스크립트에서만 "cut off"로 표기)
-    Audio: build/audio/04_close_auction.mp3 (ElevenLabs eleven_multilingual_v2, speed 1.1, 34.34s)
+    Audio: build/audio/04_close_auction.mp3 (ElevenLabs eleven_multilingual_v2, speed 1.1, 35.13s)
 
     Asset Reference:
     거북이·막대·축·태그는 도형으로 직접 그렸다.
@@ -1161,8 +1153,9 @@ class Scene04_CloseAuction(TimedScene):
     누적 전개가 같아서 참고했다. 화면 스타일은 WWDC 슬라이드 톤을 유지한다.
 
     Script-to-Beat Mapping (.timings.json chunk 기준, 문장 경계는 음절 비율로 추정):
-      Beat 1  → chunk 1 "하지만 같은 광고를 두 자리에 동시에 띄울 수는 없습니다."     (0.00~약 3.4s)
-      Beat 2  → chunk 1 "그래서 경매의 아슬아슬한 순간을 이용합니다."               (약 3.4~6.27s)
+      Beat 0  → chunk 1 "그럼 인과추론으로 보면 어떨까요?" + Part 3 표지             (0.00~약 2.4s)
+      Beat 1  → chunk 1 "같은 광고를 두 자리에 동시에 띄울 수는 없으니,"            (약 2.4~5.7s)
+      Beat 2  → chunk 1 "경매의 아슬아슬한 순간을 이용합니다."                     (약 5.7~8.22s)
       Beat 3  → chunk 2 "경쟁 광고와의 경매 점수 차이를 생각해 봅시다."             (6.27~약 9.8s)
       Beat 4  → chunk 2 "순위를 가르는 이 값을 running variable이라고 하고,"       (약 9.8~13.1s)
       Beat 5  → chunk 2 "점수 차이가 0인 경계를 cutoff라고 합니다."                (약 13.1~16.02s)
@@ -1184,7 +1177,7 @@ class Scene04_CloseAuction(TimedScene):
     """
 
     SCENE_BASENAME = "04_close_auction"
-    CHUNK1_SPLIT = 0.55
+    CHUNK1_SPLITS = (0.29, 0.69)
     CHUNK2_SPLITS = (0.36, 0.70)
     CHUNK3_SPLITS = (0.24, 0.67)
     CHUNK4_SPLIT = 0.50
@@ -1249,28 +1242,31 @@ class Scene04_CloseAuction(TimedScene):
         def split(chunk: int, ratio: float) -> float:
             return starts[chunk] + (chunk_ends[chunk] - starts[chunk]) * ratio
 
-        beat2_start = split(0, self.CHUNK1_SPLIT)
+        beat1_start, beat2_start = (split(0, r) for r in self.CHUNK1_SPLITS)
         beat4_start, beat5_start = (split(1, r) for r in self.CHUNK2_SPLITS)
         beat7_start, beat8_start = (split(2, r) for r in self.CHUNK3_SPLITS)
         beat10_start = split(3, self.CHUNK4_SPLIT)
 
-        chapter_1 = make_chapter_label("Part 1 · 1위 자리의 값어치")
+        chapter_1 = make_chapter_label(part_label(PART_2))
         leftovers, slot_group = self.build_scene03_end_state()
         self.add(chapter_1, leftovers, slot_group)
+        chapter_2 = make_chapter_label(part_label(PART_3))
+
+        # ─── Beat 0: Part 3 표지 — "그럼 인과추론으로 보면 어떨까요?" ───
+        # 카드가 덮은 동안 교란 그래프·질문·결론을 걷고 챕터 라벨을 Part 3으로 바꾼다.
+        def swap_to_part_3():
+            self.remove(leftovers, chapter_1)
+            self.add(chapter_2)
+
+        self.play_part_card(PART_3, swap=swap_to_part_3)
+        self.wait_until(beat1_start)
 
         # ─── Beat 1: 같은 광고를 두 자리에 동시에 띄울 수는 없다 ───
-        # 처리 문장: "하지만 같은 광고를 두 자리에 동시에 띄울 수는 없습니다."
+        # 처리 문장: "같은 광고를 두 자리에 동시에 띄울 수는 없으니,"
         # 남는 요소: 거북이 B 두 자리 묶음 (가운데로 옮겨 단독 시선)
-        # 지울 요소: 교란 그래프, '클릭률은…' 질문, 결론 문장 / 챕터 라벨은 Part 2로 교체
         # 새로 등장: 두 자리 위의 빨간 X
         # 단일 핵심 시선: X가 그어지는 거북이 B 두 자리
-        chapter_2 = make_chapter_label("Part 2 · RDD로 풀어보기")
-        self.play(
-            FadeOut(leftovers),
-            ReplacementTransform(chapter_1, chapter_2),
-            slot_group.animate.move_to(UP * 0.2),
-            run_time=0.9,
-        )
+        self.play(slot_group.animate.move_to(UP * 0.2), run_time=0.6)
         ghost = slot_group[5]
         cross = Cross(slot_group[0], stroke_color=RED_D, stroke_width=8, scale_factor=0.75)
         self.play(ghost.animate.set_opacity(1), run_time=0.4)
@@ -1603,7 +1599,7 @@ class Scene05_JumpAtCutoff(TimedScene):
         beat2_start = split(0, self.CHUNK1_SPLIT)
         beat4_start, beat5_start, beat6_start = (split(1, r) for r in self.CHUNK2_SPLITS)
 
-        chapter = make_chapter_label("Part 2 · RDD로 풀어보기")
+        chapter = make_chapter_label(part_label(PART_3))
         state = self.build_scene04_end_state()
         self.add(chapter, state["keep"], state["fade"])
 
@@ -1867,7 +1863,7 @@ class Scene06_Conditions(TimedScene):
         beat5_start = split(1, self.CHUNK2_SPLIT)
 
         # Scene 05 마지막 화면 (단순 비교 4%p / RDD 1.9%p 막대) 재구성
-        chapter = make_chapter_label("Part 2 · RDD로 풀어보기")
+        chapter = make_chapter_label(part_label(PART_3))
         virtual_note = Text("가상 값", font_size=22, color=MUTED).to_corner(UR, buff=0.45)
         unit = 2.0
         rdd_effect = Scene05_JumpAtCutoff.CTR_RIGHT - Scene05_JumpAtCutoff.CTR_LEFT
@@ -2012,8 +2008,9 @@ class Scene07_RealStudyOutro(Scene06_Conditions):
 
     Scene 경계:
     - 직전 Scene 마지막 문장: "모든 광고에 그대로 적용되지는 않습니다."
-    - 현재 Scene 첫 문장: "실제 연구에서도 비슷한 결과가 나왔습니다."
-    - 현재 Scene 마지막 문장: "늘어나는 클릭이, 더 내는 광고비만큼의 값어치가 있을까?" (영상의 마지막 문장)
+    - 현재 Scene 첫 문장: "실제 연구에서도 비슷했습니다."
+    - 현재 Scene 마지막 문장: "늘어나는 클릭이 더 내는 광고비만큼의 값어치가 있는지, 이 숫자로 판단해야 합니다." (영상의 마지막 문장)
+    - 3단 구성의 결론: Part 1의 업무 질문(1위 입찰)에 "판단 기준은 4%p가 아니라 1.9%p"로 답한다.
 
     Source Reference:
     Narayanan, S., & Kalyanam, K. (2015). Position Effects in Search Advertising and Their Moderators:
@@ -2023,7 +2020,7 @@ class Scene07_RealStudyOutro(Scene06_Conditions):
 
     Script Reference:
     src/scripts/ko/07_real_study_outro.txt  ("값어치"는 TTS 발음 때문에 스크립트에서만 "가버치"로 표기)
-    Audio: build/audio/07_real_study_outro.mp3 (ElevenLabs eleven_multilingual_v2, speed 1.1, 21.91s)
+    Audio: build/audio/07_real_study_outro.mp3 (ElevenLabs eleven_multilingual_v2, speed 1.1, 22.13s)
 
     Asset Reference:
     Tabler Icons (MIT) — file-text.svg, hand-click.svg, coins.svg
@@ -2035,11 +2032,11 @@ class Scene07_RealStudyOutro(Scene06_Conditions):
     화면 스타일은 WWDC 슬라이드 톤을 유지한다.
 
     Script-to-Beat Mapping (.timings.json chunk 기준, 문장 경계는 음절 비율로 추정):
-      Beat 1 → chunk 1 "실제 연구에서도 비슷한 결과가 나왔습니다."                         (0.00~약 3.2s)
-      Beat 2 → chunk 1 "나라야난과 칼리야남의 2015년 연구는 RDD로 검색광고 순위의 효과를 분석했는데," (약 3.2~10.2s)
-      Beat 3 → chunk 1 "단순 비교가 순위 효과를 크게 부풀린다는 것을 보여 줬습니다."         (약 10.2~14.72s)
-      Beat 4 → chunk 2 "그러니 1위에 더 비싼 값을 내기 전에 물어봐야 합니다."               (14.72~약 18.2s)
-      Beat 5 → chunk 2 "늘어나는 클릭이, 더 내는 광고비만큼의 값어치가 있을까?"             (약 18.2s~끝)
+      Beat 1 → chunk 1 "실제 연구에서도 비슷했습니다."                                      (0.00~약 2.1s)
+      Beat 2 → chunk 1 "나라야난과 칼리야남의 2015년 RDD 연구는,"                           (약 2.1~5.9s)
+      Beat 3 → chunk 1 "단순 비교가 순위 효과를 크게 부풀린다는 것을 보여 줬습니다."         (약 5.9~10.03s)
+      Beat 4 → chunk 2 "그러니 수영 씨가 1위 입찰을 따질 기준은 4%p가 아니라 1.9%p입니다."   (10.03~약 16.9s)
+      Beat 5 → chunk 2 "늘어나는 클릭이 더 내는 광고비만큼의 값어치가 있는지, 이 숫자로 판단…" (약 16.9s~끝)
 
     직전 Scene에서 이어받는 시각 요소:
       Scene 06 마지막 화면(제목 + 카드 두 장)에서 시작한다. 마지막 장면에서 Scene 01의 1위 거북이 B를 다시 불러
@@ -2051,8 +2048,8 @@ class Scene07_RealStudyOutro(Scene06_Conditions):
     """
 
     SCENE_BASENAME = "07_real_study_outro"
-    CHUNK1_SPLITS = (0.22, 0.69)
-    CHUNK2_SPLIT = 0.49
+    CHUNK1_SPLITS = (0.21, 0.59)
+    CHUNK2_SPLIT = 0.57
     WAIT_TAIL = 1.5
 
     def build_scene06_end_state(self) -> VGroup:
@@ -2120,7 +2117,7 @@ class Scene07_RealStudyOutro(Scene06_Conditions):
         beat2_start, beat3_start = (split(0, r) for r in self.CHUNK1_SPLITS)
         beat5_start = split(1, self.CHUNK2_SPLIT)
 
-        chapter = make_chapter_label("Part 2 · RDD로 풀어보기")
+        chapter = make_chapter_label(part_label(PART_3))
         previous = self.build_scene06_end_state()
         self.add(chapter, previous)
 
@@ -2192,51 +2189,62 @@ class Scene07_RealStudyOutro(Scene06_Conditions):
         self.play(GrowFromCenter(inflate_brace), FadeIn(inflate_label), FadeIn(concept_note), run_time=0.7)
         self.wait_until(starts[1])
 
-        # ─── Beat 4: 1위에 더 비싼 값을 내기 전에 ───
-        # 처리 문장: "그러니 1위에 더 비싼 값을 내기 전에 물어봐야 합니다."
+        # ─── Beat 4: 수영 씨의 판단 기준은 4%p가 아니라 1.9%p ───
+        # 처리 문장: "그러니 수영 씨가 1위 입찰을 따질 기준은 사 퍼센트포인트가 아니라 일 점 구 퍼센트포인트입니다."
         # 남는 요소: 챕터 라벨
         # 지울 요소: 논문 카드, 개념 막대, 단서 문구
-        # 새로 등장: 상단 중앙 1위 카드 속 거북이 B (Scene 01 휴대폰 1위 칸의 재등장) + 오른쪽 '더 내는 광고비' 동전
-        # 비워 두는 영역: 왼쪽 ('늘어나는 클릭' 자리), 하단 (마지막 질문 자리)
-        # 단일 핵심 시선: 1위 거북이 B와 동전
+        # 새로 등장: 왼쪽 위 담당자 수영 씨(Scene 01 마지막 모습), 가운데 '1위 입찰을 따질 기준' + 4%p(취소) → 1.9%p
+        # 비워 두는 영역: 아래쪽 (Beat 5 클릭 vs 광고비 자리)
+        # 단일 핵심 시선: 주황 1.9%p
         study = VGroup(paper, concept_rows, inflate_brace, inflate_label, concept_note)
-        slot_card = make_product_card(AD_B_COLOR, "거북이 B", is_ad=True).scale(1.15)
-        slot_pill = make_pill("1위", HIGHLIGHT_COLOR).next_to(slot_card, LEFT, buff=0.3)
-        slot = VGroup(slot_pill, slot_card).move_to(UP * 1.7)
-        slot_box = SurroundingRectangle(slot_card, color=HIGHLIGHT_COLOR, buff=0.05, stroke_width=5)
+        worker = make_office_worker(height=2.4)
+        owner_pill = make_pill("거북이 B 광고 담당자", AD_B_COLOR, font_size=24).next_to(worker, DOWN, buff=0.3)
+        owner = Scene01_Question.owner_final(VGroup(worker, owner_pill))
 
-        cost_icon = load_icon("coins.svg", HIGHLIGHT_COLOR, 1.3)
-        cost_label = VGroup(
-            Text("더 내는 광고비", font_size=30, weight=BOLD, color=INK),
-            Text("CPC ↑", font_size=24, color=SUBTLE),
-        ).arrange(DOWN, buff=0.12)
-        cost = VGroup(cost_icon, cost_label).arrange(DOWN, buff=0.3).move_to([3.6, -0.9, 0])
+        criterion_title = Text("1위 입찰을 따질 기준", font_size=32, weight=BOLD, color=SUBTLE)
+        naive_value = Text("4%p", font_size=72, weight=BOLD, color=MUTED)
+        rdd_value = Text("1.9%p", font_size=84, weight=BOLD, color=HIGHLIGHT_COLOR)
+        arrow = Arrow(LEFT * 0.6, RIGHT * 0.6, buff=0, stroke_width=6, color=INK, max_tip_length_to_length_ratio=0.3)
+        values = VGroup(naive_value, arrow, rdd_value).arrange(RIGHT, buff=0.5)
+        criterion = VGroup(criterion_title, values).arrange(DOWN, buff=0.35).move_to(UP * 1.25 + RIGHT * 1.2)
+        naive_strike = Line(naive_value.get_left(), naive_value.get_right(), stroke_color=NG_COLOR, stroke_width=7)
+        rdd_tag = Text("RDD로 본 자리 효과", font_size=24, color=HIGHLIGHT_COLOR).next_to(rdd_value, DOWN, buff=0.12)
 
         self.play(FadeOut(study), run_time=0.5)
-        self.play(FadeIn(slot, shift=DOWN * 0.2), Create(slot_box), run_time=0.8)
-        self.play(FadeIn(cost, shift=UP * 0.2), run_time=0.7)
+        self.play(FadeIn(owner, shift=RIGHT * 0.2), FadeIn(criterion_title), FadeIn(naive_value), run_time=0.8)
+        self.play(Create(naive_strike), run_time=0.5)
+        self.play(GrowArrow(arrow), FadeIn(rdd_value, scale=0.8), FadeIn(rdd_tag), run_time=0.8)
         self.wait_until(beat5_start)
 
-        # ─── Beat 5: 늘어나는 클릭이 더 내는 광고비만큼 값어치가 있을까? ───
-        # 처리 문장: "늘어나는 클릭이, 더 내는 광고비만큼의 값어치가 있을까?"
-        # 남는 요소: 1위 거북이 B, 오른쪽 광고비
-        # 새로 등장: 왼쪽 '늘어나는 클릭', 가운데 '?', 하단 마지막 질문 문장
-        # 단일 핵심 시선: 클릭 ↔ 광고비 사이의 '?' → 마지막 질문
-        gain_icon = load_icon("hand-click.svg", AD_B_COLOR, 1.3)
-        gain_label = VGroup(
-            Text("늘어나는 클릭", font_size=30, weight=BOLD, color=INK),
-            Text("RDD로 본 자리 효과", font_size=24, color=SUBTLE),
-        ).arrange(DOWN, buff=0.12)
-        gain = VGroup(gain_icon, gain_label).arrange(DOWN, buff=0.3).move_to([-3.6, -0.9, 0])
-        versus = Text("?", font_size=80, weight=BOLD, color=HIGHLIGHT_COLOR).move_to([0, -0.7, 0])
-        final_question = Text(
-            "1위 자리, 정말 그만큼의 값어치가 있을까?",
-            font_size=36, weight=BOLD, color=INK, t2c={"값어치": HIGHLIGHT_COLOR},
-        ).move_to(DOWN * 3.1)
+        # ─── Beat 5: 늘어나는 클릭이 더 내는 광고비만큼 값어치가 있는지, 이 숫자로 판단 ───
+        # 처리 문장: "늘어나는 클릭이 더 내는 광고비만큼의 값어치가 있는지, 이 숫자로 판단해야 합니다."
+        # 남는 요소: 수영 씨, 기준 1.9%p
+        # 새로 등장: 아래 '늘어나는 클릭 (1.9%p)' vs '더 내는 광고비 (CPC ↑)' 저울 + 마지막 결론 문장
+        # 단일 핵심 시선: 클릭 ↔ 광고비 사이의 '?' → 결론 문장
+        gain = VGroup(
+            load_icon("hand-click.svg", HIGHLIGHT_COLOR, 0.85),
+            VGroup(
+                Text("늘어나는 클릭", font_size=28, weight=BOLD, color=INK),
+                Text("1.9%p 만큼", font_size=22, color=HIGHLIGHT_COLOR),
+            ).arrange(DOWN, buff=0.08, aligned_edge=LEFT),
+        ).arrange(RIGHT, buff=0.3)
+        cost = VGroup(
+            load_icon("coins.svg", SUBTLE, 0.85),
+            VGroup(
+                Text("더 내는 광고비", font_size=28, weight=BOLD, color=INK),
+                Text("CPC ↑", font_size=22, color=SUBTLE),
+            ).arrange(DOWN, buff=0.08, aligned_edge=LEFT),
+        ).arrange(RIGHT, buff=0.3)
+        versus = Text("vs", font_size=40, weight=BOLD, color=MUTED)
+        balance = VGroup(gain, versus, cost).arrange(RIGHT, buff=0.8).move_to(DOWN * 1.35)
+        final_line = Text(
+            "1위 자리의 값어치는 4%p가 아니라 1.9%p로 판단하기",
+            font_size=32, weight=BOLD, color=INK, t2c={"1.9%p": HIGHLIGHT_COLOR},
+        ).move_to(DOWN * 3.05)
 
-        self.play(FadeIn(gain, shift=UP * 0.2), run_time=0.7)
-        self.play(FadeIn(versus, scale=0.6), run_time=0.5)
-        self.play(Write(final_question), run_time=1.2)
+        self.play(FadeIn(gain, shift=UP * 0.2), FadeIn(versus), FadeIn(cost, shift=UP * 0.2), run_time=0.9)
+        self.play(Write(final_line), run_time=1.2)
+        self.play(Circumscribe(final_line, color=HIGHLIGHT_COLOR, buff=0.15), run_time=1.0)
 
         self.wait_until(audio_end)
         self.wait(self.WAIT_TAIL)
