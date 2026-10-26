@@ -3,14 +3,20 @@
 from pathlib import Path
 
 import matplotlib.pyplot as plt
+from matplotlib import font_manager
 import numpy as np
 
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "build" / "slides"
 OUT.mkdir(parents=True, exist_ok=True)
+FONT_FILE = Path.home() / "Library" / "Fonts" / "PretendardVariable.ttf"
+if not FONT_FILE.exists():
+    raise FileNotFoundError(f"영상용 Pretendard 글꼴을 설치해 주세요: {FONT_FILE}")
+font_manager.fontManager.addfont(str(FONT_FILE))
+FONT_NAME = font_manager.FontProperties(fname=str(FONT_FILE)).get_name()
 plt.rcParams.update({
-    "font.family": "AppleGothic",
+    "font.family": FONT_NAME,
     "axes.unicode_minus": False,
     "axes.facecolor": "#0D0F1F",
     "text.color": "#FFFFFF",
@@ -19,7 +25,7 @@ plt.rcParams.update({
     "axes.edgecolor": "#374151",
 })
 
-# Causal Studio의 RDD/Fuzzy RDD 팔레트와 AppleGothic 글꼴을 따른다.
+# Causal Studio의 RDD/Fuzzy RDD 팔레트를 유지하고 한글 글꼴을 Pretendard로 바꾼다.
 BG = "#0D0F1F"
 BLUE = "#4DD0C4"     # 기획전 참여군 (처치)
 GREEN = "#8AA6B2"    # 대조군

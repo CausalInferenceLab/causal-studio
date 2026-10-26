@@ -12,17 +12,25 @@ if (!apiKey) throw new Error('ELEVENLABS_API_KEY가 필요합니다.');
 
 // ElevenLabs Korean voice: Anna Kim, Tender, Calm and Clear.
 const voiceId = process.env.ELEVENLABS_VOICE_ID || 'Xb7hH8MSUJpSbSDYk0k2';
+const config = {
+  voiceId,
+  modelId: 'eleven_multilingual_v2',
+  voiceSettings: { speed: 0.95, stability: 0.55, similarity_boost: 0.75 },
+};
 const scripts = (await fs.readdir(path.join(topic, 'src', 'scripts', 'ko')))
   .filter((name) => name.endsWith('.txt')).sort();
 const audioDir = path.join(topic, 'build', 'audio');
 await fs.mkdir(audioDir, { recursive: true });
+const configPath = path.join(audioDir, 'elevenlabs_config.json');
+const oldConfig = await fs.readFile(configPath, 'utf8').catch(() => '');
+const sameConfig = oldConfig === JSON.stringify(config);
 
 for (let i = 0; i < scripts.length; i += 1) {
   const scriptPath = path.join(topic, 'src', 'scripts', 'ko', scripts[i]);
   const target = path.join(audioDir, `${String(i + 1).padStart(2, '0')}.mp3`);
   const scriptStat = await fs.stat(scriptPath);
   const outputStat = await fs.stat(target).catch(() => null);
-  if (outputStat && outputStat.mtimeMs >= scriptStat.mtimeMs) {
+  if (sameConfig && outputStat && outputStat.mtimeMs >= scriptStat.mtimeMs) {
     console.log(`${scripts[i]} -> ${path.basename(target)} (cached)`);
     continue;
   }
@@ -34,8 +42,8 @@ for (let i = 0; i < scripts.length; i += 1) {
       headers: { 'xi-api-key': apiKey, 'Content-Type': 'application/json' },
       body: JSON.stringify({
         text,
-        model_id: 'eleven_multilingual_v2',
-        voice_settings: { speed: 1.05, stability: 0.55, similarity_boost: 0.75 },
+        model_id: config.modelId,
+        voice_settings: config.voiceSettings,
       }),
     },
   );
@@ -46,3 +54,4 @@ for (let i = 0; i < scripts.length; i += 1) {
   await fs.writeFile(target, Buffer.from(await response.arrayBuffer()));
   console.log(`${scripts[i]} -> ${path.basename(target)}`);
 }
+await fs.writeFile(configPath, JSON.stringify(config));

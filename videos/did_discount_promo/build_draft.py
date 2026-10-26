@@ -29,9 +29,9 @@ def duration(path):
 run(REPO / ".venv" / "bin" / "python", TOPIC / "src" / "slides.py")
 run("node", TOPIC / "src" / "generate_elevenlabs_audio.mjs")
 speech_lengths = [duration(AUDIO / f"{number:02d}.mp3") for number in range(1, 6)]
-tempo = max(1.0, sum(speech_lengths) / (120 - 5 * 1.1))
+tempo = max(1.0, sum(speech_lengths) / (140 - 5 * 0.9))
 adjusted_lengths = [length / tempo for length in speech_lengths]
-padding = max(1.1, (120 - sum(adjusted_lengths)) / 5)
+padding = max(0.9, (140 - sum(adjusted_lengths)) / 5)
 timings = [round(length + padding, 2) for length in adjusted_lengths]
 for number, target in enumerate(timings, 1):
     run("ffmpeg", "-y", "-loglevel", "error", "-i", AUDIO / f"{number:02d}.mp3",
