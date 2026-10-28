@@ -1,0 +1,25 @@
+{
+  "primary": {
+    "title": "Heterogeneous Causal Learning for Effectiveness Optimization in User Marketing",
+    "authors": [
+      "Will Y. Zou",
+      "Shuyang Du",
+      "James Lee",
+      "Jan Pedersen"
+    ],
+    "year": 2020,
+    "organization": "Uber Inc.",
+    "url": "https://arxiv.org/abs/2004.09702",
+    "pdf": "https://arxiv.org/pdf/2004.09702",
+    "applied_sections": {
+      "2.1, Eq. (1)": "고객 특성에 조건부인 평균 처치 효과",
+      "3, Eq. (4)": "고객별 성과와 비용의 효과를 고려한 예산 제약 아래 대상 선택",
+      "3.4": "같은 투자 비용에서 더 큰 추가 성과를 얻는 평가 관점",
+      "4.1.1": "이전 무작위 실험 데이터를 활용한 학습과 고객 선택",
+      "4.1.1, 4.2": "무작위 혜택 실험의 데이터로 학습하고 예산과 모델에 따라 이용자를 선택하는 실제 운영 흐름"
+    },
+    "scope": "논문의 목표는 예산 제약 아래 추가 고객 유지/성과의 극대화다. 영상은 이 의사결정 관점을 비용을 반영한 추가 이익의 가상 예시로 설명한다.",
+    "example": "A와 B 비중 50:50, 인당 예상 추가 이익 2,000/8,000원, 같은 비용으로 100명 선택은 설명용 가상 수치이며 논문 실험 결과가 아니다.",
+    "coupon_examples": "3천 원/1만 원 쿠폰은 비용 차이를 설명하는 예시다. 다음 승차 할인 쿠폰은 차량 호출 서비스의 고객 유지 상황을 설명하기 위한 예시이며, 논문이 공개한 특정 쿠폰 상품이나 할인액은 아니다."
+  }
+}
