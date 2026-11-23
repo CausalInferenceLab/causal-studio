@@ -1,50 +1,63 @@
-# Causal Studio
+<h1 align="center">Causal Studio</h1>
 
-[한국어](./README-ko_kr.md)
+<p align="center"><strong>Turn a lesson into an animated explainer.</strong></p>
 
-**Make an animated Manim explainer from an idea, a lesson, or a notebook with Claude Code or Codex.**
+<p align="center">The open-source Manim skill behind Causal Studio’s causal inference videos.<br>Give Claude Code or Codex a topic, a script, or a notebook and ask for a scene.</p>
 
-Causal Studio pairs animated causal inference lessons with runnable notebooks and shares the skill used to make the videos.
+<p align="center">
+  <a href="#make-your-first-video"><strong>Make a video</strong></a> ·
+  <a href="https://www.youtube.com/@CausalStudio">Watch on YouTube</a> ·
+  <a href="https://causalinferencelab.github.io/causal-studio/">Read the book</a> ·
+  <a href="./README-ko_kr.md">한국어</a>
+</p>
 
-**[Make your first video](#make-your-first-video)** · [Watch the videos](https://www.youtube.com/@CausalStudio) · [Open the book](https://causalinferencelab.github.io/causal-studio/)
-
-[![An RDD scatter plot shows fitted GPA trends on either side of the 370-point scholarship cutoff](./docs/assets/rdd-preview.jpg)](https://www.youtube.com/watch?v=Rpd3k6Boftk)
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=Rpd3k6Boftk">
+    <img src="./docs/assets/rdd-preview.jpg" width="820" alt="An RDD scatter plot shows fitted GPA trends on either side of the 370-point scholarship cutoff.">
+  </a><br>
+  <sub><a href="https://www.youtube.com/watch?v=Rpd3k6Boftk">Watch the example</a> · Regression discontinuity</sub>
+</p>
 
 ## Make your first video
 
-1. Clone Causal Studio.
-
-   ```bash
-   git clone https://github.com/CausalInferenceLab/causal-studio.git
-   ```
-
-2. Open the cloned folder in Claude Code or Codex and paste this prompt.
-
-   ```text
-   Use the manim-video-pipeline skill to make the first scene of a middle-school
-   explainer on photosynthesis. Set up the video environment if needed and show
-   me a silent MP4 preview.
-   ```
-
-3. Watch the preview and tell the agent what to change. For example, ask it to keep the caption on screen longer.
-
-For your own video, give the agent a topic or the path to your Markdown, text, or `.ipynb` file. The silent preview works without a text-to-speech API key. [More prompts and narration options](./docs/manim-starter.md)
-
-<details>
-<summary>Clone the Manim skill only</summary>
+**Clone the Manim skill.** It works with any lesson topic.
 
 ```bash
 git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
 ```
 
-Open the cloned folder in Claude Code or Codex and use the same prompt.
+**Open `causal-studio` in Claude Code or Codex** and paste this request.
 
-</details>
+```text
+Use the manim-video-pipeline skill to explain photosynthesis to middle-school
+students. Plan the first scene, show light hitting a leaf, and keep the caption
+below the diagram. Set up the video environment and show me a silent MP4 preview.
+```
+
+Watch the preview, then ask for a change in plain language. You can start from a topic alone or give the agent a path to Markdown, plain text, or a Jupyter notebook.
+
+## How the skill works
+
+| Stage | What you get |
+| --- | --- |
+| Plan | A scene plan connecting each narration cue to an on-screen action |
+| Animate | An editable Manim scene and a silent MP4 preview, with captions placed below the visuals |
+| Narrate | Optional OpenAI or ElevenLabs voiceover, with measured beat timings in `*.timings.json` to sync the animation |
+
+Voice API keys are only needed when adding narration. [See example prompts and voice setup](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it).
+
+## Explore Causal Studio
+
+Study causal inference with animated lessons and runnable notebooks. Clone the full project to work on the book, notebooks, or original Manim scenes. It includes the same video skill.
+
+```bash
+git clone https://github.com/CausalInferenceLab/causal-studio
+```
+
+[Watch the lessons on YouTube](https://www.youtube.com/@CausalStudio) · [Read the book](https://causalinferencelab.github.io/causal-studio/) · [View the skill](./.claude/skills/manim-video-pipeline/SKILL.md) · [Contribute](./CONTRIBUTING.md)
 
 ---
 
-[Contributing and full setup](./CONTRIBUTING.md) · [Manim skill](./.claude/skills/manim-video-pipeline/SKILL.md)
+If the skill helps you make a video, give Causal Studio a star.
 
-If Causal Studio helps you make a video, consider giving it a star.
-
-MIT. External assets (3Blue1Brown references and Tabler Icons) retain their upstream licenses.
+MIT. External assets such as the 3Blue1Brown references and Tabler Icons retain their upstream licenses.

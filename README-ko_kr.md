@@ -1,49 +1,63 @@
-# Causal Studio
+<h1 align="center">Causal Studio</h1>
 
-[English](./README.md)
+<p align="center"><strong>강의를 한 장면씩, 애니메이션으로.</strong></p>
 
-**Claude Code나 Codex에 아이디어, 강의 원고, 노트북을 주고 Manim 설명 영상을 만들어 보세요.**
+<p align="center">Causal Studio의 인과추론 영상을 만드는 오픈소스 Manim 스킬입니다.<br>Claude Code나 Codex에 주제, 원고, 노트북을 주고 첫 장면을 만들어 보세요.</p>
 
-Causal Studio는 인과추론 애니메이션과 실행 가능한 노트북을 제공하고, 영상 제작에 사용한 스킬을 공유합니다.
+<p align="center">
+  <a href="#첫-영상-만들기"><strong>영상 만들기</strong></a> ·
+  <a href="https://www.youtube.com/@CausalStudio">YouTube에서 보기</a> ·
+  <a href="https://causalinferencelab.github.io/causal-studio/">인과추론 교재</a> ·
+  <a href="./README.md">English</a>
+</p>
 
-**[첫 영상 만들기](#첫-영상-만들기)** · [영상 보기](https://www.youtube.com/@CausalStudio) · [노트북 열기](https://causalinferencelab.github.io/causal-studio/)
-
-[![장학금 기준인 370점 양쪽의 GPA 산점도와 회귀선을 보여주는 RDD 장면](./docs/assets/rdd-preview.jpg)](https://www.youtube.com/watch?v=65C9J1yJwhc)
+<p align="center">
+  <a href="https://www.youtube.com/watch?v=65C9J1yJwhc">
+    <img src="./docs/assets/rdd-preview.jpg" width="820" alt="장학금 기준인 370점 양쪽의 GPA 산점도와 회귀선을 보여주는 장면.">
+  </a><br>
+  <sub><a href="https://www.youtube.com/watch?v=65C9J1yJwhc">예시 영상 보기</a> · 회귀불연속설계</sub>
+</p>
 
 ## 첫 영상 만들기
 
-1. Causal Studio를 클론합니다.
-
-   ```bash
-   git clone https://github.com/CausalInferenceLab/causal-studio.git
-   ```
-
-2. 클론한 폴더를 Claude Code나 Codex에서 열고 아래 요청을 붙여넣습니다.
-
-   ```text
-   manim-video-pipeline 스킬로 중학생 대상 광합성 설명 영상의 첫 장면을 만들어줘.
-   필요한 영상 환경도 준비하고, 음성 없이 확인할 수 있는 MP4를 보여줘.
-   ```
-
-3. 미리보기를 보고 바꾸고 싶은 부분을 말합니다. 예를 들어 자막을 조금 더 오래 보여달라고 요청할 수 있습니다.
-
-자기 영상은 주제 한 줄로 시작하거나 Markdown, 텍스트, `.ipynb` 파일 경로를 알려주면 됩니다. 무음 미리보기에는 음성 합성 API 키가 필요 없습니다. [예제 프롬프트와 음성 추가 방법](./docs/manim-starter.md)
-
-<details>
-<summary>Manim 스킬만 클론하기</summary>
+**Manim 스킬을 클론하세요.** 어떤 주제로든 시작할 수 있습니다.
 
 ```bash
 git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
 ```
 
-클론한 폴더를 Claude Code나 Codex에서 열고 같은 프롬프트를 붙여넣습니다.
+**`causal-studio` 폴더를 Claude Code나 Codex에서 열고** 아래 요청을 붙여넣으세요.
 
-</details>
+```text
+manim-video-pipeline 스킬로 중학생에게 광합성을 설명해줘. 첫 장면에서
+잎에 빛이 닿는 모습을 보여주고, 자막은 그림 아래에 배치해줘. 영상 환경도
+준비해서 음성 없는 MP4 미리보기를 보여줘.
+```
+
+미리보기를 보고 바꾸고 싶은 부분을 말해 주세요. 주제 한 줄이면 시작할 수 있고, Markdown·텍스트·Jupyter 노트북이 있다면 파일 경로를 알려주면 됩니다.
+
+## 스킬이 하는 일
+
+| 단계 | 결과물 |
+| --- | --- |
+| 장면 구성 | 내레이션이 나오는 순간과 화면에서 일어날 변화를 연결한 장면 계획 |
+| 애니메이션 | 수정 가능한 Manim 코드와 무음 MP4 미리보기. 자막은 그래프와 도형 아래에 배치 |
+| 음성 추가 | OpenAI 또는 ElevenLabs 음성과 `*.timings.json`. 실제 음성 길이를 기준으로 애니메이션 타이밍 조정 |
+
+음성 API 키는 내레이션을 추가할 때 필요합니다. [예제 프롬프트와 음성 설정](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it)
+
+## Causal Studio 둘러보기
+
+애니메이션과 실행 가능한 노트북으로 인과추론을 공부할 수 있습니다. 교재, 노트북, 기존 영상의 Manim 코드를 수정하려면 전체 프로젝트를 클론하세요. 같은 영상 스킬이 들어 있습니다.
+
+```bash
+git clone https://github.com/CausalInferenceLab/causal-studio
+```
+
+[YouTube에서 강의 보기](https://www.youtube.com/@CausalStudio) · [인과추론 교재](https://causalinferencelab.github.io/causal-studio/) · [스킬 보기](./.claude/skills/manim-video-pipeline/SKILL.md) · [기여하기](./CONTRIBUTING-ko_kr.md)
 
 ---
 
-[기여 가이드와 전체 환경 설정](./CONTRIBUTING-ko_kr.md) · [Manim 스킬](./.claude/skills/manim-video-pipeline/SKILL.md)
+스킬이 영상 제작에 도움이 됐다면 Causal Studio에 스타를 눌러주세요.
 
-영상 제작에 도움이 됐다면 GitHub에서 스타를 눌러주세요.
-
-MIT. 외부 자산(3Blue1Brown 레퍼런스와 Tabler Icons)은 각자의 라이선스를 따릅니다.
+MIT. 3Blue1Brown 레퍼런스와 Tabler Icons 같은 외부 자산은 각자의 라이선스를 따릅니다.
