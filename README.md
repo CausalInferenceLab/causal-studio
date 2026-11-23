@@ -1,15 +1,23 @@
 # Manim video pipeline
 
-Use Claude Code or Codex to turn your own topic, notes, or notebook into a Manim video. This checkout contains the shared skill and its render, narration, and setup tools.
+**Turn a lesson into an animated explainer.** This is the open-source Manim skill behind Causal Studio’s causal inference videos, ready to use with Claude Code or Codex.
+
+[Watch on YouTube](https://www.youtube.com/@CausalStudio) · [Read the Causal Studio book](https://causalinferencelab.github.io/causal-studio/)
+
+## Make your first video
 
 ```bash
-git clone --branch skill-only --single-branch --depth 1 https://github.com/CausalInferenceLab/causal-studio.git causal-studio-skill
+git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
 ```
 
-Open `causal-studio-skill` in Claude Code or Codex and ask for a first scene.
+**Open `causal-studio` in Claude Code or Codex** and paste this request.
 
-> Use manim-video-pipeline to make the first scene of a middle-school explainer on photosynthesis. Set up the video environment and show me a silent MP4.
+```text
+Use the manim-video-pipeline skill to explain photosynthesis to middle-school
+students. Plan the first scene, show light hitting a leaf, and keep the caption
+below the diagram. Set up the video environment and show me a silent MP4 preview.
+```
 
-Give the agent a file path if you have Markdown, text, or a Jupyter notebook. After reviewing the preview, ask for OpenAI or ElevenLabs narration if you want it. The first silent render needs no text-to-speech API key.
+Use your own topic or point the agent to a Markdown, text, or Jupyter notebook file. After reviewing the preview, ask for a layout change or add OpenAI or ElevenLabs narration. The skill writes measured beat timings to `*.timings.json` so the animation can follow the voiceover. Voice API keys are only needed when adding narration.
 
-The skill is in `.claude/skills/manim-video-pipeline/SKILL.md`. [Causal Studio videos and notebooks](https://github.com/CausalInferenceLab/causal-studio)
+[View the skill](https://github.com/CausalInferenceLab/causal-studio/blob/skill-only/.claude/skills/manim-video-pipeline/SKILL.md) · [See example prompts and voice setup](https://github.com/CausalInferenceLab/causal-studio/blob/main/docs/manim-starter.md#3-review-and-add-narration-if-you-want-it) · [Explore the full Causal Studio project](https://github.com/CausalInferenceLab/causal-studio)
