@@ -4,6 +4,19 @@
 
 이 프로젝트는 실행 가능한 Jupyter Book과 로컬 전용 Manim 영상 워크플로우를 함께 다룹니다. 변경은 작고 명확하게 유지하고, 로컬 환경과 Binder/book 환경에서 모두 재현 가능하도록 작성합니다.
 
+## 로컬 환경 설정
+
+저장소 루트에서 전체 환경을 준비합니다.
+
+```bash
+bash scripts/setup_environment.sh
+source .venv/bin/activate
+```
+
+스크립트는 `Pipfile`의 Python 버전을 사용하고, 기존 `.venv`를 재사용합니다. `requirements.txt`를 설치하고 3Blue1Brown 레퍼런스와 Tabler Icons를 로컬에 준비합니다. Python 실행 파일은 `PYTHON_BIN`으로 지정할 수 있습니다. Manim wheel을 사용할 수 없는 환경에서는 Cairo, Pango, `pkg-config`도 설치합니다.
+
+책만 작업할 때는 `--book-only`, Manim 미리보기만 필요할 때는 `--video-only`를 사용합니다. 영상 전용 환경은 `.venv-video`에 생성됩니다. `--check`를 붙이면 패키지 설치나 에셋 갱신 없이 선택한 환경을 검증합니다.
+
 ## 핵심 규칙
 
 1. 저장소 스킬을 우선 사용합니다.
@@ -13,6 +26,7 @@
 2. 의존성 범위를 분리합니다.
    - `requirements.txt`: book + video 전체 로컬 작업용
    - `requirements-book.txt`: book, Binder, 배포용 최소 런타임
+   - `requirements-video.txt`: Manim 미리보기 전용
    - `binder/apt.txt`: Binder에서 필요한 시스템 패키지
 
 3. Binder-safe한 노트북을 작성합니다.
@@ -41,6 +55,7 @@
 - Binder 관련 변경은 의존성, 경로, 실행 시간을 함께 점검합니다.
 - 관련 없는 변경은 같은 커밋에 섞지 않습니다.
 - 배포 노트북에 영향을 주는 변경은 관련 설정 변경도 같은 PR에 포함합니다.
+- `main`의 `book/` 변경은 GitHub Pages 배포를 실행합니다.
 
 ## 영상 스타터 배포
 

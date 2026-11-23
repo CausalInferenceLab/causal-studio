@@ -4,6 +4,19 @@ English | [한국어](./CONTRIBUTING-ko_kr.md)
 
 This project combines an executable Jupyter Book with local-only Manim video workflows. Keep changes small and explicit, and make them reproducible in both local and Binder/book environments.
 
+## Local setup
+
+Run the full setup from the repository root.
+
+```bash
+bash scripts/setup_environment.sh
+source .venv/bin/activate
+```
+
+The script uses the Python version in `Pipfile`, reuses `.venv`, installs `requirements.txt`, and prepares the local 3Blue1Brown references and Tabler Icons. Set `PYTHON_BIN` to use a specific Python executable. When a Manim wheel is unavailable, install Cairo, Pango, and `pkg-config` for your platform.
+
+Use `--book-only` for the book or `--video-only` for Manim previews. The video-only environment lives in `.venv-video`. Add `--check` to validate the selected environment without installing packages or updating assets.
+
 ## Core Rules
 
 1. Use repo skills first.
@@ -13,6 +26,7 @@ This project combines an executable Jupyter Book with local-only Manim video wor
 2. Keep dependency scopes separated.
    - `requirements.txt`: full local environment for book + video work
    - `requirements-book.txt`: minimal runtime for book, Binder, and deployed builds
+   - `requirements-video.txt`: standalone Manim previews
    - `binder/apt.txt`: system packages needed on Binder
 
 3. Write Binder-safe notebooks.
@@ -41,6 +55,7 @@ Pre-video notebooks are video drafts, but they should also have learning value o
 - For Binder-facing changes, check dependencies, paths, and runtime together.
 - Keep unrelated changes out of the same commit.
 - If a change affects published notebooks, include related config changes in the same PR.
+- Changes under `book/` on `main` trigger the GitHub Pages deployment.
 
 ## Packaging the video starter
 
