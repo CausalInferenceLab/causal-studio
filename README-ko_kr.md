@@ -33,10 +33,10 @@ Causal Studio는 인과추론 애니메이션과 실행 가능한 노트북을 �
 <summary>Manim 스킬만 클론하기</summary>
 
 ```bash
-git clone --branch skill-only --single-branch --depth 1 https://github.com/CausalInferenceLab/causal-studio.git causal-studio-skill
+git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
 ```
 
-`causal-studio-skill`을 Claude Code나 Codex에서 열고 같은 프롬프트를 붙여넣습니다.
+클론한 폴더를 Claude Code나 Codex에서 열고 같은 프롬프트를 붙여넣습니다.
 
 </details>
 

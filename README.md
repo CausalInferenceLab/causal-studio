@@ -34,10 +34,10 @@ For your own video, give the agent a topic or the path to your Markdown, text, o
 <summary>Clone the Manim skill only</summary>
 
 ```bash
-git clone --branch skill-only --single-branch --depth 1 https://github.com/CausalInferenceLab/causal-studio.git causal-studio-skill
+git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
 ```
 
-Open `causal-studio-skill` in Claude Code or Codex and use the same prompt.
+Open the cloned folder in Claude Code or Codex and use the same prompt.
 
 </details>
 

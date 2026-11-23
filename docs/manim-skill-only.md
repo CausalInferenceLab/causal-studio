@@ -3,10 +3,10 @@
 Use Claude Code or Codex to turn your own topic, notes, or notebook into a Manim video. This checkout contains the shared skill and its render, narration, and setup tools.
 
 ```bash
-git clone --branch skill-only --single-branch --depth 1 https://github.com/CausalInferenceLab/causal-studio.git causal-studio-skill
+git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
 ```
 
-Open `causal-studio-skill` in Claude Code or Codex and ask for a first scene.
+Open the cloned folder in Claude Code or Codex and ask for a first scene.
 
 > Use manim-video-pipeline to make the first scene of a middle-school explainer on photosynthesis. Set up the video environment and show me a silent MP4.
 
