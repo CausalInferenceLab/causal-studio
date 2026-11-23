@@ -41,3 +41,7 @@
 - Binder 관련 변경은 의존성, 경로, 실행 시간을 함께 점검합니다.
 - 관련 없는 변경은 같은 커밋에 섞지 않습니다.
 - 배포 노트북에 영향을 주는 변경은 관련 설정 변경도 같은 PR에 포함합니다.
+
+## 영상 스타터 배포
+
+배포할 버전에서 `python scripts/export_manim_starter.py --zip causal-studio-starter.zip`을 실행합니다. ZIP을 새 폴더에 풀고 README에 따라 예제를 렌더한 뒤, Causal Studio의 GitHub Release에 해당 ZIP을 첨부합니다. 이 명령은 현재 작업 중인 버전의 스킬, 실행 파일, 예제를 묶습니다.

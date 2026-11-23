@@ -4,17 +4,28 @@
 
 🌐 Language: English | [한국어](./README-ko_kr.md)
 
-A platform providing educational videos and executable notebooks on causal inference.
+**Turn a lesson, a notebook, or a short prompt into a Manim explainer with Claude Code or Codex.**
 
-- Book: <https://causalinferencelab.github.io/causal-studio/>
-- YouTube: <https://www.youtube.com/@CausalStudio>
+We use the same workflow to make Causal Studio's animated causal inference lessons and share runnable companion notebooks.
 
-Project working rules: [CONTRIBUTING.md](./CONTRIBUTING.md) | [한국어](./CONTRIBUTING-ko_kr.md)
+**[Make your own video](./docs/manim-starter.md)** · [Watch the RDD example](https://www.youtube.com/watch?v=Rpd3k6Boftk) · [Explore the notebooks](https://causalinferencelab.github.io/causal-studio/)
+
+[![An RDD scatter plot shows fitted GPA trends below and above the 370-point scholarship cutoff](./docs/assets/rdd-preview.jpg)](https://www.youtube.com/watch?v=Rpd3k6Boftk)
+
+## Try the Manim skill
+
+Clone this repository and open the folder in Claude Code or Codex. Give the agent a lesson or start with this prompt.
+
+> Use `manim-video-pipeline` to make the first scene of a video explaining photosynthesis to middle-school students. Set up the video environment if needed and show me a silent preview.
+
+The agent plans the scene, writes editable Manim code, and renders the preview. Add narration with OpenAI or ElevenLabs when you're ready. [Quickstart](./docs/manim-starter.md)
 
 ## How to Learn
 
 1. Watch the videos: Learn each chapter through clear visual explanations.
 2. Run and explore the notebooks: Practice hands-on in Binder or Colab, then build a deeper understanding with the notebook code and explanations.
+
+Browse more [Causal Studio videos](https://www.youtube.com/@CausalStudio). If this workflow helps you make an explainer, a GitHub star is appreciated.
 
 ## Repository Structure
 
@@ -23,15 +34,19 @@ causal_studio/
 ├── book/
 │   └── why_causal_inference/        Korean & English notebooks
 ├── videos/
+│   ├── binary-search/              Starter example and caption/timing demo
 │   └── why_causal_inference/
 │       └── src/                     Scene code + narration scripts
 ├── .codex/skills/                   Codex skills
 ├── .claude/skills/                  Claude Code skills
 ├── requirements.txt                 Full dependencies (book + video)
+├── requirements-video.txt           Starter preview dependencies
 └── requirements-book.txt            Book-only (CI/deploy)
 ```
 
-## Setup
+## Contributor setup
+
+Project working rules are in [CONTRIBUTING.md](./CONTRIBUTING.md) and [한국어](./CONTRIBUTING-ko_kr.md).
 
 On a fresh clone:
 

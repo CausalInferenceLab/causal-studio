@@ -4,17 +4,28 @@
 
 🌐 Language: [English](./README.md) | 한국어
 
-인과추론에 관한 교육 영상과 실행 가능한 노트북을 제공하는 플랫폼입니다.
+**Claude Code나 Codex에 원고, 노트북, 또는 한 문장을 주고 Manim 설명 영상을 만들어 보세요.**
 
-- Book: <https://causalinferencelab.github.io/causal-studio/>
-- YouTube: <https://www.youtube.com/@CausalStudio>
+Causal Studio는 이 방식으로 인과추론 영상을 만들고, 같은 개념을 직접 실습할 수 있는 노트북을 함께 제공합니다.
 
-작업 규칙: [English](./CONTRIBUTING.md) | [한국어](./CONTRIBUTING-ko_kr.md)
+**[내 주제로 영상 만들기](./docs/manim-starter.md)** · [RDD 영상 보기](https://www.youtube.com/watch?v=65C9J1yJwhc) · [노트북으로 학습하기](https://causalinferencelab.github.io/causal-studio/)
+
+[![장학금 기준인 370점 양쪽의 GPA 산점도와 회귀선을 보여주는 RDD 장면](./docs/assets/rdd-preview.jpg)](https://www.youtube.com/watch?v=65C9J1yJwhc)
+
+## Manim 스킬 써보기
+
+저장소를 클론해 Claude Code나 Codex에서 폴더를 엽니다. 원고를 주거나 아래처럼 요청하세요.
+
+> `manim-video-pipeline`으로 중학생 대상 광합성 영상의 첫 장면을 만들어줘. 영상 환경도 준비하고 무음 미리보기를 보여줘.
+
+에이전트가 장면을 설계하고 수정 가능한 Manim 코드를 작성한 뒤 렌더합니다. 화면을 검토하고 나면 OpenAI나 ElevenLabs로 내레이션을 붙일 수 있습니다. [빠른 시작](./docs/manim-starter.md)
 
 ## 학습 방법
 
 1. 영상을 먼저 보기: 각 장을 명확한 시각 자료로 이해합니다.
 2. 노트북 실행과 탐구: Binder 또는 Colab에서 직접 코드를 실행해 보며 실습하고, 노트북의 코드와 설명으로 더 깊이 이해합니다.
+
+[Causal Studio 영상 더 보기](https://www.youtube.com/@CausalStudio). 이 방식으로 영상 제작에 도움을 받았다면 GitHub 스타로 알려주세요.
 
 ## 저장소 구조
 
@@ -23,6 +34,7 @@ causal_studio/
 ├── book/
 │   └── why_causal_inference/        한·영 노트북
 ├── videos/
+│   ├── binary-search/              스타터 예제와 자막·타이밍 예시
 │   └── why_causal_inference/
 │       └── src/                     Scene 코드 + 나레이션 스크립트
 ├── .codex/skills/                   Codex 스킬
@@ -31,7 +43,9 @@ causal_studio/
 └── requirements-book.txt            book 전용 (CI/배포)
 ```
 
-## 환경 세팅
+## 기여자 환경 설정
+
+작업 규칙은 [한국어](./CONTRIBUTING-ko_kr.md)와 [English](./CONTRIBUTING.md)로 제공합니다.
 
 새 환경에서 처음 클론한 경우:
 
