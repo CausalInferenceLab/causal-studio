@@ -73,8 +73,8 @@ project:
 
     - title: 🎬 Videos
       file: videos_en.md
-    - file: videos_ko.md
-      hidden: true
+    - title: 🎬 영상 목록
+      file: videos_ko.md
 
 site:
   template: book-theme
