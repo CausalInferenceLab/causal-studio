@@ -1,8 +1,8 @@
 <h1 align="center">Causal Studio</h1>
 
-<p align="center"><strong>강의를 한 장면씩, 애니메이션으로.</strong></p>
+<p align="center"><strong>어려운 개념을 이해하기 쉬운 영상으로.</strong></p>
 
-<p align="center">Causal Studio의 인과추론 영상을 만드는 오픈소스 Manim 스킬입니다.<br>Claude Code나 Codex에 주제, 원고, 노트북을 주고 첫 장면을 만들어 보세요.</p>
+<p align="center">Causal Studio의 인과추론 영상을 만드는 오픈소스 Manim 스킬입니다.<br>Claude Code나 Codex에 주제, 원고, 노트북 중 하나를 주고 영상을 만들어 보세요.</p>
 
 <p align="center">
   <a href="#첫-영상-만들기"><strong>영상 만들기</strong></a> ·

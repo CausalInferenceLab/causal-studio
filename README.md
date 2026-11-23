@@ -1,8 +1,8 @@
 <h1 align="center">Causal Studio</h1>
 
-<p align="center"><strong>Turn a lesson into an animated explainer.</strong></p>
+<p align="center"><strong>Make complex ideas clear with animation.</strong></p>
 
-<p align="center">The open-source Manim skill behind Causal Studio’s causal inference videos.<br>Give Claude Code or Codex a topic, a script, or a notebook and ask for a scene.</p>
+<p align="center">The open-source Manim skill behind Causal Studio’s causal inference videos.<br>Start with a topic, script, or notebook and ask Claude Code or Codex to make a video.</p>
 
 <p align="center">
   <a href="#make-your-first-video"><strong>Make a video</strong></a> ·
