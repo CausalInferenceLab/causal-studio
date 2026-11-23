@@ -35,9 +35,11 @@ Priority:
 
 - Treat `.codex/skills/*` and `.claude/skills/*` as the default operating procedures for recurring tasks.
 - For initial environment setup (including "Python 환경 세팅"), run `bash scripts/setup_environment.sh`. Only use `--book-only` when the user explicitly requests a Book-only environment. Require dependency/import checks and both asset checks before reporting full setup complete; report partial completion when a step fails. Keep setup execution in the shared `scripts/setup_*.sh` files and have all skill copies delegate to them.
+- For the Manim demo or a standalone video request, use the Manim skill's video-only setup in `.venv-video`. Use the full setup for combined book and video development or when the requested existing scene needs the full environment.
 - Keep dependency scopes separated:
   - `requirements.txt` for full local book + video work
   - `requirements-book.txt` for book, Binder, and deploy runtime
+  - `requirements-video.txt` for standalone Manim previews
   - `binder/apt.txt` for Binder system packages
 - When editing notebooks under `book/`, use Binder-safe paths and do not assume the current working directory is the notebook folder.
 - Do not commit local machine artifacts such as `.env`, local settings, generated caches, or render outputs unless the user explicitly asks for that.

@@ -1,5 +1,13 @@
 # Manim Code Patterns
 
+## Layout and caption safe area
+
+1. On a 16:9 frame, reserve the lower roughly 15% for captions, leaving padding near the frame edge. Place axes, tick labels, dots, arrows, and callouts in a separate body region. A caption background can improve contrast after the zones fit.
+2. For every beat record what stays, what enters, what leaves, and which object receives attention. Build a graph and its labels as a VGroup and fit the whole group into the body region. Group a caption with its background before measuring it.
+3. Check bounding boxes after layout at target scale. For example, require `body.get_bottom()[1] >= caption.get_top()[1] + 0.25` at preview size. Verify transformed targets too, especially axis labels that extend beyond a plot and captions that wrap to two lines.
+4. Render and sample the first and last frame of busy transitions and at least one hold frame per beat. Inspect physical intersections, minimum gap, competing focal points, information density, then timing. If an overlap appears, clear obsolete elements or split the beat first.
+5. Keep only the title or short caption needed to orient the viewer. Use short manually reviewed phrases in the caption area and narrate the explanation. Match stable colors to the same semantic roles across beats.
+
 ## 1. Scene 클래스 구조
 
 ```python
@@ -8,10 +16,10 @@ class Scene{NN}_{ClassName}(Scene):
     Scene {NN}: {핵심 주장}
 
     Visual Pivot: {시각적 전환점}
-    Reference: {source}.ipynb - {관련 셀/섹션}
+    Reference: {lesson.md 또는 source.ipynb} - {관련 문단/셀/섹션}
     Ref Video: {참조 영상 경로} — {선택 이유}
 
-    Script: src/scripts/{NN}_{scene_name}.txt
+    Script: narration/{NN}_{scene_name}.txt
     Beat mapping:
       Beat 1 → 문단 1-2 (0.0~12.3s)
       Beat 2 → 문단 3   (12.3~20.1s)

@@ -20,7 +20,7 @@ class SetupScriptsTest(unittest.TestCase):
         self.root.mkdir()
         shutil.copytree(SOURCE / "scripts", self.root / "scripts")
         (self.root / "Pipfile").write_text('[requires]\npython_version = "3.11"\n')
-        for name in ("requirements.txt", "requirements-book.txt"):
+        for name in ("requirements.txt", "requirements-book.txt", "requirements-video.txt"):
             (self.root / name).touch()
         self.env = os.environ.copy()
         # Keep all Git configuration and network routing local to the fixture.
@@ -98,6 +98,21 @@ fi
         self.assertFalse((self.root / "videos").exists())
         self.assertIn("-m pip install -r requirements-book.txt", (self.base / "python.log").read_text())
         self.assertIn("ready: book-only", result.stdout)
+
+    def test_video_only_uses_isolated_environment_without_book_or_assets(self):
+        (self.root / "Pipfile").unlink()
+        self.run_script("setup_environment.sh", "--video-only", "--check", ok=False)
+        self.assertFalse((self.root / ".venv-video").exists())
+        result = self.run_script("setup_environment.sh", "--video-only")
+        self.assertTrue((self.root / ".venv-video/bin/python").is_file())
+        for name in (".venv", "3b1b", "videos"):
+            self.assertFalse((self.root / name).exists())
+        log = self.base / "python.log"
+        self.assertIn("-m pip install -r requirements-video.txt", log.read_text())
+        self.assertIn("ready: video-only", result.stdout)
+        log.write_text("")
+        self.run_script("setup_environment.sh", "--video-only", "--check")
+        self.assertNotIn("pip install", log.read_text())
 
     def test_check_does_not_create_a_venv(self):
         self.run_script("setup_environment.sh", "--check", ok=False)

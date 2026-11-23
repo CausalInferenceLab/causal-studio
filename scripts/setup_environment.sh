@@ -2,17 +2,23 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-BOOK_ONLY=false
+MODE=full
 CHECK_ONLY=false
 
 for arg in "$@"; do
   case "$arg" in
-    --book-only) BOOK_ONLY=true ;;
+    --book-only|--video-only)
+      if [ "$MODE" != full ] && [ "$MODE" != "${arg#--}" ]; then
+        echo "Choose only one of --book-only and --video-only." >&2
+        exit 2
+      fi
+      MODE="${arg#--}" ;;
     --check) CHECK_ONLY=true ;;
     --help|-h)
-      echo "Usage: bash scripts/setup_environment.sh [--book-only] [--check]"
+      echo "Usage: bash scripts/setup_environment.sh [--book-only | --video-only] [--check]"
       echo "Default: prepare .venv, full requirements, and both local video assets."
       echo "--book-only: use requirements-book.txt and skip video assets."
+      echo "--video-only: prepare .venv-video with requirements-video.txt for Manim previews."
       echo "--check: validate the selected environment without installing or updating."
       exit 0 ;;
     *) echo "Unknown option: $arg" >&2; exit 2 ;;
@@ -20,40 +26,55 @@ for arg in "$@"; do
 done
 
 cd "$ROOT_DIR"
-PYTHON_VERSION="$(awk -F '"' '/^[[:space:]]*python_version[[:space:]]*=/ {print $2; exit}' Pipfile)"
-if [ -z "$PYTHON_VERSION" ]; then
-  echo "Missing python_version in Pipfile" >&2
-  exit 1
-fi
-
-if [ ! -x .venv/bin/python ]; then
-  if "$CHECK_ONLY" || [ -e .venv ]; then
-    echo "Missing or unusable .venv/bin/python; no existing environment was replaced." >&2
-    exit 1
-  fi
-  SETUP_PYTHON="${PYTHON_BIN:-python${PYTHON_VERSION}}"
-  if ! command -v "$SETUP_PYTHON" >/dev/null 2>&1; then
-    echo "Install Python ${PYTHON_VERSION}, or set PYTHON_BIN to its executable." >&2
-    exit 1
-  fi
-  "$SETUP_PYTHON" -c 'import sys; assert sys.version_info[:2] == tuple(map(int, sys.argv[1].split("."))), "Python version must match Pipfile"' "$PYTHON_VERSION"
-  "$SETUP_PYTHON" -m venv .venv
-fi
-
-.venv/bin/python -c 'import sys; assert sys.version_info[:2] == tuple(map(int, sys.argv[1].split("."))), "Existing .venv Python version must match Pipfile"' "$PYTHON_VERSION"
-
+VENV=.venv
 REQUIREMENTS=requirements.txt
-if "$BOOK_ONLY"; then
-  REQUIREMENTS=requirements-book.txt
+if [ "$MODE" = video-only ]; then
+  VENV=.venv-video
+  REQUIREMENTS=requirements-video.txt
+  PYTHON_VERSIONS="3.11 3.12"
+  DEFAULT_PYTHON=python3.11
+  if ! command -v "$DEFAULT_PYTHON" >/dev/null 2>&1; then
+    DEFAULT_PYTHON=python3.12
+  fi
+else
+  PYTHON_VERSIONS="$(awk -F '"' '/^[[:space:]]*python_version[[:space:]]*=/ {print $2; exit}' Pipfile)"
+  if [ -z "$PYTHON_VERSIONS" ]; then
+    echo "Missing python_version in Pipfile" >&2
+    exit 1
+  fi
+  DEFAULT_PYTHON="python${PYTHON_VERSIONS}"
+  if [ "$MODE" = book-only ]; then
+    REQUIREMENTS=requirements-book.txt
+  fi
 fi
+
+check_python() {
+  "$1" -c 'import sys; version = ".".join(map(str, sys.version_info[:2])); sys.exit(0 if version in sys.argv[1].split() else f"Python {version} is unsupported here. Use one of {sys.argv[1]}.")' "$PYTHON_VERSIONS"
+}
+
+if [ ! -x "$VENV/bin/python" ]; then
+  if "$CHECK_ONLY" || [ -e "$VENV" ]; then
+    echo "Missing or unusable $VENV/bin/python; no existing environment was replaced." >&2
+    exit 1
+  fi
+  SETUP_PYTHON="${PYTHON_BIN:-$DEFAULT_PYTHON}"
+  if ! command -v "$SETUP_PYTHON" >/dev/null 2>&1; then
+    echo "Install a supported Python version ($PYTHON_VERSIONS), or set PYTHON_BIN to its executable." >&2
+    exit 1
+  fi
+  check_python "$SETUP_PYTHON"
+  "$SETUP_PYTHON" -m venv "$VENV"
+fi
+
+check_python "$VENV/bin/python"
 if ! "$CHECK_ONLY"; then
-  .venv/bin/python -m pip install -r "$REQUIREMENTS"
+  "$VENV/bin/python" -m pip install -r "$REQUIREMENTS"
 fi
-.venv/bin/python -m pip check
+"$VENV/bin/python" -m pip check
 
 # Check imports as well as metadata: native libraries can be missing even when
 # pip reports a consistent dependency graph.
-.venv/bin/python - "$BOOK_ONLY" <<'PY'
+"$VENV/bin/python" - "$MODE" <<'PY'
 import importlib
 import sys
 
@@ -62,7 +83,9 @@ modules = [
     "sklearn", "statsmodels.api", "duckdb", "dowhy", "graphviz",
     "econml.dml", "sklift", "kagglehub",
 ]
-if sys.argv[1] == "false":
+if sys.argv[1] == "video-only":
+    modules = ["manim"]
+elif sys.argv[1] == "full":
     modules += [
         "jupyterlab", "manim", "linearmodels", "ipywidgets", "pypdf",
         "pdfplumber", "reportlab", "pdf2image", "pytesseract", "PIL",
@@ -72,7 +95,7 @@ for module in modules:
     print(f"[ok] import {module}", flush=True)
 PY
 
-if ! "$BOOK_ONLY"; then
+if [ "$MODE" = full ]; then
   if "$CHECK_ONLY"; then
     bash scripts/setup_video_assets.sh --check
   else
@@ -80,10 +103,10 @@ if ! "$BOOK_ONLY"; then
   fi
 fi
 
-.venv/bin/python --version
-.venv/bin/python -m pip --version
-if "$BOOK_ONLY"; then
-  echo "ready: book-only Python environment (video assets excluded by --book-only)"
-else
-  echo "ready: full Python environment + 3b1b/ + videos/assets/tabler-icons/"
-fi
+"$VENV/bin/python" --version
+"$VENV/bin/python" -m pip --version
+case "$MODE" in
+  book-only) echo "ready: book-only Python environment (video assets excluded by --book-only)" ;;
+  video-only) echo "ready: video-only Python environment (.venv-video)" ;;
+  full) echo "ready: full Python environment + 3b1b/ + videos/assets/tabler-icons/" ;;
+esac

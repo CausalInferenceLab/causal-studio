@@ -1,0 +1,5 @@
+We are looking for thirty-one in a sorted list. Start in the middle, at eighteen.
+
+Thirty-one is greater than eighteen, so we can rule out eighteen and every number to its left.
+
+Look at the middle of the remaining numbers. It is thirty-one. We found the target.

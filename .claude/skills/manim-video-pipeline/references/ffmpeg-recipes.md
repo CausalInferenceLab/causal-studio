@@ -19,18 +19,13 @@ echo "Audio:" && ffprobe -v error -show_entries format=duration -of default=nopr
 find build/manim/videos/ -name "*.mp4" -type f -printf '%T@ %p\n' 2>/dev/null | sort -n | tail -1 | cut -d' ' -f2-
 ```
 
-## Mux (video + audio 합성)
+## Mux
 
 ```bash
-# Manim scene mux — 비디오 길이 기준 (기본값 --full)
-../../.claude/skills/manim-video-pipeline/scripts/mux_audio.sh {VIDEO} {AUDIO} {OUTPUT}
+python .claude/skills/manim-video-pipeline/scripts/pipeline.py mux scene.mp4 narration.mp3 preview.mp4
 ```
 
-Manim scene은 `WAIT_TAIL + fade-out tail` 구조상 video가 항상 audio보다 길다.
-`-shortest`를 쓰면 오디오 종료 시점에서 화면이 잘려 fade-out이 사라지므로 절대 사용하지 않는다.
-오디오가 영상보다 긴 경우는 mux 옵션으로 해결하지 않고 Scene 코드 타이밍을 먼저 조정한다.
-
-mux는 타이밍 보정 단계가 아님. 화면이 오디오보다 먼저 끝나면 Scene 코드로 돌아가 수정.
+씬에서 음성보다 화면이 먼저 끝나면 Scene 타이밍을 고친다. 이 명령은 그 조건을 사전 확인하고, 오디오가 먼저 끝나면 무음을 추가해 화면 꼬리를 보존한다. 최종 합본에 넣기 전 출력 트랙 길이와 전환 컷을 확인한다.
 
 ## 길이 불일치 수정
 
@@ -69,7 +64,7 @@ ffmpeg -f concat -safe 0 -i /tmp/filelist.txt \
 
 ```bash
 # narration이 이미 포함된 최종 합본에 bgm을 낮은 볼륨으로 섞기
-../../.claude/skills/manim-video-pipeline/scripts/mix_bgm.sh \
+bash ../../.claude/skills/manim-video-pipeline/scripts/mix_bgm.sh \
   build/final/{TOPIC}_full.mp4 \
   path/to/bgm.mp3 \
   build/final/{TOPIC}_full_bgm.mp4 \
