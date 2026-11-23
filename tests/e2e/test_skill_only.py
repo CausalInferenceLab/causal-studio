@@ -54,6 +54,8 @@ class SkillOnlyE2E(unittest.TestCase):
             )
             for name in ("book", "binder", "videos", ".venv", ".venv-video", ".env"):
                 self.assertFalse((checkout / name).exists(), name)
+            self.assertEqual((checkout / ".env.example").read_bytes(), (ROOT / ".env.example").read_bytes())
+            subprocess.run(["git", "check-ignore", "-q", ".env"], cwd=checkout, check=True, env=git_env)
             self.assertTrue((checkout / ".agents/skills/manim-video-pipeline/SKILL.md").is_file())
             self.assertTrue((checkout / ".claude/skills/manim-video-pipeline/SKILL.md").is_file())
 

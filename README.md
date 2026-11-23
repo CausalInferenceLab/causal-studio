@@ -47,7 +47,7 @@ Watch the preview, then ask for a change in plain language. You can start from a
 | Animate | An editable Manim scene and a silent MP4 preview, with captions placed below the visuals |
 | Narrate | Optional OpenAI or ElevenLabs voiceover, with measured beat timings in `*.timings.json` to sync the animation |
 
-Voice API keys are only needed when adding narration. [See example prompts and voice setup](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it).
+Voice API keys are only needed when adding narration. Use [`.env.example`](./.env.example) and the [voice setup guide](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it).
 
 ## Explore Causal Studio
 

@@ -47,7 +47,7 @@ manim-video-pipeline 스킬로 중학생에게 광합성을 설명해줘. 첫 �
 | 애니메이션 | 수정 가능한 Manim 코드와 무음 MP4 미리보기. 자막은 그래프와 도형 아래에 배치 |
 | 음성 추가 | OpenAI 또는 ElevenLabs 음성과 `*.timings.json`. 실제 음성 길이를 기준으로 애니메이션 타이밍 조정 |
 
-음성 API 키는 내레이션을 추가할 때 필요합니다. [예제 프롬프트와 음성 설정](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it)
+음성 API 키는 내레이션을 추가할 때 필요합니다. [`.env.example`](./.env.example)과 [음성 설정 가이드](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it)를 참고하세요.
 
 ## Causal Studio 둘러보기
 

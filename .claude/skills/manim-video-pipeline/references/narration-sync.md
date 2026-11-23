@@ -2,7 +2,7 @@
 
 ## Generate a timing track
 
-The same command supports OpenAI and ElevenLabs. Run one provider per language/voice version. Save API keys to the repository root's ignored `.env` or export them in the shell.
+The same command supports OpenAI and ElevenLabs. Run one provider per language/voice version. If you need to create the repository root's ignored `.env`, copy `.env.example` and fill in the settings for your chosen provider. Shell environment variables also work.
 
 | Provider | Required setting | Optional setting |
 |---|---|---|

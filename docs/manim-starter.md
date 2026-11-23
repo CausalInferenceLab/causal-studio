@@ -31,6 +31,6 @@ When the scene is ready, you can ask for a narrated version.
 
 > Add ElevenLabs narration. Make the script one paragraph per visual beat, use the measured timings to align the animation, and give me the merged MP4.
 
-For ElevenLabs, set `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID` locally in the repository's ignored `.env` file. For OpenAI, set `OPENAI_API_KEY` and say “OpenAI narration” in the request. The agent can render the silent preview before these credentials are set.
+If you’re setting up narration for the first time, copy `.env.example` to `.env` in the repository root. For ElevenLabs, fill in `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID`. For OpenAI, fill in `OPENAI_API_KEY` and ask for OpenAI narration. The agent can render a silent preview before you set up narration.
 
 The [Causal Studio repository](https://github.com/CausalInferenceLab/causal-studio) includes the original videos and notebooks. To revise an existing scene, tell the agent its topic, such as `videos/rdd_en`, and describe the change you want.

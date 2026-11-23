@@ -35,7 +35,9 @@ def starter_files(skill_only=False):
     guide = "manim-skill-only.md" if skill_only else "manim-starter.md"
     yield Path("README.md"), (ROOT / "docs" / guide).read_bytes()
     yield Path(".agents/skills/manim-video-pipeline/SKILL.md"), CODEX_ENTRY.encode()
-    for name in (".gitignore", "video.py", "requirements-video.txt", "scripts/setup_environment.sh", "LICENSE"):
+    for name in (
+        ".env.example", ".gitignore", "video.py", "requirements-video.txt", "scripts/setup_environment.sh", "LICENSE",
+    ):
         file = ROOT / name
         if file.is_file():
             yield Path(name), file.read_bytes()
