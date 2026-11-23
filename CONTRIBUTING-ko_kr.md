@@ -59,4 +59,6 @@ source .venv/bin/activate
 
 ## 영상 스타터 배포
 
+공용 스킬을 수정하거나 배포 브랜치를 갱신할 때는 [Manim 스킬 유지보수 지침](./.claude/skills/manim-skill-maintenance/SKILL.md)을 따릅니다.
+
 배포할 버전에서 `python scripts/export_manim_starter.py --zip causal-studio-starter.zip`을 실행합니다. ZIP을 새 폴더에 풀고 README에 따라 예제를 렌더한 뒤, Causal Studio의 GitHub Release에 해당 ZIP을 첨부합니다. 이 명령은 현재 작업 중인 버전의 스킬, 실행 파일, 예제를 묶습니다.

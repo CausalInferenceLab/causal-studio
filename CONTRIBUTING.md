@@ -59,4 +59,6 @@ Pre-video notebooks are video drafts, but they should also have learning value o
 
 ## Packaging the video starter
 
+Use [Manim skill maintenance](./.claude/skills/manim-skill-maintenance/SKILL.md) for shared changes and branch synchronization.
+
 Run `python scripts/export_manim_starter.py --zip causal-studio-starter.zip` from the version being released. Unpack it into a fresh directory and follow its README to render the example. Attach the named ZIP to a Causal Studio GitHub Release. The exporter takes the skill, launcher, and example from this checkout.

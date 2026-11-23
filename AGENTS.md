@@ -15,6 +15,7 @@ Project skills for previous command workflows:
 
 When request intent matches below topics, use `.claude/skills/*` as the operational source:
 - `manim-video-pipeline`: scene design/script/render/audio mux/full concat
+- `manim-skill-maintenance`: maintain the shared Manim skill and verify or release a public snapshot
 - `pip-install`: install package in `.venv` and sync `requirements.txt`
 - `skill-creator`: create/update project skill package
 - `deep-research`: 심층 조사, deep research, 종합 분석, in-depth report → outputs/ 에 저장
@@ -34,6 +35,7 @@ Priority:
 ## Project Working Rules
 
 - Treat `.codex/skills/*` and `.claude/skills/*` as the default operating procedures for recurring tasks.
+- Use the [Manim maintenance skill](.claude/skills/manim-skill-maintenance/SKILL.md) when editing or exporting the Manim skill, its packaged tools, or the starter. Check whether the change affects the public snapshot even when another development skill led to the edit.
 - For initial environment setup (including "Python 환경 세팅"), run `bash scripts/setup_environment.sh`. Only use `--book-only` when the user explicitly requests a Book-only environment. Require dependency/import checks and both asset checks before reporting full setup complete; report partial completion when a step fails. Keep setup execution in the shared `scripts/setup_*.sh` files and have all skill copies delegate to them.
 - For the Manim demo or a standalone video request, use the Manim skill's video-only setup in `.venv-video`. Use the full setup for combined book and video development or when the requested existing scene needs the full environment.
 - Keep dependency scopes separated:
