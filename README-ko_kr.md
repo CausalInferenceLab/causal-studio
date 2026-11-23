@@ -13,7 +13,10 @@
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=65C9J1yJwhc">
-    <img src="./docs/assets/rdd-preview.jpg" width="820" alt="장학금 기준인 370점 양쪽의 GPA 산점도와 회귀선을 보여주는 장면.">
+    <picture>
+      <source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/rdd-preview.jpg">
+      <img src="./docs/assets/rdd-demo.gif" width="820" alt="장학금 기준인 370점 양쪽에 GPA 산점도와 회귀선이 차례로 나타나고, 두 회귀선의 차이를 표시하는 애니메이션.">
+    </picture>
   </a><br>
   <sub><a href="https://www.youtube.com/watch?v=65C9J1yJwhc">예시 영상 보기</a> · 회귀불연속설계</sub>
 </p>

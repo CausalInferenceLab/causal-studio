@@ -13,7 +13,10 @@
 
 <p align="center">
   <a href="https://www.youtube.com/watch?v=Rpd3k6Boftk">
-    <img src="./docs/assets/rdd-preview.jpg" width="820" alt="An RDD scatter plot shows fitted GPA trends on either side of the 370-point scholarship cutoff.">
+    <picture>
+      <source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/rdd-preview.jpg">
+      <img src="./docs/assets/rdd-demo.gif" width="820" alt="An animated scatter plot draws fitted GPA trends on each side of the 370-point scholarship cutoff and highlights the gap between them.">
+    </picture>
   </a><br>
   <sub><a href="https://www.youtube.com/watch?v=Rpd3k6Boftk">Watch the example</a> · Regression discontinuity</sub>
 </p>
