@@ -1,0 +1,47 @@
+name: Manim skill E2E
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - '.claude/skills/manim-video-pipeline/**'
+      - '.github/workflows/manim-e2e.yml'
+      - 'docs/manim-skill-only.md'
+      - 'requirements-video.txt'
+      - 'scripts/export_manim_starter.py'
+      - 'scripts/setup_environment.sh'
+      - 'tests/e2e/**'
+      - 'video.py'
+  push:
+    branches: [main]
+    paths:
+      - '.claude/skills/manim-video-pipeline/**'
+      - '.github/workflows/manim-e2e.yml'
+      - 'docs/manim-skill-only.md'
+      - 'requirements-video.txt'
+      - 'scripts/export_manim_starter.py'
+      - 'scripts/setup_environment.sh'
+      - 'tests/e2e/**'
+      - 'video.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: requirements-video.txt
+      - name: Install Manim system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg libcairo2-dev libpango1.0-dev pkg-config
+      - name: Render from a clean skill-only clone
+        run: python -m unittest discover -s tests/e2e -v
