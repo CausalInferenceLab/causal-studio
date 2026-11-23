@@ -1,5 +1,5 @@
 # Dependencies for GitHub Pages book build (no system-level video stack)
-jupyter-book>=2.0.0
+jupyter-book==2.1.6
 numpy
 pandas
 scipy
