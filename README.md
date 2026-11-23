@@ -1,6 +1,6 @@
 # Manim video pipeline
 
-**Turn a lesson into an animated explainer.** This is the open-source Manim skill behind Causal Studio’s causal inference videos, ready to use with Claude Code or Codex.
+**Make complex ideas clear with animation.** This is the open-source Manim skill behind Causal Studio’s causal inference videos, ready to use with Claude Code or Codex.
 
 [Watch on YouTube](https://www.youtube.com/@CausalStudio) · [Read the Causal Studio book](https://causalinferencelab.github.io/causal-studio/)
 
