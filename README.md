@@ -6,7 +6,7 @@
 
 Causal Studio pairs animated causal inference lessons with runnable notebooks and shares the skill used to make the videos.
 
-**[Make your first video](#make-your-first-video)** · [Watch the videos](https://causalinferencelab.github.io/causal-studio/videos-en/) · [Open the book](https://causalinferencelab.github.io/causal-studio/)
+**[Make your first video](#make-your-first-video)** · [Watch the videos](https://www.youtube.com/@CausalStudio) · [Open the book](https://causalinferencelab.github.io/causal-studio/)
 
 [![An RDD scatter plot shows fitted GPA trends on either side of the 370-point scholarship cutoff](./docs/assets/rdd-preview.jpg)](https://www.youtube.com/watch?v=Rpd3k6Boftk)
 
@@ -29,6 +29,17 @@ Causal Studio pairs animated causal inference lessons with runnable notebooks an
 3. Watch the preview and tell the agent what to change. For example, ask it to keep the caption on screen longer.
 
 For your own video, give the agent a topic or the path to your Markdown, text, or `.ipynb` file. The silent preview works without a text-to-speech API key. [More prompts and narration options](./docs/manim-starter.md)
+
+<details>
+<summary>Clone the Manim skill only</summary>
+
+```bash
+git clone --branch skill-only --single-branch --depth 1 https://github.com/CausalInferenceLab/causal-studio.git causal-studio-skill
+```
+
+Open `causal-studio-skill` in Claude Code or Codex and use the same prompt.
+
+</details>
 
 ---
 

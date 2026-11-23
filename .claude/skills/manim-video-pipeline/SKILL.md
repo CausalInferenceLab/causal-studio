@@ -19,11 +19,13 @@ bash scripts/setup_environment.sh --video-only
 
 Use `.venv-video/bin/python` for the demo and standalone projects. For an existing Causal Studio scene with additional datasets or assets, use the project's environment with those dependencies and check the scene's imports and asset paths. Python 3.11 or 3.12 and Manim CE are sufficient for the demo. Narration and muxing also need FFmpeg/ffprobe.
 
-If the user asks to try the pipeline or see the demo, render the supplied example and return the resulting MP4.
+If the user asks to try the pipeline and `videos/binary-search/project.toml` exists, render the supplied example and return the resulting MP4.
 
 ```bash
 .venv-video/bin/python video.py render videos/binary-search
 ```
+
+In a skill-only checkout, initialize a new topic and build a short first scene using the steps below. If the user asks for a demo without a topic, use binary search as the brief.
 
 ## Start or resume a project
 
@@ -34,7 +36,7 @@ If the user asks to try the pipeline or see the demo, render the supplied exampl
 
 Choose one input. `--source` accepts Markdown, plain text, or an existing notebook. A short prompt can serve as the entire brief. Generate a notebook only when the user requests one. If the project already exists, read its `project.toml`; it records the source and default Manim class relative to the topic folder. The `source` command prints the lesson, including notebook code cells as text. It never executes notebook cells.
 
-Use `videos/<topic>/scene_plan.md` for the scene plan, `scenes/` for Manim files, `narration/` for one text file per scene, and `build/` for previews and generated audio. If the existing files live under `src/`, use their paths from the manifest. Project-specific guidance is in [Causal Studio projects](references/causal-studio.md).
+Use `videos/<topic>/scene_plan.md` for the scene plan, `scenes/` for Manim files, `narration/` for one text file per scene, and `build/` for previews and generated audio. If the existing files live under `src/`, use their paths from the manifest. Read `references/causal-studio.md` when it exists and you are editing a Causal Studio scene.
 
 ## Work one scene at a time
 
@@ -49,5 +51,3 @@ Use `videos/<topic>/scene_plan.md` for the scene plan, `scenes/` for Manim files
 ```
 
 For narrated output, connect each measured chunk to its matching Manim beat. Put the animation on the key phrase, leave enough reading time, and keep at least 0.5 seconds of visual tail after the audio. For existing scenes with hand-tuned waits, review those waits against the new timeline before changing them. Finish with the commands in [FFmpeg recipes](references/ffmpeg-recipes.md).
-
-The [binary search example](../../../videos/binary-search/scene_plan.md) demonstrates the same scheme without a notebook, external assets, or an API key for its first preview.

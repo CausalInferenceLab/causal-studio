@@ -103,6 +103,26 @@ class ManimPipelineTests(unittest.TestCase):
                 for entry in shared:
                     self.assertEqual(archive.read(f"causal-studio-starter/{entry}"), (ROOT / entry).read_bytes())
 
+    def test_skill_only_export_keeps_tools_without_project_files(self):
+        with tempfile.TemporaryDirectory() as directory:
+            target = Path(directory) / "skill.zip"
+            subprocess.run(
+                [sys.executable, str(ROOT / "scripts/export_manim_starter.py"),
+                 "--skill-only", "--zip", str(target)],
+                check=True, capture_output=True,
+            )
+            prefix = "causal-studio-skill/"
+            with ZipFile(target) as archive:
+                entries = {Path(name.removeprefix(prefix)) for name in archive.namelist()}
+                self.assertTrue(all(name.startswith(prefix) for name in archive.namelist()))
+                self.assertFalse(any(entry.parts[0] in {"book", "videos", "binder"} for entry in entries))
+                self.assertFalse(any(entry.name in {"gen_en_slow.mjs", "causal-studio.md"} for entry in entries))
+                for entry in entries:
+                    if entry.is_relative_to(SKILL.relative_to(ROOT)):
+                        self.assertEqual(archive.read(prefix + str(entry)), (ROOT / entry).read_bytes())
+                self.assertIn(CLI.relative_to(ROOT), entries)
+                self.assertIn(Path("scripts/setup_environment.sh"), entries)
+
 
 if __name__ == "__main__":
     unittest.main()

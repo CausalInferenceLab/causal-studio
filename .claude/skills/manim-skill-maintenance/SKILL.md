@@ -26,6 +26,6 @@ Classify the change before preparing a distribution update.
 
 Treat `skill-only` as a snapshot generated from a reviewed `main` commit. Make fixes in the source and regenerate the snapshot. Record the source commit in the snapshot commit message so a later maintainer can compare the two.
 
-The current exporter produces the standalone starter, which includes a demo and some project-specific guidance. Before creating or updating a minimal `skill-only` snapshot, prepare and verify a dedicated file selection. Include the skill and each resource needed to set up and render from a new topic. Keep book content, existing videos, and project-specific scripts in Causal Studio. Verify first use in a fresh checkout of the candidate snapshot before publishing it.
+Generate the minimal snapshot with `python scripts/export_manim_starter.py --skill-only --directory <new-directory>`. Review the exporter's file selection when adding a shared dependency. Run `python -m unittest discover -s tests/e2e -v` to confirm first use from a fresh Git clone. Keep book content, existing videos, and project-specific scripts in Causal Studio.
 
 When a request includes publishing, review the snapshot diff and follow the project's Git workflow for the branch update. Report the source commit, checks run, and published branch or local snapshot. For an ordinary source edit, report whether it affects the public snapshot so the next release can pick it up.

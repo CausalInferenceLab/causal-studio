@@ -7,9 +7,11 @@ paths:
   - ".codex/skills/manim-video-pipeline"
   - ".codex/skills/manim-video-pipeline/**"
   - "docs/manim-starter.md"
+  - "docs/manim-skill-only.md"
   - "requirements-video.txt"
   - "scripts/export_manim_starter.py"
   - "scripts/setup_environment.sh"
+  - "tests/e2e/**"
   - "video.py"
   - "videos/binary-search/**"
 ---

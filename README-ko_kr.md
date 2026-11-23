@@ -29,6 +29,17 @@ Causal Studio는 인과추론 애니메이션과 실행 가능한 노트북을 �
 
 자기 영상은 주제 한 줄로 시작하거나 Markdown, 텍스트, `.ipynb` 파일 경로를 알려주면 됩니다. 무음 미리보기에는 음성 합성 API 키가 필요 없습니다. [예제 프롬프트와 음성 추가 방법](./docs/manim-starter.md)
 
+<details>
+<summary>Manim 스킬만 클론하기</summary>
+
+```bash
+git clone --branch skill-only --single-branch --depth 1 https://github.com/CausalInferenceLab/causal-studio.git causal-studio-skill
+```
+
+`causal-studio-skill`을 Claude Code나 Codex에서 열고 같은 프롬프트를 붙여넣습니다.
+
+</details>
+
 ---
 
 [기여 가이드와 전체 환경 설정](./CONTRIBUTING-ko_kr.md) · [Manim 스킬](./.claude/skills/manim-video-pipeline/SKILL.md)
