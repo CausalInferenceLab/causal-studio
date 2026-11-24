@@ -9,15 +9,24 @@ import sys
 from tempfile import TemporaryDirectory
 import tomllib
 
+from project_layout import LANGUAGE_TAG, SOURCE_TYPES, TOPIC_SLUG, check_project, resolve_project, scene_classes
 from speech import add_audio_arguments, generate_audio, media_duration
 
 
 ROOT = Path(__file__).resolve().parents[4]
-SOURCE_TYPES = {".md", ".txt", ".ipynb"}
 
 
 def init_project(args):
     project = args.project.resolve()
+    scene_file = "scenes/scene_01.py"
+    if args.lang:
+        if not LANGUAGE_TAG.fullmatch(args.lang):
+            raise ValueError("Use a language tag such as en, ko, or en-US.")
+        project = project / args.lang
+    if args.lang or (project.parent.parent.name == "videos" and LANGUAGE_TAG.fullmatch(project.name)):
+        if not TOPIC_SLUG.fullmatch(project.parent.name):
+            raise ValueError("Use a lowercase topic slug with underscores, such as binary_search.")
+        scene_file = "scenes/scene_01_intro.py"
     if args.source:
         source = args.source.resolve()
         if source.suffix.lower() not in SOURCE_TYPES or not source.is_file():
@@ -35,7 +44,7 @@ def init_project(args):
     with manifest.open("x", encoding="utf-8") as output:
         output.write(
             f"source = {json.dumps(os.path.relpath(source, project), ensure_ascii=False)}\n"
-            'scene_file = "scenes/scene_01.py"\n'
+            f'scene_file = "{scene_file}"\n'
             'scene_class = "Scene01"\n'
         )
     if not args.source and not source.exists():
@@ -61,6 +70,12 @@ def read_source(path):
 
 def render(args, project, config):
     file = args.file.resolve() if args.file else project / config["scene_file"]
+    if args.file is None and args.scene and args.scene != config["scene_class"]:
+        matches = [p for p in (project / "scenes").glob("scene_*.py") if args.scene in scene_classes(p)]
+        if len(matches) > 1:
+            raise ValueError(f"Found {args.scene} in multiple files. Select one with --file.")
+        if matches:
+            file = matches[0]
     scripts = Path(__file__).resolve().parent
     pythonpath = os.pathsep.join(filter(None, (str(scripts), str(ROOT), os.environ.get("PYTHONPATH"))))
     subprocess.run(
@@ -100,11 +115,14 @@ def main():
     commands = parser.add_subparsers(dest="action", required=True)
     init = commands.add_parser("init", help="Create a lesson project")
     init.add_argument("project", type=Path)
+    init.add_argument("--lang", help="Create a language edition under the topic, such as en or ko")
     inputs = init.add_mutually_exclusive_group()
     inputs.add_argument("--source", type=Path, help="Existing .md, .txt, or .ipynb file")
     inputs.add_argument("--brief", help="Start a lesson from a description")
     source = commands.add_parser("source", help="Print the lesson without executing notebook cells")
     source.add_argument("project", type=Path)
+    check = commands.add_parser("check", help="Verify a project's folder, manifest, scene names, and narration")
+    check.add_argument("project", type=Path)
     preview = commands.add_parser("render", help="Render a Manim scene")
     preview.add_argument("project", type=Path)
     preview.add_argument("--file", type=Path, help="Override the scene file (relative to the working directory)")
@@ -118,12 +136,15 @@ def main():
 
     if args.action == "init":
         init_project(args)
+    elif args.action == "check":
+        check_project(args.project.resolve())
+        print(f"Valid video project: {args.project}")
     elif args.action == "audio":
         generate_audio(args)
     elif args.action == "mux":
         mux(args)
     else:
-        project = args.project.resolve()
+        project = resolve_project(args.project.resolve())
         with (project / "project.toml").open("rb") as manifest:
             config = tomllib.load(manifest)
         if args.action == "source":
@@ -135,5 +156,5 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-    except (OSError, ValueError, KeyError, RuntimeError, subprocess.CalledProcessError) as error:
+    except (OSError, ValueError, KeyError, RuntimeError, SyntaxError, subprocess.CalledProcessError) as error:
         sys.exit(f"Error: {error}")
