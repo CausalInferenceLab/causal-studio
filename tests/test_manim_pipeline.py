@@ -40,6 +40,29 @@ class ManimPipelineTests(unittest.TestCase):
                 self.assertIn(expected, result)
                 self.assertEqual((project / "lesson.md").exists(), name == "brief")
                 self.assertFalse(list(project.glob("*.ipynb")))
+                self.assertEqual((project / "scene_plan.md").read_bytes(),
+                                 (SKILL / "templates/scene_plan.md").read_bytes())
+
+    def test_init_preserves_a_written_scene_plan(self):
+        with tempfile.TemporaryDirectory() as directory:
+            project = Path(directory)
+            plan = project / "scene_plan.md"
+            plan.write_text("# Existing storyboard\n", encoding="utf-8")
+            subprocess.run([sys.executable, str(CLI), "init", str(project), "--brief", "Explain the midpoint."],
+                           check=True, capture_output=True)
+            self.assertEqual(plan.read_text(encoding="utf-8"), "# Existing storyboard\n")
+
+    def test_legacy_audio_flags_resolve_to_language_editions(self):
+        command = [sys.executable, str(CLI), "audio", "--dry-run"]
+        for flags, language, stem in (
+            (["--topic", "fuzzy_rdd_en", "--scene", "01", "--name", "recap_hook_en"], "en", "01_recap_hook"),
+            (["--topic", "fuzzy_rdd", "--scene", "01", "--name", "recap_hook"], "ko", "01_recap_hook"),
+        ):
+            with self.subTest(language=language):
+                data = json.loads(subprocess.check_output([*command, *flags]))
+                base = ROOT / "videos" / "fuzzy_rdd" / language
+                self.assertEqual(Path(data["outputPath"]), base / "build" / "audio" / f"{stem}.mp3")
+                self.assertGreater(data["chunkCount"], 0)
 
     @unittest.skipUnless(shutil.which("ffmpeg") and shutil.which("ffprobe"), "FFmpeg is required")
     def test_each_provider_writes_the_same_timing_schema(self):
@@ -126,6 +149,8 @@ class ManimPipelineTests(unittest.TestCase):
                         self.assertEqual(archive.read(prefix + str(entry)), (ROOT / entry).read_bytes())
                 self.assertIn(CLI.relative_to(ROOT), entries)
                 self.assertIn(Path("scripts/setup_environment.sh"), entries)
+                self.assertEqual(archive.read(prefix + "scripts/setup_video_assets.sh"),
+                                 (ROOT / "scripts/setup_video_assets.sh").read_bytes())
 
 
 if __name__ == "__main__":

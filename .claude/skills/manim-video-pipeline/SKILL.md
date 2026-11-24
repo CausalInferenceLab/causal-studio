@@ -1,11 +1,11 @@
 ---
 name: manim-video-pipeline
-description: Design and render Manim Community Edition educational videos in any domain from a short brief, Markdown, text, or an optional Jupyter notebook. Use for scene planning, narration, OpenAI or ElevenLabs TTS, layout and caption checks, audio timing, rendering, and muxing.
+description: Design and render educational videos in Manim Community Edition from a brief, lesson, or optional notebook. Use for 3Blue1Brown reference study, visual storyboards, animation prototypes, OpenAI or ElevenLabs narration, and final renders.
 ---
 
 # Manim video pipeline
 
-Use this workflow from the repository root when a user asks in natural language to make or edit a video. Execute the setup, project creation, and render steps with your tools. Return the preview MP4 path and a brief summary of the scene. Ask the user only for input or setup you cannot supply, such as their lesson or chosen voice provider credentials.
+Use this workflow from the repository root when a user asks in natural language to make or edit a video. Execute the setup, project creation, and render steps with your tools. Return the MP4 path and summarize the visual idea, including the reference moment you adapted and any viewing limitations. Ask the user only for input or setup you cannot supply, such as their lesson or chosen voice provider credentials.
 
 ## Prepare the preview environment
 
@@ -25,7 +25,7 @@ If the user asks to try the pipeline and `videos/binary-search/project.toml` exi
 .venv-video/bin/python video.py render videos/binary-search
 ```
 
-In a skill-only checkout, initialize a new topic and build a short first scene using the steps below. If the user asks for a demo without a topic, use binary search as the brief.
+In a skill-only checkout, initialize a topic and follow the design steps below. For a demo without a topic, use binary search as the brief.
 
 ## Start or resume a project
 
@@ -38,19 +38,28 @@ Choose one input. `--source` accepts Markdown, plain text, or an existing notebo
 
 Use `videos/<topic>/scene_plan.md` for the scene plan, `scenes/` for Manim files, `narration/` for scripts, and `build/` for generated files. Give each scene one Python file and one script with the same scene number. Put colors, icons, or graph helpers used by several scenes in a shared module within that topic. Use the manifest and existing paths when revising a project. Read `references/causal-studio.md` when it exists and you are editing a Causal Studio scene.
 
+For multilingual videos, use `videos/<topic>/<language>/` as the project folder. Each language has its own `project.toml`, `scenes/`, `narration/`, and `build/`. Match scene and script names across languages. Keep reusable graphics in the topic's `shared/` folder. Pass the language folder to the same commands, for example `video.py render videos/my-topic/en`.
+
 ## Choose how to show the idea
 
-When planning a math or statistics video or reworking how an idea is shown, study a relevant 3Blue1Brown lesson or source scene before writing Manim code. Choose a technique that helps explain this topic, such as moving existing objects into a graph or changing a distribution on fixed axes. Record the reference and the planned on-screen action in `scene_plan.md`. Use Tabler SVG icons when a repeated entity, such as a visitor or a click, is easier to recognize as a symbol. See [visual design and icons](references/manim-code-patterns.md#visual-design-and-icons) for sources and examples.
+When designing or revising a visual explanation, prepare the local source and SVG assets in both the full repo and a fresh skill-only checkout.
 
-Keep the explanation in motion and narration. Plan one visual change the viewer should notice per beat. Use on-screen text for the quantities, units, or short labels needed to interpret that change. Leave out recurring headers and sentences that repeat the narration. For a narrated video, prefer selectable subtitles when captions are needed. For a silent video, include the short cues needed to follow it without audio. See [staging and text](references/manim-code-patterns.md#staging-and-text).
+```bash
+bash scripts/setup_video_assets.sh --ensure
+```
+
+1. **Find the visual question.** Write what a first-time viewer should understand by the end. Pick one concrete example or contrast that makes that insight visible. Sketch the opening state, the change, and the result. For an existing project, use the [scene plan template](templates/scene_plan.md) to fill gaps in its plan.
+2. **Study the whole 3Blue1Brown passage and its source.** Search for a sequence that explains the same kind of relationship. Watch the setup, the key change, and how the result is framed and held. Record what draws the eye in those frames, how the layout evolves, and what the background, accent colors, and text are doing. Follow the official lesson's source link or search `3b1b/` for the scene, then trace the helpers that set the layout, camera, and palette as well as the animation. Save the video range and code permalinks in `scene_plan.md`. If playback fails, try another sequence or official lesson visuals and record what you inspected. If asset setup fails, use the upstream source. Follow [reference study and adaptation](references/manim-code-patterns.md#reference-study-and-adaptation).
+3. **Set the visual direction and storyboard.** Choose the first focal point, the space supporting labels and diagrams need, and the color roles and text hierarchy that will carry across scenes. Mark where the composition needs to change to make the next idea visible. Carry an object or relationship from one beat to the next, and let a concrete example produce its result before introducing the general rule. Map each action to a narration cue or the corresponding cue in a silent video.
+4. **Prototype a complete teaching passage.** Render the setup, hardest transition, and result with provisional timing and the planned colors and layout. Compare those frames with the reference and play the passage muted at phone width and normal speed. Check where the eye lands first, what stays legible during the change, and whether the result reads clearly. Fix the first point where attention or understanding breaks, rerender it, and note the revision before full production. Follow [the visual review guide](references/manim-code-patterns.md#review-the-motion).
 
 ## Work one scene at a time
 
 1. Read the source and locate the smallest coherent teaching unit. Preserve the source's numbers, definitions, observed and unobserved values, and examples. Check the prior scene's last line and the new scene's first line when continuing a series.
-2. Fill a plan row for each beat with the narration cue, what the viewer sees change, what stays or leaves, and the exact labels that appear. For narration, use one short paragraph per beat, separated by a blank line. Read the [narration guide](references/script-writing-guide.md).
+2. Map each planned beat to the final words and labels. For narration, use one short paragraph per beat, separated by a blank line. Read the [narration guide](references/script-writing-guide.md).
 3. For a narrated scene, review the narration, then generate the MP3 and its adjacent `*.timings.json`. Read and listen to both before locking animation timing. For a silent preview, use provisional beat lengths. See [narration and sync](references/narration-sync.md).
 4. Read the [Manim code patterns](references/manim-code-patterns.md) before writing code. Give the visual idea most of the frame, keep its colors and geometry stable across related beats, and reserve clearance where captions may appear. Clear obsolete objects before shrinking any labels.
-5. Render a preview and inspect frames before, during, and after each key change. Check that the intended change is visible at phone size, with the sound off, and that labels stay legible throughout the motion. With sound on, check the cue and the hold on the result. Check continuity across cuts in the assembled video.
+5. Review the assembled preview at normal speed with the narration when present. Check whether each visual event lands on the words that give it meaning and whether the result stays long enough to read. At each cut, verify that shared objects, positions, and colors still make sense. Use selectable subtitles for narrated videos when captions are needed and short on-screen cues for silent videos.
 
 ```bash
 .venv-video/bin/python video.py render videos/my-topic

@@ -3,11 +3,13 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 CHECK_ONLY=false
+ENSURE_ONLY=false
 case "${1:-}" in
   "") ;;
+  --ensure) ENSURE_ONLY=true ;;
   --check) CHECK_ONLY=true ;;
   --help|-h)
-    echo "Usage: bash scripts/setup_video_assets.sh [--check]"
+    echo "Usage: bash scripts/setup_video_assets.sh [--ensure | --check]"
     exit 0 ;;
   *) echo "Unknown option: $1" >&2; exit 2 ;;
 esac
@@ -34,13 +36,13 @@ done
 for i in "${!DESTS[@]}"; do
   dest="${DESTS[$i]}"
   if ! "$CHECK_ONLY"; then
-    if [ -e "$dest/.git" ]; then
-      echo "[update] $dest"
-      git -C "$dest" pull --ff-only
-    else
+    if [ ! -e "$dest/.git" ]; then
       mkdir -p "$(dirname "$dest")"
       echo "[clone] ${REPOS[$i]} -> $dest"
       git clone --depth 1 "${REPOS[$i]}" "$dest"
+    elif ! "$ENSURE_ONLY"; then
+      echo "[update] $dest"
+      git -C "$dest" pull --ff-only
     fi
   fi
   if [ ! -f "$dest/${REQUIRED[$i]}" ]; then

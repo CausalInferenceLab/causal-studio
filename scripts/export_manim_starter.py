@@ -21,10 +21,11 @@ SKILL_ONLY_FILES = (
     "scripts/mux_audio.sh",
     "scripts/pipeline.py",
     "scripts/speech.py",
+    "templates/scene_plan.md",
 )
 CODEX_ENTRY = """---
 name: manim-video-pipeline
-description: Plan and render educational Manim videos from a brief, lesson, or optional notebook. Includes caption layout, narration timing, and OpenAI or ElevenLabs TTS.
+description: Design and render educational Manim videos from a brief, lesson, or optional notebook. Includes 3Blue1Brown reference study, animation prototypes, and OpenAI or ElevenLabs narration.
 ---
 
 Read and follow [the shared Manim video pipeline](../../../.claude/skills/manim-video-pipeline/SKILL.md). Run its commands from the repository root.
@@ -38,7 +39,8 @@ def starter_files(skill_only=False):
     yield workflow_image, (ROOT / "docs" / workflow_image).read_bytes()
     yield Path(".agents/skills/manim-video-pipeline/SKILL.md"), CODEX_ENTRY.encode()
     for name in (
-        ".env.example", ".gitignore", "video.py", "requirements-video.txt", "scripts/setup_environment.sh", "LICENSE",
+        ".env.example", ".gitignore", "video.py", "requirements-video.txt",
+        "scripts/setup_environment.sh", "scripts/setup_video_assets.sh", "LICENSE",
     ):
         file = ROOT / name
         if file.is_file():

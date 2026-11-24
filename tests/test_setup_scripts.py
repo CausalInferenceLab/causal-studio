@@ -133,6 +133,14 @@ fi
         self.assertEqual((dest / "user-file").read_text(), "keep")
         self.assertFalse((self.root / "3b1b").exists())
 
+    def test_ensure_clones_missing_assets_and_reuses_existing_clones(self):
+        initial = self.run_script("setup_video_assets.sh", "--ensure")
+        self.assertEqual(initial.stdout.count("[clone]"), 2)
+        repeated = self.run_script("setup_video_assets.sh", "--ensure")
+        self.assertNotIn("[clone]", repeated.stdout)
+        self.assertNotIn("[update]", repeated.stdout)
+        self.run_script("setup_video_assets.sh", "--check")
+
     def test_missing_marker_fails_validation(self):
         self.run_script("setup_video_assets.sh")
         (self.root / "3b1b/_2020/covid.py").unlink()

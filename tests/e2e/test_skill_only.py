@@ -88,6 +88,7 @@ class SkillOnlyE2E(unittest.TestCase):
             self.assertEqual((checkout / ".env.example").read_bytes(), (ROOT / ".env.example").read_bytes())
             self.assertEqual((checkout / "assets/manim-workflow.png").read_bytes(),
                              (ROOT / "docs/assets/manim-workflow.png").read_bytes())
+            self.assertTrue((checkout / "scripts/setup_video_assets.sh").is_file())
             subprocess.run(["git", "check-ignore", "-q", ".env"], cwd=checkout, check=True, env=git_env)
             self.assertTrue((checkout / ".agents/skills/manim-video-pipeline/SKILL.md").is_file())
             self.assertTrue((checkout / ".claude/skills/manim-video-pipeline/SKILL.md").is_file())
@@ -105,6 +106,10 @@ class SkillOnlyE2E(unittest.TestCase):
             self.assertIn(brief, lesson)
             project = checkout / topic
             self.assertFalse(list(project.glob("*.ipynb")))
+            self.assertEqual(
+                (project / "scene_plan.md").read_bytes(),
+                (ROOT / ".claude/skills/manim-video-pipeline/templates/scene_plan.md").read_bytes(),
+            )
             (project / "scenes/scene_01.py").write_text(SCENE, encoding="utf-8")
             subprocess.run([*launcher, "render", topic], cwd=checkout, env=env, check=True)
 

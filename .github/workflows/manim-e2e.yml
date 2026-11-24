@@ -12,6 +12,7 @@ on:
       - 'requirements-video.txt'
       - 'scripts/export_manim_starter.py'
       - 'scripts/setup_environment.sh'
+      - 'scripts/setup_video_assets.sh'
       - 'tests/e2e/**'
       - 'video.py'
   push:
@@ -25,6 +26,7 @@ on:
       - 'requirements-video.txt'
       - 'scripts/export_manim_starter.py'
       - 'scripts/setup_environment.sh'
+      - 'scripts/setup_video_assets.sh'
       - 'tests/e2e/**'
       - 'video.py'
   workflow_dispatch:
