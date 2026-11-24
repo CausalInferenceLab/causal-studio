@@ -1,0 +1,3 @@
+source = "lesson.md"
+scene_file = "scenes/scene_01_question.py"
+scene_class = "Question"
