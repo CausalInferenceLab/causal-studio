@@ -34,6 +34,8 @@ Read and follow [the shared Manim video pipeline](../../../.claude/skills/manim-
 def starter_files(skill_only=False):
     guide = "manim-skill-only.md" if skill_only else "manim-starter.md"
     yield Path("README.md"), (ROOT / "docs" / guide).read_bytes()
+    workflow_image = Path("assets/manim-workflow.png")
+    yield workflow_image, (ROOT / "docs" / workflow_image).read_bytes()
     yield Path(".agents/skills/manim-video-pipeline/SKILL.md"), CODEX_ENTRY.encode()
     for name in (
         ".env.example", ".gitignore", "video.py", "requirements-video.txt", "scripts/setup_environment.sh", "LICENSE",

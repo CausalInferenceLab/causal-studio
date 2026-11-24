@@ -23,31 +23,66 @@
 
 ## 첫 영상 만들기
 
-**Manim 스킬을 클론하세요.**
+1. 터미널에서 아래 명령을 실행하세요.
 
-```bash
-git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
-```
+   ```bash
+   git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
+   ```
 
-**`causal-studio` 폴더를 Claude Code나 Codex에서 열고** 아래 요청을 붙여넣으세요.
+2. Claude Code나 Codex에서 `causal-studio` 폴더를 열고 아래 요청을 보내세요.
+
+   ```text
+   manim-video-pipeline으로 1분 15초짜리 A/B 테스트 입문 영상을 만들어줘.
+   버튼 색을 바꾼 사례로 변경 전후 비교의 함정, 무작위 배정, 클릭률 차이,
+   신뢰구간 해석, 새 버튼을 적용할 기준을 다섯 장면으로 보여줘.
+   ```
+
+대본이나 Jupyter Notebook 등 영상에 참고할 파일이 있다면 경로도 함께 알려주세요. 미리보기는 음성 API 키 없이 만들 수 있습니다.
+
+Causal Studio의 인과추론 작업처럼 `.ipynb`에 설명과 시각화 코드를 먼저 정리해 두면, 원하는 설명 순서와 그래프를 영상에 반영하기 쉽습니다. [RDD 노트북 예시](./book/rdd/01_rdd_basic_ko.ipynb)
+
+## 내레이션 영상 제작 흐름
+
+![대본을 쓰고 음성을 만든 뒤, Manim 영상과 합쳐 MP4로 완성하는 순서](./docs/assets/manim-workflow-ko.png)
+
+1. **대본 쓰기.** AI가 쓴 초안을 직접 고치거나 수정을 요청할 수 있습니다. 다듬은 대본이 음성과 화면 구성의 기준이 됩니다.
+2. **음성 만들기.** OpenAI나 ElevenLabs로 대본을 음성으로 바꿉니다. 장면마다 MP3를 만들고 문단별 시작과 끝을 `*.timings.json`에 기록합니다.
+3. **영상 완성하기.** 내레이션에 맞춰 그래프와 도형을 움직이고, 화면에는 필요한 숫자와 라벨을 남깁니다. 음성을 붙인 장면을 한 편의 MP4로 합칩니다.
+
+음성을 추가할 때는 [`.env.example`](./.env.example)과 [음성 설정 가이드](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it)를 참고하세요.
+
+## 작업 폴더 예시
+
+A/B 테스트 예시의 대본과 Manim 코드는 장면마다 파일 하나씩입니다. 수정할 때는 Claude Code나 Codex에 장면 번호와 바꾸고 싶은 내용을 알려주세요.
+
+> 3번 장면에서 두 막대의 클릭률 차이를 조금 더 오래 보여줘. 그 장면만 다시 렌더링해줘.
 
 ```text
-manim-video-pipeline 스킬로 표본이 클수록 평균이 왜 덜 흔들리는지 보여줘.
-같은 모집단에서 5개씩, 50개씩 반복해서 뽑고 표본평균 분포를 비교해줘.
-음성 없는 MP4 미리보기를 보여줘.
+videos/ab-test/
+├── project.toml           # 참고 자료와 기본 렌더 장면
+├── lesson.md              # 주제로 시작할 때 생성 (.md, .txt, .ipynb도 입력 가능)
+├── scene_plan.md          # 장면마다 화면에 보여줄 변화
+├── assets/                # 영상에 쓰는 아이콘과 이미지
+├── narration/             # 장면별 대본
+│   ├── 01_question.txt
+│   ├── 02_assignment.txt
+│   ├── 03_rates.txt
+│   ├── 04_interval.txt
+│   └── 05_decision.txt
+├── scenes/                # 장면별 Manim 코드
+│   ├── scene_01.py
+│   ├── scene_02.py
+│   ├── scene_03.py
+│   ├── scene_04.py
+│   ├── scene_05.py
+│   └── style.py           # 공통 색상과 그래픽
+└── build/
+    ├── audio/             # 장면별 MP3와 타이밍
+    ├── manim/             # Manim 렌더
+    ├── final/             # 음성을 붙인 장면별 MP4
+    ├── ab-test.mp4        # 전체 영상
+    └── ab-test.ko.srt     # 선택 자막
 ```
-
-미리보기를 보고 바꾸고 싶은 부분을 말해 주세요. 주제 한 줄이면 시작할 수 있고, Markdown·텍스트·Jupyter 노트북이 있다면 파일 경로를 알려주면 됩니다.
-
-## 스킬이 하는 일
-
-| 단계 | 결과물 |
-| --- | --- |
-| 장면 구성 | 내레이션이 나오는 순간과 화면에서 일어날 변화를 연결한 장면 계획 |
-| 애니메이션 | 수정 가능한 Manim 코드와 무음 MP4 미리보기. 자막은 그래프와 도형 아래에 배치 |
-| 음성 추가 | OpenAI 또는 ElevenLabs 음성과 `*.timings.json`. 실제 음성 길이를 기준으로 애니메이션 타이밍 조정 |
-
-음성 API 키는 내레이션을 추가할 때 필요합니다. [`.env.example`](./.env.example)과 [음성 설정 가이드](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it)를 참고하세요.
 
 ## Causal Studio 둘러보기
 
@@ -56,6 +91,8 @@ manim-video-pipeline 스킬로 표본이 클수록 평균이 왜 덜 흔들리�
 ```bash
 git clone https://github.com/CausalInferenceLab/causal-studio
 ```
+
+[RDD 영상의 장면별 Manim 코드](./videos/rdd/scenes/)에서 실제 강의 영상 구조를 볼 수 있습니다.
 
 [YouTube에서 강의 보기](https://www.youtube.com/@CausalStudio) · [인과추론 교재](https://causalinferencelab.github.io/causal-studio/) · [스킬 보기](./.claude/skills/manim-video-pipeline/SKILL.md) · [기여하기](./CONTRIBUTING-ko_kr.md)
 

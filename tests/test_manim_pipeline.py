@@ -96,6 +96,8 @@ class ManimPipelineTests(unittest.TestCase):
                 self.assertFalse(any(entry.parts[0] in {"book", "binder"} or "build" in entry.parts for entry in entries))
                 self.assertEqual({entry.parts[1] for entry in entries if entry.parts[0] == "videos"}, {"binary-search"})
                 self.assertEqual(archive.read("causal-studio-starter/video.py"), (ROOT / "video.py").read_bytes())
+                self.assertEqual(archive.read("causal-studio-starter/assets/manim-workflow.png"),
+                                 (ROOT / "docs/assets/manim-workflow.png").read_bytes())
                 self.assertEqual(archive.read("causal-studio-starter/scripts/setup_environment.sh"),
                                  (ROOT / "scripts/setup_environment.sh").read_bytes())
                 shared = [entry for entry in entries if entry.is_relative_to(SKILL.relative_to(ROOT))]
@@ -115,6 +117,8 @@ class ManimPipelineTests(unittest.TestCase):
             with ZipFile(target) as archive:
                 entries = {Path(name.removeprefix(prefix)) for name in archive.namelist()}
                 self.assertTrue(all(name.startswith(prefix) for name in archive.namelist()))
+                self.assertEqual(archive.read(prefix + "assets/manim-workflow.png"),
+                                 (ROOT / "docs/assets/manim-workflow.png").read_bytes())
                 self.assertFalse(any(entry.parts[0] in {"book", "videos", "binder"} for entry in entries))
                 self.assertFalse(any(entry.name in {"gen_en_slow.mjs", "causal-studio.md"} for entry in entries))
                 for entry in entries:

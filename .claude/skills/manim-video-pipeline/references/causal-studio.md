@@ -1,6 +1,6 @@
 # Causal Studio projects
 
-The lesson and any related data live under `book/`. For an existing project, set the project manifest's `source` to the appropriate relative notebook path and `scene_file` to the current Python file. Use the same source and render commands as a starter project. Existing `src/` and `src/scripts/` layouts are valid.
+The lesson and any related data live under `book/`. For an existing project, read its `project.toml` when available. It records the notebook and the default Manim scene. To work on a different scene, select its numbered file under `scenes/` and pass its class to the render command. Older `src/` entry points and `src/scripts/` narration paths still work.
 
 For a bilingual topic, read the notebook and narration for the requested language. Keep established paths for timings which existing scenes read, including language subfolders. Pass those paths explicitly to the audio command. For existing hard-coded WAIT values, adjust only the scene in scope after listening to regenerated audio.
 
