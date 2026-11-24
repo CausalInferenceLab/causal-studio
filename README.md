@@ -1,18 +1,18 @@
 # Manim video pipeline
 
-**Turn challenging concepts in math and statistics into 3Blue1Brown-inspired videos.** The open-source Manim skill behind Causal Studio’s causal inference series. Start with one prompt in Claude Code or Codex.
+**Turn challenging concepts in math and statistics into 3Blue1Brown-inspired videos.** This open-source Manim skill was developed for Causal Studio’s causal inference series. Describe the video you want to make in Claude Code or Codex.
 
 [Watch on YouTube](https://www.youtube.com/@CausalStudio) · [Read the Causal Studio book](https://causalinferencelab.github.io/causal-studio/)
 
 ## Make your first video
 
-1. Run this command in your terminal.
+1. Clone the `skill-only` branch to get the video tools.
 
    ```bash
    git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
    ```
 
-2. Open the `causal-studio` folder in Claude Code or Codex and send this prompt.
+2. Open the `causal-studio` folder in Claude Code or Codex and try this prompt.
 
    ```text
    Use manim-video-pipeline to make a 75-second introduction to A/B testing.
@@ -21,31 +21,27 @@
    confidence interval tells us, and how to decide whether to switch.
    ```
 
-If the video should draw on a file, such as a script or a Jupyter Notebook, include its path in your request. You can make a preview without a voice API key.
+If you have a script or Jupyter notebook, include its path in your prompt. A notebook with explanations and plots can guide what appears on screen and in what order. [Example RDD notebook](https://github.com/CausalInferenceLab/causal-studio/blob/main/book/rdd/01_rdd_basic_en.ipynb)
 
-To guide the explanation and visuals, outline the lesson and include the plotting code in an `.ipynb` first. Causal Studio uses this approach for its causal inference videos. [Example RDD notebook](https://github.com/CausalInferenceLab/causal-studio/blob/main/book/rdd/01_rdd_basic_en.ipynb)
+You can preview a key scene without a voice API key.
 
-## From script to narrated video
+## How the video comes together
 
 ![Write the script, generate narration, then finish the MP4 with Manim animation and audio](./assets/manim-workflow.png)
 
-1. **Write the script.** Edit the agent’s draft yourself or ask for revisions. The revised script guides the narration and what appears on screen.
-2. **Generate narration.** OpenAI or ElevenLabs reads the script. Each scene gets an MP3 and a `*.timings.json` file with the start and end of each paragraph.
-3. **Animate and assemble.** Time the animation to the narration, keep the numbers and labels viewers need, then join the scenes into one MP4.
+1. **Plan the scenes and draft the script.** The skill finds relevant 3Blue1Brown scenes and their Manim code to decide what each scene should show and how to present it. Edit the draft or ask the agent to revise it.
+2. **Add narration.** If you want a voice, the agent generates an MP3 for each scene with OpenAI or ElevenLabs and records paragraph timing in `*.timings.json`. Copy `.env.example` to `.env` for first-time setup, then fill in your provider’s settings and name the provider in your request.
+3. **Animate in Manim and render the MP4.** The agent writes the Manim code and refines the framing and motion after reviewing the renders. It syncs any narration and joins the scenes into one MP4.
 
-For narration, copy the root `.env.example` to `.env` if you’re setting it up for the first time. Fill in the settings for your chosen provider and name that provider in your request.
+## Files and scene revisions
 
-## Example project folder
-
-Each scene has its own script and Manim file. Ask Claude Code or Codex to work on a specific scene when you want to revise it.
-
-> In scene 3, hold the click-rate comparison a little longer and render that scene again.
+Each scene has its own script and Manim file. An A/B testing video can be organized like this.
 
 ```text
 videos/ab-test/
 ├── project.toml           # Lesson source and default scene
-├── lesson.md              # Created from a topic prompt (.md, .txt, or .ipynb also accepted)
-├── scene_plan.md          # What changes on screen in each scene
+├── lesson.md              # Lesson notes created when you start with a topic
+├── scene_plan.md          # Visual references and storyboard
 ├── assets/                # Icons and other visual assets, if used
 ├── narration/
 │   ├── 01_question.txt
@@ -68,4 +64,8 @@ videos/ab-test/
     └── ab-test.ko.srt     # Optional subtitles
 ```
 
-[View the skill](https://github.com/CausalInferenceLab/causal-studio/blob/skill-only/.claude/skills/manim-video-pipeline/SKILL.md) · [See example prompts and voice setup](https://github.com/CausalInferenceLab/causal-studio/blob/main/docs/manim-starter.md#3-review-and-add-narration-if-you-want-it) · [Explore the full Causal Studio project](https://github.com/CausalInferenceLab/causal-studio)
+To revise a scene, tell Claude Code or Codex its number and what to change.
+
+> In scene 3, hold the click-rate comparison a little longer and render that scene again.
+
+[View the skill](https://github.com/CausalInferenceLab/causal-studio/blob/skill-only/.claude/skills/manim-video-pipeline/SKILL.md) · [Voice setup guide](https://github.com/CausalInferenceLab/causal-studio/blob/main/docs/manim-starter.md#3-review-and-add-narration-if-you-want-it) · [Explore the full Causal Studio project](https://github.com/CausalInferenceLab/causal-studio)

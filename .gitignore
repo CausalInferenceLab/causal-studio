@@ -6,8 +6,8 @@
 /_build/
 book/_build/
 **/tmp/matplotlib-cache/
-videos/*/build/
-videos/*/preview/
+videos/**/build/
+videos/**/preview/
 
 # Legacy output patterns (kept for compatibility)
 **/media/

@@ -2,18 +2,63 @@
 
 ## Visual design and icons
 
-- Start with the visual question. Identify what the viewer can see change to answer it. For example, move the same visitors into two groups, then carry the group colors into the click-rate comparison.
-- For 3Blue1Brown-inspired work, pick a reference by the technique you need. Use the local `3b1b/` checkout when available. For distributions and sampling, see the [central limit theorem source scene](https://github.com/3b1b/videos/blob/master/_2023/clt/main.py) for updating a plot in place, varying a parameter, and drawing attention to one statistic at a time. Note the specific technique and your adaptation in the scene plan, then write it for Manim Community Edition.
+### Reference study and adaptation
+
+#### Find the passage and its source
+
+- Search the 3Blue1Brown lesson catalog or channel for the relationship the viewer needs to see. Use the visual relationship in the query, such as `3Blue1Brown vector addition tip to tail` or `site:3blue1brown.com Gaussian surface slice`.
+- Start from the official lesson's **Source** link. In `3b1b/`, use `rg -n` on the linked module for a distinctive label, scene name, or object from the passage. Match the code's visible objects and their order to the rendered sequence. Follow imported helpers and configuration when placement or styling lives outside the scene class.
+  - For a distribution or a changing curve, pair the [central limit theorem lesson](https://www.3blue1brown.com/lessons/clt/) with [`TransitionToSkewDistribution`](https://github.com/3b1b/videos/blob/31f8ffe785e860477a6051fde983c02c7d165bc2/_2023/clt/main.py#L815). Track the same plotting region and transform the plotted objects and labels to their next values.
+  - For proportions and conditional probabilities, pair the [Bayes' theorem lesson](https://www.3blue1brown.com/lessons/bayes-theorem/) with [`BayesDiagram.set_prior` and `general_set_likelihood`](https://github.com/3b1b/videos/blob/31f8ffe785e860477a6051fde983c02c7d165bc2/_2019/bayes/part1.py#L160-L196). Find the geometry that represents the quantity and keep the comparison edges anchored as it changes.
+  - For a surface or a geometric relation in three dimensions, pair the [Gaussian integral lesson](https://www.3blue1brown.com/lessons/gaussian-integral/) with [`TalkAboutSignOfConstant3D`](https://github.com/3b1b/videos/blob/31f8ffe785e860477a6051fde983c02c7d165bc2/_2023/gauss_int/herschel.py#L1176). It ties a parameter to both a surface and a visible slice. Use 3D when depth, a cross-section, a projection, or a spatial transform carries the explanation. Keep labels fixed in the frame and move the camera when the change of view reveals information.
+
+#### Read the whole frame
+
+Pause on the opening, the key change, and the result. For a multi-scene video, also inspect how the source lesson opens and how the chosen passage connects to the scenes around it. Compare what the viewer sees at a cut with what they were just looking at. Trace the decisions in the code.
+
+| Look at the rendered passage | Trace it in the source |
+|---|---|
+| **Sequence.** What question or example opens the passage? What stays, moves, or leaves? When do the result and the general rule appear? | Scene order, groups that survive a transition, reveal order, and holds. |
+| **Composition.** What draws your eye first? How large is it, what space is left around it, and where do supporting objects or labels sit? Does the view move closer or widen, and what information does that reveal? | Group construction, anchoring and alignment, relative scale, label placement, and camera framing. |
+| **Color and contrast.** Identify the background, quiet guides, data roles, and the strongest accent. Note when emphasis shifts and whether shape, position, or a line style also conveys the distinction. | Palette constants, style helpers, opacity, strokes, and any colors inherited from shared configuration. |
+| **Typography.** Which words, symbols, and numbers need to be read? Look at their size, weight, proximity to the objects, and room at phone width. | Text and math objects, size relationships, how labels move with objects, and where they are cleared. |
+
+In [Vectors around 5:25–5:45](https://www.youtube.com/watch?v=fNk_zzaMoSs&t=325s), the grid and origin anchor the frame, each short label sits near its arrow, and a separate color marks the sum when it appears. [`VectorAddition`](https://github.com/3b1b/videos/blob/31f8ffe785e860477a6051fde983c02c7d165bc2/_2016/eola/chapter1.py#L656-L676) sets up the plane, labels, colors, reveal, and hold. For a comparison over time, adapt the fixed guides, local labels, and result-only accent along with the translated line.
+
+#### Apply the visual decisions
+
+- In `scene_plan.md`, write what to carry into the new passage and where it changes the story or the viewer's attention. Give colors stable jobs across related shots. Check the actual reference frame and its matching source if you carry over a color value. Adapt the framing and text hierarchy to the new content, language, and aspect ratio.
+- Translate the relevant mechanism into Manim Community Edition primitives. Use `Transform` for a pair of states, a `ValueTracker` and updaters for a continuous parameter, or `ThreeDScene` for spatial relationships. Link and credit the source and check its license before copying code or assets.
 - Preserve object identity whenever it helps the viewer follow the argument. Keep comparison colors and axes fixed, transform or move objects viewers already recognize, and reveal derived values where they come from. Give the result a short hold after the motion.
 - For icons, look under `videos/assets/tabler-icons/icons/outline/`. In a `skill-only` checkout, you can copy the needed SVGs from [Tabler Icons](https://github.com/tabler/tabler-icons/tree/main/icons/outline) and keep their license with the project assets. Load them with `SVGMobject` from a path relative to the scene or project. Match their stroke weight and color roles, and check them at the smallest size in the render. Use icons for entities such as visitors, clicks, and dates. Keep numeric evidence in the graph or diagram itself.
-- Inspect at least one frame from the beginning, middle, and end of each key motion. Verify the viewer can track what moved, understand the resulting comparison, and read the caption while it is on screen. For a full video, also sample the last frame of one scene and the first frame of the next.
+
+### From a reference sequence to a scene
+
+In the [dice simulation at 6:15–6:42](https://www.youtube.com/watch?v=zeJD6dqJ5lo&t=375s), the die distribution appears first. A few rolls yield a visible sum, and successive sums build another distribution. [`show_sample_sum`](https://github.com/3b1b/videos/blob/31f8ffe/_2023/clt/main.py#L766) shows how the highlighted inputs and numeric result are coordinated. The viewer gets a worked example before the repetitions speed up.
+
+- Use that order when it fits the concept. In an A/B test, show a worked pair of click counts and move their computed difference onto the axis. Give the first example a hold before the repetitions accelerate. When teaching binary search, carry the same sorted row through each comparison and eliminate the rejected half in place. This lets the viewer see where the next search range comes from.
+- Where a single parameter changes the outcome, show the old and new states on the same scale. For example, keep the observed difference fixed as a larger sample pulls both confidence interval endpoints inward. Show the new values after the movement, with a brief hold to compare them.
+- Inspect the transition at its actual pace. If the viewer can't tell where a result came from, stage one concrete example more slowly. Keep quantitative motion, color, text, and camera changes tied to what the viewer should notice.
 
 ## Staging and text
 
 - Start close to the object or comparison the narration opens with. Give it enough space to read on a small screen. Reveal a second object only when there is something to compare. Arrange related beats around the same positions or axis so the audience keeps its bearings at the cut.
+- Let the opening pose a concrete question with a visible example. Introduce names or formulas when the viewer has a reason to use them. Save camera moves, SVG icons, and highlights for actions that reveal a relationship or guide the eye.
 - Move the object that creates the next result. For example, keep the colored parts of two count bars, move them onto a percentage axis, then draw a bracket between their heights. Show the value when the bracket lands. Hold the result long enough to read it before the next change.
 - Put labels next to what they identify. A bar can carry `13%`, a dot can identify the estimate, and an interval can carry its endpoints. Use one typographic hierarchy for quantities, labels, and ticks. Remove repeated scene titles, boxed captions, and prose that restates what the viewer hears. Retain a short question, definition, or formula when the viewer needs to read it.
-- Check the preview at a phone-sized width. With sound off, confirm the change and the quantities are apparent. With sound on, confirm the change lands on the relevant phrase. If subtitles are available, turn them on once to check that the lowest labels stay clear of the player subtitle area.
+
+### Review the motion
+
+Compare the preview's opening, key change, and result frames to the reference's visual hierarchy. Play the passage at normal speed and phone width with the sound off. Check where your eye goes, where text loses contrast or room, and how the frame changes when the idea advances. Use the first failure to choose what to change.
+
+| What a viewer needs to see | If it is hard to follow |
+|---|---|
+| Which object matters as the beat opens | Start with the example in view. Move supporting labels near the object and delay details that matter later. |
+| Where the result came from | Slow down one concrete example. Keep a stable anchor and transform the input, a marked copy, or its measurement into the result. |
+| What changed and what stayed fixed | Keep shared axes, scale, and color meanings stable during the comparison. Bring in new labels when their values become readable. |
+| Why the change answers the opening question | Hold both the result and the relevant comparison. Use the same example to lead into the general rule. |
+
+Review the assembled video with sound at normal speed. Check motion against the words it illustrates, hold results through the relevant phrase, and play across cuts. For subtitles, check that they leave essential labels clear.
 
 ## Layout and caption safe area
 

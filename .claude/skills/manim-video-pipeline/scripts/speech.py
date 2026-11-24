@@ -115,9 +115,16 @@ def audio_paths(args):
         topic = args.repo_root / "videos" / args.topic
         basename = f"{args.scene}_{args.name}"
         candidates = [topic / "narration" / f"{basename}.txt", topic / "src" / "scripts" / f"{basename}.txt"]
-        if args.lang:
-            if not re.fullmatch(r"[A-Za-z0-9_-]+", args.lang):
-                raise ValueError("--lang must be a language tag such as en, ko, or en-US.")
+        if args.lang and not re.fullmatch(r"[A-Za-z0-9_-]+", args.lang):
+            raise ValueError("--lang must be a language tag such as en, ko, or en-US.")
+        language = args.lang or ("en" if topic.name.endswith("_en") else "ko")
+        edition = topic.with_name(topic.name.removesuffix("_en") or topic.name) / language
+        if (edition / "project.toml").is_file():
+            if language == "en":
+                basename = basename.removesuffix("_en")
+            candidates = [edition / "narration" / f"{basename}.txt"]
+            topic = edition
+        elif args.lang:
             candidates = [candidate.parent / args.lang / candidate.name for candidate in candidates] + candidates
         script = args.script or next((candidate for candidate in candidates if candidate.is_file()), candidates[0])
         output = topic / "build" / "audio" / f"{basename}.mp3"

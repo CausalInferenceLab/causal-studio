@@ -24,6 +24,12 @@ def init_project(args):
             raise ValueError("Provide an existing Markdown, text, or Jupyter notebook source.")
     else:
         source = project / "lesson.md"
+    plan = project / "scene_plan.md"
+    if not plan.exists():
+        template = Path(__file__).resolve().parents[1] / "templates" / "scene_plan.md"
+        scene_plan = template.read_text(encoding="utf-8")
+    else:
+        scene_plan = None
     project.mkdir(parents=True, exist_ok=True)
     manifest = project / "project.toml"
     with manifest.open("x", encoding="utf-8") as output:
@@ -36,13 +42,8 @@ def init_project(args):
         source.write_text(f"# {project.name}\n\n{args.brief or 'Write your lesson here.'}\n", encoding="utf-8")
     for directory in ("scenes", "narration"):
         (project / directory).mkdir(exist_ok=True)
-    plan = project / "scene_plan.md"
-    if not plan.exists():
-        plan.write_text(
-            "# Scene 01\n\n| Beat | Narration cue | Visual change | What leaves the frame |\n"
-            "|---|---|---|---|\n| 1 | | | |\n",
-            encoding="utf-8",
-        )
+    if scene_plan is not None:
+        plan.write_text(scene_plan, encoding="utf-8")
     print(manifest)
 
 
@@ -60,8 +61,8 @@ def read_source(path):
 
 def render(args, project, config):
     file = args.file.resolve() if args.file else project / config["scene_file"]
-    scripts = str(Path(__file__).resolve().parent)
-    pythonpath = os.pathsep.join(filter(None, (scripts, os.environ.get("PYTHONPATH"))))
+    scripts = Path(__file__).resolve().parent
+    pythonpath = os.pathsep.join(filter(None, (str(scripts), str(ROOT), os.environ.get("PYTHONPATH"))))
     subprocess.run(
         [sys.executable, "-m", "manim", f"-q{args.quality}", "--disable_caching",
          "--media_dir", str(project / "build" / "manim"),
