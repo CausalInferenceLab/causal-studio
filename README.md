@@ -1,8 +1,8 @@
 <h1 align="center">Causal Studio</h1>
 
-<p align="center"><strong>Make complex ideas clear with animation.</strong></p>
+<p align="center"><strong>Turn challenging concepts in math and statistics into 3Blue1Brown-inspired videos.</strong></p>
 
-<p align="center">The open-source Manim skill behind Causal Studio’s causal inference videos.<br>Start with a topic, script, or notebook and ask Claude Code or Codex to make a video.</p>
+<p align="center">The open-source Manim skill behind Causal Studio’s causal inference series.<br>Start with one prompt in Claude Code or Codex.</p>
 
 <p align="center">
   <a href="#make-your-first-video"><strong>Make a video</strong></a> ·
@@ -23,7 +23,7 @@
 
 ## Make your first video
 
-**Clone the Manim skill.** It works with any lesson topic.
+**Clone the Manim skill.**
 
 ```bash
 git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
@@ -32,9 +32,9 @@ git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
 **Open `causal-studio` in Claude Code or Codex** and paste this request.
 
 ```text
-Use the manim-video-pipeline skill to explain photosynthesis to middle-school
-students. Plan the first scene, show light hitting a leaf, and keep the caption
-below the diagram. Set up the video environment and show me a silent MP4 preview.
+Use the manim-video-pipeline skill to show why averages vary less with larger
+samples. Draw repeated samples of 5 and 50 from the same population and compare
+the distributions of their sample means. Give me a silent MP4 preview.
 ```
 
 Watch the preview, then ask for a change in plain language. You can start from a topic alone or give the agent a path to Markdown, plain text, or a Jupyter notebook.

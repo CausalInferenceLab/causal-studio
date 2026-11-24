@@ -1,8 +1,8 @@
 <h1 align="center">Causal Studio</h1>
 
-<p align="center"><strong>어려운 개념을 이해하기 쉬운 영상으로.</strong></p>
+<p align="center"><strong>어려운 수학·통계 개념을 3Blue1Brown 스타일의 영상으로 만들어 보세요.</strong></p>
 
-<p align="center">Causal Studio의 인과추론 영상을 만드는 오픈소스 Manim 스킬입니다.<br>Claude Code나 Codex에 주제, 원고, 노트북 중 하나를 주고 영상을 만들어 보세요.</p>
+<p align="center">Causal Studio의 인과추론 시리즈에 쓰인 오픈소스 Manim 스킬입니다.<br>Claude Code나 Codex에 원하는 영상을 한 문장으로 설명하면 됩니다.</p>
 
 <p align="center">
   <a href="#첫-영상-만들기"><strong>영상 만들기</strong></a> ·
@@ -23,7 +23,7 @@
 
 ## 첫 영상 만들기
 
-**Manim 스킬을 클론하세요.** 어떤 주제로든 시작할 수 있습니다.
+**Manim 스킬을 클론하세요.**
 
 ```bash
 git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
@@ -32,9 +32,9 @@ git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
 **`causal-studio` 폴더를 Claude Code나 Codex에서 열고** 아래 요청을 붙여넣으세요.
 
 ```text
-manim-video-pipeline 스킬로 중학생에게 광합성을 설명해줘. 첫 장면에서
-잎에 빛이 닿는 모습을 보여주고, 자막은 그림 아래에 배치해줘. 영상 환경도
-준비해서 음성 없는 MP4 미리보기를 보여줘.
+manim-video-pipeline 스킬로 표본이 클수록 평균이 왜 덜 흔들리는지 보여줘.
+같은 모집단에서 5개씩, 50개씩 반복해서 뽑고 표본평균 분포를 비교해줘.
+음성 없는 MP4 미리보기를 보여줘.
 ```
 
 미리보기를 보고 바꾸고 싶은 부분을 말해 주세요. 주제 한 줄이면 시작할 수 있고, Markdown·텍스트·Jupyter 노트북이 있다면 파일 경로를 알려주면 됩니다.

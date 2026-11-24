@@ -17,7 +17,7 @@ Copy this prompt to try the included demo.
 
 Or start with your own topic.
 
-> Use `manim-video-pipeline` to make the first scene of a video explaining photosynthesis to middle-school students. Show when light hits the leaf. Keep the caption below the drawing and give me a silent preview.
+> Use `manim-video-pipeline` to show why averages vary less with larger samples. Draw repeated samples of 5 and 50 from the same population and compare the distributions of their sample means. Give me a silent MP4 preview.
 
 If you have a Markdown lesson, plain-text script, or Jupyter notebook, tell the agent which file to use. Give just the topic when starting from an idea. The agent prepares a video-only environment, creates the scene plan and code for a new topic, and renders the preview. If a required system tool is missing and the agent needs your help, it will identify the specific tool.
 
@@ -25,7 +25,7 @@ If you have a Markdown lesson, plain-text script, or Jupyter notebook, tell the 
 
 After watching the preview, ask for a concrete change.
 
-> Hold the diagram a little longer after the light hits the leaf. Keep the caption clear of the arrows and render the scene again.
+> Hold the two distributions on screen a little longer. Keep the caption below the plots and render the scene again.
 
 When the scene is ready, you can ask for a narrated version.
 
