@@ -1,0 +1,3 @@
+source = "../../../book/regression/linear_regression_ko.ipynb"
+scene_file = "scenes/scene_01_rct_vs_observational_intro.py"
+scene_class = "Scene01_RctVsObservationalIntro"

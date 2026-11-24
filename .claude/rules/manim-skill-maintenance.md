@@ -13,7 +13,7 @@ paths:
   - "scripts/setup_environment.sh"
   - "tests/e2e/**"
   - "video.py"
-  - "videos/binary-search/**"
+  - "videos/binary_search/**"
 ---
 
 # Manim skill maintenance

@@ -1,3 +1,0 @@
-source = "../../book/rdd/01_rdd_basic_en.ipynb"
-scene_file = "src/rdd_en.py"
-scene_class = "Scene01RddIntro"

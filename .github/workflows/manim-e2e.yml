@@ -14,7 +14,9 @@ on:
       - 'scripts/setup_environment.sh'
       - 'scripts/setup_video_assets.sh'
       - 'tests/e2e/**'
+      - 'tests/test_video_layout.py'
       - 'video.py'
+      - 'videos/**'
   push:
     branches: [main]
     paths:
@@ -28,7 +30,9 @@ on:
       - 'scripts/setup_environment.sh'
       - 'scripts/setup_video_assets.sh'
       - 'tests/e2e/**'
+      - 'tests/test_video_layout.py'
       - 'video.py'
+      - 'videos/**'
   workflow_dispatch:
 
 permissions:
@@ -45,6 +49,8 @@ jobs:
           python-version: '3.11'
           cache: pip
           cache-dependency-path: requirements-video.txt
+      - name: Validate repository video layout
+        run: python -m unittest discover -s tests -p test_video_layout.py -v
       - name: Install Manim system dependencies
         run: |
           sudo apt-get update

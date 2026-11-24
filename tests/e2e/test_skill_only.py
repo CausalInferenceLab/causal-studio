@@ -99,19 +99,20 @@ class SkillOnlyE2E(unittest.TestCase):
             subprocess.run(["bash", "scripts/setup_environment.sh", "--video-only"], cwd=checkout, env=env, check=True)
             python = checkout / ".venv-video/bin/python"
             launcher = [str(python), "video.py"]
-            topic = "videos/ab-test"
+            topic = "videos/ab_test"
+            edition = f"{topic}/en"
             brief = "Explain how a button color A/B test compares click rates."
-            subprocess.run([*launcher, "init", topic, "--brief", brief], cwd=checkout, env=env, check=True)
-            lesson = subprocess.check_output([*launcher, "source", topic], cwd=checkout, env=env, text=True)
+            subprocess.run([*launcher, "init", topic, "--lang", "en", "--brief", brief], cwd=checkout, env=env, check=True)
+            lesson = subprocess.check_output([*launcher, "source", edition], cwd=checkout, env=env, text=True)
             self.assertIn(brief, lesson)
-            project = checkout / topic
+            project = checkout / edition
             self.assertFalse(list(project.glob("*.ipynb")))
             self.assertEqual(
                 (project / "scene_plan.md").read_bytes(),
                 (ROOT / ".claude/skills/manim-video-pipeline/templates/scene_plan.md").read_bytes(),
             )
-            (project / "scenes/scene_01.py").write_text(SCENE, encoding="utf-8")
-            subprocess.run([*launcher, "render", topic], cwd=checkout, env=env, check=True)
+            (project / "scenes/scene_01_intro.py").write_text(SCENE, encoding="utf-8")
+            subprocess.run([*launcher, "render", edition], cwd=checkout, env=env, check=True)
 
             previews = list((project / "build/manim/videos").glob("**/Scene01.mp4"))
             self.assertEqual(len(previews), 1)
@@ -124,6 +125,7 @@ class SkillOnlyE2E(unittest.TestCase):
             script = project / "narration/01_intro.txt"
             paragraphs = ["Assign visitors to two groups at random.", "Compare the click rates."]
             script.write_text("\n\n".join(paragraphs) + "\n", encoding="utf-8")
+            subprocess.run([*launcher, "check", edition], cwd=checkout, env=env, check=True)
             audio = project / "build/audio/01_intro.mp3"
             subprocess.run(
                 [str(python), "-c", MOCK_TTS, "audio", "--provider", "elevenlabs", "--voice", "test-voice",
@@ -135,13 +137,13 @@ class SkillOnlyE2E(unittest.TestCase):
             self.assertEqual([chunk["text"] for chunk in timing["chunks"]], paragraphs)
             first, second = timing["chunks"]
             self.assertAlmostEqual(second["start"] - first["end"], 0.2, places=2)
-            subprocess.run([*launcher, "render", topic], cwd=checkout, env=env, check=True)
+            subprocess.run([*launcher, "render", edition], cwd=checkout, env=env, check=True)
             final = project / "build/final/01_intro.mp4"
             subprocess.run([*launcher, "mux", str(preview), str(audio), str(final)],
                            cwd=checkout, env=env, check=True)
 
             for name in ("project.toml", "lesson.md", "scene_plan.md", "narration/01_intro.txt",
-                         "scenes/scene_01.py", "build/audio/01_intro.mp3",
+                         "scenes/scene_01_intro.py", "build/audio/01_intro.mp3",
                          "build/audio/01_intro.timings.json", "build/final/01_intro.mp4"):
                 self.assertTrue((project / name).is_file(), name)
             media = probe_video(final)

@@ -55,7 +55,7 @@ You can preview a key scene without a voice API key.
 Each scene has its own script and Manim file. An A/B testing video can be organized like this.
 
 ```text
-videos/ab-test/
+videos/ab_test/en/
 ├── project.toml           # Lesson source and default scene
 ├── lesson.md              # Lesson notes created when you start with a topic
 ├── scene_plan.md          # Visual references and storyboard
@@ -67,18 +67,17 @@ videos/ab-test/
 │   ├── 04_interval.txt
 │   └── 05_decision.txt
 ├── scenes/
-│   ├── scene_01.py
-│   ├── scene_02.py
-│   ├── scene_03.py
-│   ├── scene_04.py
-│   ├── scene_05.py
-│   └── style.py           # Shared colors and graphics
+│   ├── scene_01_question.py
+│   ├── scene_02_assignment.py
+│   ├── scene_03_rates.py
+│   ├── scene_04_interval.py
+│   └── scene_05_decision.py
 └── build/
     ├── audio/             # Scene MP3s and timing files
     ├── manim/             # Manim renders
-    ├── final/             # Individual scenes with audio
-    ├── ab-test.mp4        # Complete video
-    └── ab-test.ko.srt     # Optional subtitles
+    └── final/             # Individual scenes with audio
+        ├── ab_test.mp4        # Complete video
+        └── ab_test.ko.srt     # Optional subtitles
 ```
 
 To revise a scene, tell Claude Code or Codex its number and what to change.

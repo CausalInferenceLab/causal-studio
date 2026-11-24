@@ -64,6 +64,24 @@ class ManimPipelineTests(unittest.TestCase):
                 self.assertEqual(Path(data["outputPath"]), base / "build" / "audio" / f"{stem}.mp3")
                 self.assertGreater(data["chunkCount"], 0)
 
+    def test_old_topic_paths_find_the_moved_projects(self):
+        for old, edition in (("binary-search", "binary_search/en"), ("did", "did/ko"),
+                             ("rdd_en", "rdd/en"), ("fuzzy_rdd", "fuzzy_rdd/ko")):
+            with self.subTest(topic=old):
+                self.assertEqual(pipeline.resolve_project(ROOT / "videos" / old), ROOT / "videos" / edition)
+
+    def test_layout_check_reports_mismatched_narration(self):
+        with tempfile.TemporaryDirectory() as directory:
+            topic = Path(directory) / "videos" / "test_topic"
+            subprocess.run([sys.executable, str(CLI), "init", str(topic), "--lang", "en"],
+                           check=True, capture_output=True)
+            edition = topic / "en"
+            (edition / "scenes/scene_01_intro.py").write_text("class Scene01:\n    pass\n")
+            (edition / "narration/01_other.txt").write_text("Narration.\n")
+            result = subprocess.run([sys.executable, str(CLI), "check", str(edition)], capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn("No matching scenes/scene_01_other.py", result.stderr)
+
     @unittest.skipUnless(shutil.which("ffmpeg") and shutil.which("ffprobe"), "FFmpeg is required")
     def test_each_provider_writes_the_same_timing_schema(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -117,7 +135,8 @@ class ManimPipelineTests(unittest.TestCase):
             with ZipFile(target) as archive:
                 entries = [Path(name).relative_to("causal-studio-starter") for name in archive.namelist()]
                 self.assertFalse(any(entry.parts[0] in {"book", "binder"} or "build" in entry.parts for entry in entries))
-                self.assertEqual({entry.parts[1] for entry in entries if entry.parts[0] == "videos"}, {"binary-search"})
+                self.assertEqual({entry.parts[1] for entry in entries if entry.parts[0] == "videos"}, {"binary_search"})
+                self.assertIn(Path("videos/binary_search/en/project.toml"), entries)
                 self.assertEqual(archive.read("causal-studio-starter/video.py"), (ROOT / "video.py").read_bytes())
                 self.assertEqual(archive.read("causal-studio-starter/assets/manim-workflow.png"),
                                  (ROOT / "docs/assets/manim-workflow.png").read_bytes())

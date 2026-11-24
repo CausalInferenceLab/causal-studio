@@ -15,6 +15,8 @@ from urllib.parse import quote
 from urllib.request import Request, urlopen
 import wave
 
+from project_layout import resolve_project
+
 
 SAMPLE_RATE = 44_100
 MODELS = {"openai": "gpt-4o-mini-tts", "elevenlabs": "eleven_multilingual_v2"}
@@ -118,9 +120,11 @@ def audio_paths(args):
         if args.lang and not re.fullmatch(r"[A-Za-z0-9_-]+", args.lang):
             raise ValueError("--lang must be a language tag such as en, ko, or en-US.")
         language = args.lang or ("en" if topic.name.endswith("_en") else "ko")
-        edition = topic.with_name(topic.name.removesuffix("_en") or topic.name) / language
-        if (edition / "project.toml").is_file():
-            if language == "en":
+        edition = resolve_project(topic, language)
+        if edition == topic and not args.lang and not topic.name.endswith("_en"):
+            edition = resolve_project(topic)
+        if edition != topic:
+            if edition.name == "en":
                 basename = basename.removesuffix("_en")
             candidates = [edition / "narration" / f"{basename}.txt"]
             topic = edition

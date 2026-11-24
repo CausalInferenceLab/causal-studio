@@ -12,8 +12,8 @@ The same command supports OpenAI and ElevenLabs. Run one provider per language/v
 ```bash
 PIPELINE=.claude/skills/manim-video-pipeline/scripts/pipeline.py
 python "$PIPELINE" audio --provider openai \
-  --script videos/my-topic/narration/01_intro.txt \
-  --output videos/my-topic/build/audio/01_intro.mp3
+  --script videos/my_topic/en/narration/01_intro.txt \
+  --output videos/my_topic/en/build/audio/01_intro.mp3
 ```
 
 Use `--provider elevenlabs` for ElevenLabs. Add `--dry-run` to inspect chunks and paths without a key or provider request. Use `--gap 0.2` if the script benefits from a short pause between beats. Regenerate audio and timings together when the script, language, provider, voice, or speed changes.

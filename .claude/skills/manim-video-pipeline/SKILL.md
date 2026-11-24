@@ -19,10 +19,10 @@ bash scripts/setup_environment.sh --video-only
 
 Use `.venv-video/bin/python` for the demo and standalone projects. For an existing Causal Studio scene with additional datasets or assets, use the project's environment with those dependencies and check the scene's imports and asset paths. Python 3.11 or 3.12 and Manim CE are sufficient for the demo. Narration and muxing also need FFmpeg/ffprobe.
 
-If the user asks to try the pipeline and `videos/binary-search/project.toml` exists, render the supplied example and return the resulting MP4.
+If the user asks to try the pipeline and `videos/binary_search/en/project.toml` exists, render the supplied example and return the resulting MP4.
 
 ```bash
-.venv-video/bin/python video.py render videos/binary-search
+.venv-video/bin/python video.py render videos/binary_search/en
 ```
 
 In a skill-only checkout, initialize a topic and follow the design steps below. For a demo without a topic, use binary search as the brief.
@@ -30,15 +30,15 @@ In a skill-only checkout, initialize a topic and follow the design steps below. 
 ## Start or resume a project
 
 ```bash
-.venv-video/bin/python video.py init videos/my-topic --brief "Explain binary search to a beginner"
-.venv-video/bin/python video.py init videos/my-topic --source path/to/lesson.ipynb
+.venv-video/bin/python video.py init videos/my_topic --lang en --brief "Explain binary search to a beginner"
+.venv-video/bin/python video.py init videos/my_topic --lang ko --source path/to/lesson.ipynb
 ```
 
-Choose one input. `--source` accepts Markdown, plain text, or an existing notebook. A short prompt can serve as the entire brief. Generate a notebook only when the user requests one. If the project already exists, read its `project.toml`; it records the source and default Manim class relative to the topic folder. The `source` command prints the lesson, including notebook code cells as text. It never executes notebook cells.
+Choose one input. `--source` accepts Markdown, plain text, or an existing notebook. A short prompt can serve as the entire brief. Generate a notebook only when the user requests one. If the project already exists, read its `project.toml` for the source path, the default scene file, and the Manim class. Paths in the manifest are relative to the language edition. The `source` command prints the lesson, including notebook code cells as text. It never executes notebook cells.
 
-Use `videos/<topic>/scene_plan.md` for the scene plan, `scenes/` for Manim files, `narration/` for scripts, and `build/` for generated files. Give each scene one Python file and one script with the same scene number. Put colors, icons, or graph helpers used by several scenes in a shared module within that topic. Use the manifest and existing paths when revising a project. Read `references/causal-studio.md` when it exists and you are editing a Causal Studio scene.
+Use `videos/<topic_slug>/<language>/` for every video, including single-language videos. Use lowercase topic slugs with underscores, such as `binary_search`. Each edition has its own `project.toml`, `scene_plan.md`, `scenes/`, and optional `narration/`. Name each scene `scenes/scene_NN_name.py` and its script `narration/NN_name.txt`, with the same number and name across editions of the same scene. A silent scene can omit its script.
 
-For multilingual videos, use `videos/<topic>/<language>/` as the project folder. Each language has its own `project.toml`, `scenes/`, `narration/`, and `build/`. Match scene and script names across languages. Keep reusable graphics in the topic's `shared/` folder. Pass the language folder to the same commands, for example `video.py render videos/my-topic/en`.
+Keep reusable Python helpers in the topic's `shared/`, SVGs and images in topic or edition `assets/`, and thumbnails or production tools in `tools/`. Write audio, raw renders, and final MP4s under the edition's `build/audio/`, `build/manim/`, and `build/final/`. Pass the edition path to `video.py source`, `video.py render`, and `video.py check`. Before handing off a new or moved video, run `video.py check videos/my_topic/en` to catch missing plans, bad paths, and mismatched scene and narration names. Read `references/causal-studio.md` when working on an existing Causal Studio lesson.
 
 ## Choose how to show the idea
 
@@ -62,14 +62,14 @@ bash scripts/setup_video_assets.sh --ensure
 5. Review the assembled preview at normal speed with the narration when present. Check whether each visual event lands on the words that give it meaning and whether the result stays long enough to read. At each cut, verify that shared objects, positions, and colors still make sense. Use selectable subtitles for narrated videos when captions are needed and short on-screen cues for silent videos.
 
 ```bash
-.venv-video/bin/python video.py render videos/my-topic
+.venv-video/bin/python video.py render videos/my_topic/en
 ```
 
 To render a different scene in isolation, select its file and class.
 
 ```bash
-.venv-video/bin/python video.py render videos/my-topic \
-  --file videos/my-topic/scenes/scene_02.py --scene Scene02
+.venv-video/bin/python video.py render videos/my_topic/en \
+  --file videos/my_topic/en/scenes/scene_02_comparison.py --scene Scene02
 ```
 
 For narrated output, connect each measured chunk to its matching Manim beat. Put the animation on the key phrase, leave enough reading time, and keep at least 0.5 seconds of visual tail after the audio. For existing scenes with hand-tuned waits, review those waits against the new timeline before changing them. Finish with the commands in [FFmpeg recipes](references/ffmpeg-recipes.md).

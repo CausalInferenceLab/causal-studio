@@ -1,0 +1,3 @@
+source = "../../../book/regression/grouped_dummy_regression_ko.ipynb"
+scene_file = "scenes/scene_01_grouped_regression_weights.py"
+scene_class = "Scene01_GroupedRegressionWeights"

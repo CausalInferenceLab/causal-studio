@@ -7,7 +7,7 @@ from zipfile import ZIP_DEFLATED, ZipFile
 
 ROOT = Path(__file__).resolve().parents[1]
 SKILL = Path(".claude/skills/manim-video-pipeline")
-EXAMPLE = Path("videos/binary-search")
+EXAMPLE = Path("videos/binary_search")
 SKILL_ONLY_FILES = (
     "SKILL.md",
     "references/ffmpeg-recipes.md",
@@ -20,6 +20,7 @@ SKILL_ONLY_FILES = (
     "scripts/mix_bgm.sh",
     "scripts/mux_audio.sh",
     "scripts/pipeline.py",
+    "scripts/project_layout.py",
     "scripts/speech.py",
     "templates/scene_plan.md",
 )

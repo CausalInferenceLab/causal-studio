@@ -1,3 +1,0 @@
-source = "lesson.md"
-scene_file = "scenes/binary_search.py"
-scene_class = "BinarySearch"

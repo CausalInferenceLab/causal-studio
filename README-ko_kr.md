@@ -54,7 +54,7 @@
 장면마다 대본과 Manim 코드가 따로 저장됩니다. A/B 테스트 영상을 만들면 다음과 같은 구조로 정리할 수 있습니다.
 
 ```text
-videos/ab-test/
+videos/ab_test/ko/
 ├── project.toml           # 참고 자료와 기본 렌더 장면
 ├── lesson.md              # 주제 한 줄로 시작할 때 만드는 제작 메모
 ├── scene_plan.md          # 참고 장면과 영상 구성
@@ -66,18 +66,17 @@ videos/ab-test/
 │   ├── 04_interval.txt
 │   └── 05_decision.txt
 ├── scenes/                # 장면별 Manim 코드
-│   ├── scene_01.py
-│   ├── scene_02.py
-│   ├── scene_03.py
-│   ├── scene_04.py
-│   ├── scene_05.py
-│   └── style.py           # 공통 색상과 그래픽
+│   ├── scene_01_question.py
+│   ├── scene_02_assignment.py
+│   ├── scene_03_rates.py
+│   ├── scene_04_interval.py
+│   └── scene_05_decision.py
 └── build/
     ├── audio/             # 장면별 MP3와 타이밍
     ├── manim/             # Manim 렌더
-    ├── final/             # 음성을 붙인 장면별 MP4
-    ├── ab-test.mp4        # 전체 영상
-    └── ab-test.ko.srt     # 선택 자막
+    └── final/             # 음성을 붙인 장면별 MP4
+        ├── ab_test.mp4        # 전체 영상
+        └── ab_test.ko.srt     # 선택 자막
 ```
 
 수정하고 싶은 장면의 번호와 바꿀 내용을 Claude Code나 Codex에 알려주세요.
