@@ -60,8 +60,8 @@ def read_source(path):
 
 def render(args, project, config):
     file = args.file.resolve() if args.file else project / config["scene_file"]
-    scripts = str(Path(__file__).resolve().parent)
-    pythonpath = os.pathsep.join(filter(None, (scripts, os.environ.get("PYTHONPATH"))))
+    scripts = Path(__file__).resolve().parent
+    pythonpath = os.pathsep.join(filter(None, (str(scripts), str(ROOT), os.environ.get("PYTHONPATH"))))
     subprocess.run(
         [sys.executable, "-m", "manim", f"-q{args.quality}", "--disable_caching",
          "--media_dir", str(project / "build" / "manim"),

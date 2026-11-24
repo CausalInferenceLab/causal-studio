@@ -1,0 +1,3 @@
+source = "../../../book/iv/instrumental_variables_ko.ipynb"
+scene_file = "scenes/scene_01_snow_pumps.py"
+scene_class = "Scene01_SnowPumps"

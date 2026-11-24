@@ -14,8 +14,6 @@ for (const [scene, name] of [
   const result = spawnSync(process.execPath, [
     audio, "--provider", "elevenlabs", "--topic", "what_is_ipw", "--scene", scene,
     "--name", name, "--lang", "en", "--speed", "0.9", "--gap", "0.25",
-    "--script", fileURLToPath(new URL(`../../../../videos/what_is_ipw/src/scripts/en/${scene}_${name.replace(/_en$/, "")}.txt`, import.meta.url)),
-    "--output", fileURLToPath(new URL(`../../../../videos/what_is_ipw/build/audio/${scene}_${name}.mp3`, import.meta.url)),
     ...process.argv.slice(2),
   ], { stdio: "inherit" });
   if (result.error) console.error(result.error.message);

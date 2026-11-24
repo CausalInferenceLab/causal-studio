@@ -1,12 +1,11 @@
-"""Load scenes from ../scenes/ for existing Manim commands."""
+"""Load scenes for the ko edition for existing Manim commands."""
 
 from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scenes"))
 
-from videos.why_causal_inference.scenes import (
+from videos.why_causal_inference.ko.scenes import (
     scene_01_why_causal_questions_matter,
     scene_02_association_is_not_causation,
     scene_03_counterfactual_worlds,

@@ -1,0 +1,3 @@
+source = "../../../book/ipw/basics_en.ipynb"
+scene_file = "scenes/scene_00_intro.py"
+scene_class = "Intro"

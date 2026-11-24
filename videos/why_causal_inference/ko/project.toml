@@ -1,0 +1,3 @@
+source = "../../../book/why_causal_inference/why_causal_inference_ko.ipynb"
+scene_file = "scenes/scene_01_why_causal_questions_matter.py"
+scene_class = "Scene01_WhyCausalQuestionsMatter"

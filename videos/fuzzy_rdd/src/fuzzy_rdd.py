@@ -1,12 +1,11 @@
-"""Load scenes from ../scenes/ for existing Manim commands."""
+"""Load scenes for the ko edition for existing Manim commands."""
 
 from pathlib import Path
 import sys
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3]))
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scenes"))
 
-from videos.fuzzy_rdd.scenes import (
+from videos.fuzzy_rdd.ko.scenes import (
     scene_01_recap_hook,
     scene_02_variables,
     scene_03_wald,
