@@ -1,0 +1,3 @@
+source = "../../book/rdd/01_rdd_basic_ko.ipynb"
+scene_file = "scenes/scene_01_rdd_intro.py"
+scene_class = "Scene01RddIntro"
