@@ -1,12 +1,27 @@
 # Manim Code Patterns
 
+## Visual design and icons
+
+- Start with the visual question. Identify what the viewer can see change to answer it. For example, move the same visitors into two groups, then carry the group colors into the click-rate comparison.
+- For 3Blue1Brown-inspired work, pick a reference by the technique you need. Use the local `3b1b/` checkout when available. For distributions and sampling, see the [central limit theorem source scene](https://github.com/3b1b/videos/blob/master/_2023/clt/main.py) for updating a plot in place, varying a parameter, and drawing attention to one statistic at a time. Note the specific technique and your adaptation in the scene plan, then write it for Manim Community Edition.
+- Preserve object identity whenever it helps the viewer follow the argument. Keep comparison colors and axes fixed, transform or move objects viewers already recognize, and reveal derived values where they come from. Give the result a short hold after the motion.
+- For icons, look under `videos/assets/tabler-icons/icons/outline/`. In a `skill-only` checkout, you can copy the needed SVGs from [Tabler Icons](https://github.com/tabler/tabler-icons/tree/main/icons/outline) and keep their license with the project assets. Load them with `SVGMobject` from a path relative to the scene or project. Match their stroke weight and color roles, and check them at the smallest size in the render. Use icons for entities such as visitors, clicks, and dates. Keep numeric evidence in the graph or diagram itself.
+- Inspect at least one frame from the beginning, middle, and end of each key motion. Verify the viewer can track what moved, understand the resulting comparison, and read the caption while it is on screen. For a full video, also sample the last frame of one scene and the first frame of the next.
+
+## Staging and text
+
+- Start close to the object or comparison the narration opens with. Give it enough space to read on a small screen. Reveal a second object only when there is something to compare. Arrange related beats around the same positions or axis so the audience keeps its bearings at the cut.
+- Move the object that creates the next result. For example, keep the colored parts of two count bars, move them onto a percentage axis, then draw a bracket between their heights. Show the value when the bracket lands. Hold the result long enough to read it before the next change.
+- Put labels next to what they identify. A bar can carry `13%`, a dot can identify the estimate, and an interval can carry its endpoints. Use one typographic hierarchy for quantities, labels, and ticks. Remove repeated scene titles, boxed captions, and prose that restates what the viewer hears. Retain a short question, definition, or formula when the viewer needs to read it.
+- Check the preview at a phone-sized width. With sound off, confirm the change and the quantities are apparent. With sound on, confirm the change lands on the relevant phrase. If subtitles are available, turn them on once to check that the lowest labels stay clear of the player subtitle area.
+
 ## Layout and caption safe area
 
-1. On a 16:9 frame, reserve the lower roughly 15% for captions, leaving padding near the frame edge. Place axes, tick labels, dots, arrows, and callouts in a separate body region. A caption background can improve contrast after the zones fit.
+1. When providing subtitles, leave the lower roughly 15% of a 16:9 frame clear of essential visuals and confirm the clearance in the target player. For burned-in captions, use a dedicated caption zone with edge padding. Without subtitles or captions, use the frame naturally, with comfortable edge margins.
 2. For every beat record what stays, what enters, what leaves, and which object receives attention. Build a graph and its labels as a VGroup and fit the whole group into the body region. Group a caption with its background before measuring it.
 3. Check bounding boxes after layout at target scale. For example, require `body.get_bottom()[1] >= caption.get_top()[1] + 0.25` at preview size. Verify transformed targets too, especially axis labels that extend beyond a plot and captions that wrap to two lines.
 4. Render and sample the first and last frame of busy transitions and at least one hold frame per beat. Inspect physical intersections, minimum gap, competing focal points, information density, then timing. If an overlap appears, clear obsolete elements or split the beat first.
-5. Keep only the title or short caption needed to orient the viewer. Use short manually reviewed phrases in the caption area and narrate the explanation. Match stable colors to the same semantic roles across beats.
+5. In a narrated video, keep explanatory sentences in the voice track and provide subtitles separately when needed. For a silent video or requested burned-in captions, use short, reviewed phrases that fit the frame. Match stable colors to the same semantic roles across beats.
 
 ## 1. Scene 클래스 구조
 

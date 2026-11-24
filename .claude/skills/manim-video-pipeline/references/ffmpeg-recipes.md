@@ -60,6 +60,18 @@ ffmpeg -f concat -safe 0 -i /tmp/filelist.txt \
   build/final/{TOPIC}_full.mp4
 ```
 
+## Selectable subtitles
+
+Time a reviewed SRT against the assembled video, including the visual tail of each scene. Deliver the SRT alongside the MP4 so the viewer can load it. Embed a track if the destination requires it. MP4 players may enable the embedded track automatically, so check playback with subtitles both on and off.
+
+```bash
+ffmpeg -i lesson.mp4 -i lesson.ko.srt -map 0:v:0 -map '0:a:0?' -map 1:s:0 \
+  -c:v copy -c:a copy -c:s mov_text -metadata:s:s:0 language=kor \
+  -movflags +faststart lesson-subtitled.mp4
+```
+
+Use the language code for your subtitles, and check that the lowest labels stay clear when subtitles are on.
+
 ## 전체 합본 + BGM
 
 ```bash
