@@ -1,5 +1,6 @@
 """Inspect rendered media, review transitions, and assemble publishable files."""
 
+from dataclasses import dataclass
 import json
 import math
 from pathlib import Path
@@ -203,6 +204,60 @@ def srt_time(seconds):
     return f"{hour:02d}:{minute:02d}:{second:02d},{millis:03d}"
 
 
+@dataclass(frozen=True)
+class SceneClip:
+    video: Path
+    narration: Path | None
+    length: float
+    width: int
+    height: int
+    embedded_audio: bool
+    start_frame: int
+    frames: int
+
+    def cues(self):
+        if self.narration is None:
+            return []
+        return narration_cues(self.narration, self.start_frame / PUBLISH_FPS, self.length)
+
+
+def scene_timeline(scene_inputs, output_paths):
+    start_frame = 0
+    for scene in scene_inputs:
+        if not 1 <= len(scene) <= 2:
+            raise ValueError("Use --scene VIDEO [NARRATION] for each scene.")
+        video, *narration = (Path(value).resolve() for value in scene)
+        if any(path in output_paths for path in (video, *narration)):
+            raise ValueError("Choose an output separate from the input media.")
+        length, _, width, height, embedded_audio = video_info(video)
+        frames = math.ceil(length * PUBLISH_FPS - 1e-5)
+        yield SceneClip(video, narration[0] if narration else None, length, width, height,
+                        embedded_audio, start_frame, frames)
+        start_frame += frames
+
+
+def write_srt(cues, output):
+    output.write_text("\n".join(
+        f"{number}\n{srt_time(start)} --> {srt_time(end)}\n{text}\n"
+        for number, (start, end, text) in enumerate(cues, 1)
+    ), encoding="utf-8")
+
+
+def export_captions(scene_inputs, output):
+    output = output.resolve()
+    if output.suffix.lower() != ".srt":
+        raise ValueError("Set an .srt output path for captions.")
+    cues = [cue for clip in scene_timeline(scene_inputs, {output}) for cue in clip.cues()]
+    if not cues:
+        raise ValueError("Supply at least one scene with a narration file and its adjacent *.timings.json.")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    with TemporaryDirectory(dir=output.parent) as stage:
+        staged = Path(stage) / output.name
+        write_srt(cues, staged)
+        staged.replace(output)
+    return output
+
+
 def package(scene_inputs, output, thumbnail_at):
     output = output.resolve()
     if output.suffix.lower() != ".mp4":
@@ -213,42 +268,36 @@ def package(scene_inputs, output, thumbnail_at):
     filters = []
     audio_filters = []
     subtitles = []
-    duration = 0.0
+    end_frame = 0
     has_any_audio = False
-    for index, scene in enumerate(scene_inputs):
-        if not 1 <= len(scene) <= 2:
-            raise ValueError("Use --scene VIDEO [NARRATION] for each scene.")
-        video, *narration = (Path(value).resolve() for value in scene)
-        if any(path in {output, thumbnail, captions} for path in (video, *narration)):
-            raise ValueError("Choose an output separate from the input media.")
-        length, _, width, height, embedded_audio = video_info(video)
+    for index, clip in enumerate(scene_timeline(scene_inputs, {output, thumbnail, captions})):
         if index == 0:
+            width, height = clip.width, clip.height
             size = f"{width + width % 2}:{height + height % 2}"
-        frames = math.ceil(length * PUBLISH_FPS - 1e-5)
-        scene_length = frames / PUBLISH_FPS
+        frames = clip.frames
         video_input = len(inputs) // 2
-        inputs.extend(("-i", video))
+        inputs.extend(("-i", clip.video))
         filters.append(
             f"[{video_input}:v:0]setpts=PTS-STARTPTS,fps={PUBLISH_FPS},"
             f"scale={size}:force_original_aspect_ratio=decrease:force_divisible_by=2,"
             f"pad={size}:(ow-iw)/2:(oh-ih)/2,setsar=1,format=yuv420p,"
             f"tpad=stop_mode=clone:stop_duration=1,trim=end_frame={frames}[v{index}]"
         )
-        if narration:
-            audio = narration[0]
-            subtitles.extend(narration_cues(audio, duration, length))
+        if clip.narration is not None:
+            subtitles.extend(clip.cues())
             audio_source = f"[{len(inputs) // 2}:a:0]"
-            inputs.extend(("-i", audio))
+            inputs.extend(("-i", clip.narration))
         else:
-            audio_source = f"[{video_input}:a:0]" if embedded_audio else "anullsrc=r=48000:cl=stereo,"
-        has_any_audio = has_any_audio or bool(narration) or embedded_audio
+            audio_source = f"[{video_input}:a:0]" if clip.embedded_audio else "anullsrc=r=48000:cl=stereo,"
+        has_any_audio = has_any_audio or clip.narration is not None or clip.embedded_audio
         audio_filters.append(
             f"{audio_source}aformat=sample_rates=48000:channel_layouts=stereo,apad,"
             f"atrim=end_sample={frames * (48000 // PUBLISH_FPS)},asetpts=PTS-STARTPTS[a{index}]"
         )
-        duration += scene_length
+        end_frame = clip.start_frame + clip.frames
 
     count = len(scene_inputs)
+    duration = end_frame / PUBLISH_FPS
     filters.append("".join(f"[v{i}]" for i in range(count)) + f"concat=n={count}:v=1:a=0[video]")
     maps = ["-map", "[video]"]
     if has_any_audio:
@@ -272,10 +321,7 @@ def package(scene_inputs, output, thumbnail_at):
             raise RuntimeError(f"Packaged video length {actual_length:.3f}s differs from the scene total {duration:.3f}s")
         extract_frame(video_path, min(thumbnail_at, max(0, actual_length - 1 / fps)), image_path)
         if subtitles:
-            (stage / captions.name).write_text("\n".join(
-                f"{number}\n{srt_time(start)} --> {srt_time(end)}\n{text}\n"
-                for number, (start, end, text) in enumerate(subtitles, 1)
-            ), encoding="utf-8")
+            write_srt(subtitles, stage / captions.name)
         video_path.replace(output)
         image_path.replace(thumbnail)
         if subtitles:

@@ -11,7 +11,7 @@ import tomllib
 
 from project_layout import LANGUAGE_TAG, SOURCE_TYPES, TOPIC_SLUG, check_project, resolve_project, scene_classes
 from speech import add_audio_arguments, generate_audio, media_duration
-from video_outputs import package, review, video_info
+from video_outputs import export_captions, package, review, video_info
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -192,9 +192,11 @@ def main():
                         metavar=("START", "END"), help="Transition time range in seconds. Repeat for more transitions.")
     frames.add_argument("--output", type=Path, help="Directory for the PNG frames and contact sheet")
     publish = commands.add_parser("package", help="Assemble a final MP4, thumbnail, and narration SRT")
-    publish.add_argument("--scene", type=Path, nargs="+", action="append", required=True,
-                         metavar="FILE", help="VIDEO [NARRATION.mp3]. Repeat in playback order.")
-    publish.add_argument("--output", type=Path, required=True, help="Output MP4 path")
+    captions = commands.add_parser("captions", help="Write an SRT from existing scene renders and narration timings")
+    for command, extension in ((publish, "MP4"), (captions, "SRT")):
+        command.add_argument("--scene", type=Path, nargs="+", action="append", required=True,
+                             metavar="FILE", help="VIDEO [NARRATION.mp3]. Repeat in playback order.")
+        command.add_argument("--output", type=Path, required=True, help=f"Output {extension} path")
     publish.add_argument("--thumbnail-at", type=float, help="Thumbnail time in seconds. Defaults to the middle.")
     add_audio_arguments(commands.add_parser("audio", help="Generate MP3 and beat timings"), ROOT)
     combine = commands.add_parser("mux", help="Attach narration and preserve the visual tail")
@@ -215,6 +217,8 @@ def main():
         print(json.dumps(review(args.video, args.transition, args.output), ensure_ascii=False))
     elif args.action == "package":
         print(json.dumps(package(args.scene, args.output, args.thumbnail_at), ensure_ascii=False))
+    elif args.action == "captions":
+        print(json.dumps({"captions": str(export_captions(args.scene, args.output))}, ensure_ascii=False))
     elif args.action == "render":
         render(args, resolve_project(args.project.resolve()))
     else:
