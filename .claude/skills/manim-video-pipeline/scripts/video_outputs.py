@@ -6,10 +6,12 @@ from pathlib import Path
 import shutil
 import subprocess
 from tempfile import TemporaryDirectory
-from textwrap import fill
+from unicodedata import category, east_asian_width
 
 
 PUBLISH_FPS = 30
+CAPTION_COLUMNS = 38
+CAPTION_ROWS = 2
 
 
 def probe(path):
@@ -114,6 +116,60 @@ def review(video, transitions, output):
     return {"video": str(video), "sheet": str(sheet), "transitions": rows}
 
 
+def caption_cell_width(character):
+    if category(character) in {"Mn", "Me", "Cf"}:
+        return 0
+    return 2 if east_asian_width(character) in {"F", "W"} else 1
+
+
+def caption_lines(text):
+    """Wrap at spaces, breaking a word only when it is wider than a whole line."""
+    line = ""
+    columns = 0
+    for word in text.split():
+        widths = [caption_cell_width(character) for character in word]
+        word_width = sum(widths)
+        if line and columns + 1 + word_width > CAPTION_COLUMNS:
+            yield line
+            line, columns = "", 0
+        if word_width > CAPTION_COLUMNS:
+            start = columns = 0
+            for index, width in enumerate(widths):
+                if columns + width > CAPTION_COLUMNS:
+                    yield word[start:index]
+                    start, columns = index, 0
+                columns += width
+            line = word[start:]
+        elif line:
+            line += " " + word
+            columns += 1 + word_width
+        else:
+            line, columns = word, word_width
+    if line:
+        yield line
+
+
+def split_caption(text, start, end):
+    """Estimate cue boundaries within a measured narration beat."""
+    lines = list(caption_lines(text))
+    blocks = ["\n".join(lines[i:i + CAPTION_ROWS]) for i in range(0, len(lines), CAPTION_ROWS)]
+    weights = [sum(not character.isspace() for character in block) for block in blocks]
+
+    # Work at SRT precision so adjacent cues share a boundary and each has visible duration.
+    start_ms, end_ms = round(start * 1000), round(end * 1000)
+    duration = end_ms - start_ms
+    if duration < len(blocks):
+        raise ValueError(f"Narration at {start:g}–{end:g}s is too short to split into SRT cues.")
+    total_weight = sum(weights)
+    cursor, consumed = start_ms, 0
+    for index, (block, weight) in enumerate(zip(blocks, weights, strict=True), 1):
+        consumed += weight
+        ideal_end = start_ms + round(duration * consumed / total_weight)
+        boundary = min(max(cursor + 1, ideal_end), end_ms - (len(blocks) - index))
+        yield cursor / 1000, boundary / 1000, block
+        cursor = boundary
+
+
 def narration_cues(audio, offset, scene_length):
     info = probe(audio)
     if not any(stream["codec_type"] == "audio" for stream in info["streams"]):
@@ -135,7 +191,7 @@ def narration_cues(audio, offset, scene_length):
         text = " ".join(chunk["text"].split())
         if not text or not previous_end <= start < end <= cue_limit + 1e-6:
             raise ValueError(f"Invalid narration cue in {timing_path}: {start:g}–{end:g}s")
-        cues.append((offset + start, offset + min(end, cue_limit), fill(text, width=38)))
+        cues.extend(split_caption(text, offset + start, offset + min(end, cue_limit)))
         previous_end = end
     return cues
 

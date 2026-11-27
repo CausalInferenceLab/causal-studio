@@ -19,6 +19,7 @@ SKILL = ROOT / ".claude/skills/manim-video-pipeline"
 CLI = SKILL / "scripts/pipeline.py"
 sys.path.insert(0, str(CLI.parent))
 import pipeline
+from video_outputs import caption_cell_width, narration_cues, split_caption
 
 
 class ManimPipelineTests(unittest.TestCase):
@@ -81,6 +82,48 @@ class ManimPipelineTests(unittest.TestCase):
             result = subprocess.run([sys.executable, str(CLI), "check", str(edition)], capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
             self.assertIn("No matching scenes/scene_01_other.py", result.stderr)
+
+    def test_long_english_and_korean_captions_stay_within_their_beats(self):
+        paragraphs = (
+            "Randomly assign visitors to two groups. Show a different button to each group, "
+            "then compare the click rates after each group has seen its assigned button.",
+            "방문자를 무작위로 두 그룹에 배정합니다. 각 그룹에 다른 버튼을 보여준 뒤 클릭률을 비교합니다. " * 3,
+        )
+        with tempfile.TemporaryDirectory() as directory:
+            audio = Path(directory) / "lesson.mp3"
+            audio.with_suffix(".timings.json").write_text(json.dumps({
+                "totalDuration": 12.0,
+                "chunks": [
+                    {"start": 0.0, "end": 5.2, "text": paragraphs[0]},
+                    {"start": 5.8, "end": 12.0, "text": paragraphs[1]},
+                ],
+            }), encoding="utf-8")
+            with patch("video_outputs.probe", return_value={
+                "streams": [{"codec_type": "audio"}], "format": {"duration": "12.0"},
+            }):
+                cues = narration_cues(audio, offset=2.25, scene_length=12.5)
+
+        for expected, start, end in zip(paragraphs, (2.25, 8.05), (7.45, 14.25), strict=True):
+            beat = [cue for cue in cues if start <= cue[0] < end]
+            self.assertGreater(len(beat), 1)
+            self.assertEqual((beat[0][0], beat[-1][1]), (start, end))
+            self.assertEqual(" ".join(" ".join(cue[2].split()) for cue in beat),
+                             " ".join(expected.split()))
+            for cue, next_cue in zip(beat, beat[1:]):
+                self.assertEqual(cue[1], next_cue[0])
+            for lower, upper, text in beat:
+                self.assertLess(lower, upper)
+                self.assertLessEqual(upper, end)
+                self.assertLessEqual(len(text.splitlines()), 2)
+                for line in text.splitlines():
+                    self.assertLessEqual(sum(map(caption_cell_width, line)), 38)
+
+    def test_unspaced_words_wrap_without_dropping_characters(self):
+        word = "반사실" * 35
+        cues = list(split_caption(word, 1.1, 7.9))
+        self.assertGreater(len(cues), 1)
+        self.assertEqual("".join(text.replace("\n", "") for _, _, text in cues), word)
+        self.assertTrue(all(len(line) <= 19 for _, _, text in cues for line in text.splitlines()))
 
     @unittest.skipUnless(shutil.which("ffmpeg") and shutil.which("ffprobe"), "FFmpeg is required")
     def test_each_provider_writes_the_same_timing_schema(self):

@@ -147,7 +147,11 @@ class SkillOnlyE2E(unittest.TestCase):
             self.assertEqual(len({Path(frame["path"]).read_bytes() for frame in frames}), 3)
 
             script = project / "narration/01_intro.txt"
-            paragraphs = ["Assign visitors to two groups at random.", "Compare the click rates."]
+            paragraphs = [
+                "Assign visitors to two groups at random. Give each group its own button color "
+                "and count how often visitors click the button.",
+                "Compare the click rates.",
+            ]
             script.write_text("\n\n".join(paragraphs) + "\n", encoding="utf-8")
             subprocess.run([*launcher, "check", edition], cwd=checkout, env=env, check=True)
             audio = project / "build/audio/01_intro.mp3"
@@ -186,11 +190,15 @@ class SkillOnlyE2E(unittest.TestCase):
             self.assertTrue(Path(packaged["thumbnail"]).read_bytes().startswith(b"\x89PNG"))
             scene_length = math.ceil(narrated["duration"] * 30 - 0.0001) / 30
             self.assertAlmostEqual(packaged["duration"], scene_length * 3, delta=0.034)
-            captions = Path(packaged["captions"]).read_text()
-            self.assertEqual(" ".join(captions.split()).count(paragraphs[0]), 2)
+            cues = [block.splitlines() for block in Path(packaged["captions"]).read_text().strip().split("\n\n")]
+            self.assertTrue(all(1 <= len(cue[2:]) <= 2 for cue in cues))
+            self.assertTrue(all(len(line) <= 38 for cue in cues for line in cue[2:]))
+            self.assertEqual(" ".join(" ".join(cue[2:]) for cue in cues), " ".join(paragraphs * 2))
             later = round(2 * scene_length * 1000)
             seconds, millis = divmod(later, 1000)
-            self.assertIn(f"3\n00:00:{seconds:02d},{millis:03d} -->", captions)
+            second_scene_index = len(cues) // 2
+            self.assertGreater(second_scene_index, len(paragraphs))
+            self.assertTrue(cues[second_scene_index][1].startswith(f"00:00:{seconds:02d},{millis:03d} -->"))
 
             silent = json.loads(subprocess.check_output(
                 [*launcher, "package", "--scene", str(preview), "--output", str(project / "build/final/silent.mp4")],
