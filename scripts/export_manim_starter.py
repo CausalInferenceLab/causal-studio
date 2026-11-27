@@ -11,6 +11,7 @@ EXAMPLE = Path("videos/binary_search")
 SKILL_ONLY_FILES = (
     "SKILL.md",
     "references/ffmpeg-recipes.md",
+    "references/long-form-production.md",
     "references/manim-code-patterns.md",
     "references/narration-sync.md",
     "references/script-writing-guide.md",
