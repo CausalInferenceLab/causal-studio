@@ -73,8 +73,10 @@ project:
 
     - title: 🎬 Videos
       file: videos_en.md
+      hidden: true
     - title: 🎬 영상 목록
       file: videos_ko.md
+      hidden: true
 
 site:
   template: https://github.com/jupyter-book/myst-theme/releases/download/myst-to-react%401.4.1/book-theme.zip
