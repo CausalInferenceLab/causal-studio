@@ -1,0 +1,5 @@
+Where could that first jump come from? Imagine that some schools start out with more money. A school with a bigger budget can more easily buy tablets. It can also hire more teachers or offer more after-school support, which might raise test scores on its own.
+
+Draw one arrow from school resources to tablet adoption and another from school resources to test scores. Now you can see why tablets and high scores might appear together even if the tablets do very little. Both can be consequences of the same advantage. A common cause like that is called a confounder.
+
+So if we want to learn what the tablets did, the schools without tablets need to tell us something about how the tablet schools would have scored without them. Can we set up the comparison so that it does?

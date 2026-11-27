@@ -1,0 +1,11 @@
+Imagine the district has enough tablets for half its schools. This time, the district draws school names from a hat. Schools with big budgets have the same chance of receiving tablets as schools with small budgets. The same goes for whatever else might predict how well a school would do.
+
+The draw cuts the connection between a school’s resources and its chance of getting tablets. Resources can still affect scores. They just no longer decide which group a school goes into.
+
+In any one draw, we might get a few more well-funded schools on one side. Shuffle again and the imbalance might go the other way. Over many possible draws, neither side has an advantage from the way the tablets are assigned.
+
+We still observe one score per school. What changes is the comparison we can make. On average, the schools left without tablets show us how a group of schools from this experiment would do without them. Compare them with the schools assigned tablets, and the score gap estimates the average effect for the schools in the experiment. That’s the idea behind a randomized controlled trial.
+
+To see how that works, give the eight schools in this sketch simple scores. Let each of the four higher-resource schools score eighty and each of the four lower-resource schools score sixty. Suppose the tablets have no effect in this example. Each school keeps its score either way. In our first draw, three of the higher-scoring schools got tablets. The tablet group averages seventy-five, while the other group averages sixty-five.
+
+The experiment would report a ten-point gap in that draw, even though tablets changed nobody’s score. In the second draw the same eight schools give us a gap of minus ten. A lottery gives no group a consistent head start, but one lottery can still give us an estimate that misses the true effect. That is why an experiment’s result is an estimate, and why the number of schools matters when we read it.

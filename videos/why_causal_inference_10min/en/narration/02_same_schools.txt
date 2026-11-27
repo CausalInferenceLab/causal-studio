@@ -1,0 +1,11 @@
+The two schools that bought tablets have only one score each in our records. At School Three, it was six hundred. At School Four, it was seven hundred and fifty. Now imagine rewinding the school year and letting both schools go through it again without tablets.
+
+In this made-up example, School Three would have scored eight hundred, and School Four would have scored seven hundred. Those hollow marks are the scores in the world we imagined. The schools have stayed the same. We’ve changed what they were given.
+
+School Three would have been two hundred points better off without tablets, while School Four gained fifty points from having them. Put those two changes together and tablets lowered the average for these two schools by seventy-five points.
+
+We can write down both possible scores for a school, but the school year only happens once. The score that would have happened under the other choice is called a counterfactual. In real life, those hollow marks are exactly what we’re missing.
+
+There is one more choice hidden in the word average. So far we have been asking what happened to the two schools that got tablets. Suppose instead the district wants to know what would happen if every school got them. In our imaginary table we can answer that too. School One would lose fifty points. School Two would stay where it was. The other two effects are the ones we already worked out, minus two hundred and plus fifty.
+
+Give all four schools equal weight and the average effect is minus fifty. Give weight only to the schools that received tablets and it is minus seventy-five. These answers refer to different schools. Before you ask for an average effect, put names to the people or places you want that number to describe. Now return to the schools that bought tablets.

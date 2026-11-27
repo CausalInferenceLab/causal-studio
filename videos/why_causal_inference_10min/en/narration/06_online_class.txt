@@ -1,0 +1,9 @@
+The notebook gives a real example with a different decision. What happens to exam scores when university students take a class online?
+
+If we simply compare students who choose online classes with those who choose to attend in person, the choice itself can tell us something. Some students might choose online classes because they’re comfortable studying by themselves. Others might have jobs that make it hard to get to campus. Either difference could show up in the exam scores even if the format had little effect.
+
+In this experiment, students were assigned at random to one of three formats: in person, online, or a blend of the two. Let’s compare the fully online and in-person groups. The outcome we’ll compare is the final exam score.
+
+The in-person group averaged about seventy-eight point five. The online group averaged about seventy-three point six. Subtract the in-person average from the online average using the unrounded group averages and you get about minus four point nine one. In this experiment, the online group scored roughly five points lower.
+
+There may still be some luck in a gap of that size. A second random assignment could produce a different estimate. What gives this estimate its causal interpretation is how students got into each group. The draw set the format before the class began. Whether a student preferred working from home played no part in the assignment.

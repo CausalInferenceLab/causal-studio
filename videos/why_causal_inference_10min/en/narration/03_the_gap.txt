@@ -1,0 +1,7 @@
+How did we go from a hundred and twenty-five points up to seventy-five points down? Keep the six hundred and seventy-five where it is. That’s what the schools with tablets actually scored. The number that changed was the score we compared it with.
+
+Here’s a way to account for the whole gap. Start at five hundred and fifty, the average for the schools that went without tablets. Move to seven hundred and fifty, the average the tablet schools would have reached without them. That first jump, two hundred points, comes entirely from switching schools. Neither number involves using tablets.
+
+Stay with the same schools for the second step. Now give them the tablets. Their average drops by seventy-five to six hundred and seventy-five.
+
+A jump of two hundred followed by a drop of seventy-five leaves you a hundred and twenty-five points above where you started. The first step is selection bias. The second is the average effect for the schools that actually got tablets. The gap we observe contains both.

@@ -1,0 +1,11 @@
+Back at the district office, the ideal experiment is easy to describe. Decide which schools will take part, hand out the tablets by lottery, and give everyone the same assessment at the end of the year. To answer the budget question directly, we’d need the other group to get the library upgrade instead of tablets.
+
+In practice, we may arrive after schools have already bought the tablets. And outside this example, a trial may be too expensive or may ask us to assign something that would be unethical.
+
+The ideal experiment still helps. It tells us who ought to be compared and what we’d need to believe about how they ended up in each group. In our example, we’d look for schools that had similar prospects before any tablets arrived. We’d also ask which schools could afford to buy them, and whether there were other reasons the buyers were already set up to score higher.
+
+Here is a quick test. The superintendent tells you the tablet schools raised their scores by thirty points compared with last year. Now ask what else changed between those two years. Perhaps the test was easier, or all the schools had extra tutoring. If schools that did not buy tablets also went up by thirty points, the change that sounded so impressive might have happened anyway.
+
+We could start by comparing changes across the two groups. But that new comparison has an assumption of its own. Would the two groups have moved in a similar way without tablets? We could look at their earlier scores and ask whether the school year changed in ways that affected only one group. Each time we reach for a comparison, we are making a claim about the missing outcome.
+
+Remember the two distances on the score line. One went up because we switched schools. The other went down because we switched what the same schools were given. When you see a gap in the data, ask yourself which distance you’re looking at. What would these same people have done under the other choice?
