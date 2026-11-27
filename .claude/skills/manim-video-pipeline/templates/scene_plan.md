@@ -3,6 +3,7 @@
 ## The idea
 
 - **Viewer and starting knowledge**
+- **Delivery** — Target total duration, language, aspect ratio, and narration preference.
 - **Question the opening raises**
 - **What the viewer should be able to explain afterward**
 - **Concrete example and expected result** — Include the values, units, and assumptions the visuals need to preserve.
@@ -24,7 +25,9 @@ If playback is unavailable, record the source and rendered material you actually
 
 ## Storyboard
 
-| Scene and cue | Opening frame and focal point | Main movement and held result | What stays through the cut, what leaves, and what to read |
+Plan the full scene order first. For a multi-scene lesson, include each scene's target duration, source material, and connection to the next scene.
+
+| Scene, target duration, and cue | Opening frame and focal point | Main movement and held result | What stays through the cut, what leaves, and what to read |
 |---|---|---|---|
 | 01 | | | |
 
@@ -32,5 +35,5 @@ If playback is unavailable, record the source and rendered material you actually
 
 - **Passage to prototype** — Include the opening frame, key change, and result.
 - **Transition range** — Record the scene-relative start and end in seconds for `video.py review`.
-- **Preview path and review notes** — Compare opening, movement, and held result with the reference at phone width. Inspect a cut that carries through a visual subject. Record where attention or understanding broke and what changed after rerendering.
+- **Preview path and review notes** — Compare opening, movement, and held result with the reference at the intended viewing size. Inspect a cut that carries through a visual subject. Record where attention or understanding broke and what changed after rerendering.
 - **Independent first impression, when available** — Record what the reviewer understood on a first viewing and the timestamp of any missed visual connection.

@@ -67,7 +67,7 @@ self.wait(0.5)
 
 ### Review the motion
 
-Compare opening, key change, and held result with the reference frames. Check the focal point, relative size of the subject, quiet space around it, and the moment each annotation appears. Play at normal speed and phone width with the sound off. A first-time viewer should be able to see what changed and where the result came from. Repair the first beat where the visual explanation breaks and render it again.
+Compare opening, key change, and held result with the reference frames. Check the focal point, relative size of the subject, quiet space around it, and the moment each annotation appears. Play with the sound off at normal speed and at the intended viewing size. Use phone width for portrait output. A first-time viewer should be able to see what changed and where the result came from. Repair the first beat where the visual explanation breaks and render it again.
 
 For a camera move, watch through the entire transition. Check that the anchor stays traceable, the view lands before the comparison or label needs to be read, and essential content clears frame edges and caption or platform overlays throughout. Use transition frames to pinpoint a jump or a crop and play the revised clip again to judge the pace.
 
