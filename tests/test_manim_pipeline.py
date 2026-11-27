@@ -5,6 +5,8 @@ import io
 import json
 import os
 from pathlib import Path
+import posixpath
+import re
 import shutil
 import subprocess
 import sys
@@ -213,6 +215,20 @@ class ManimPipelineTests(unittest.TestCase):
                 self.assertIn(Path("scripts/setup_environment.sh"), entries)
                 self.assertEqual(archive.read(prefix + "scripts/setup_video_assets.sh"),
                                  (ROOT / "scripts/setup_video_assets.sh").read_bytes())
+                skill = SKILL.relative_to(ROOT)
+                entry = archive.read(prefix + str(skill / "SKILL.md")).decode()
+                routes = {skill / link for link in re.findall(r"\]\((playbooks/[^)]+)\)", entry)}
+                self.assertEqual(routes, {
+                    skill / "playbooks" / f"{name}.md"
+                    for name in ("script", "scene", "captions", "full-video", "visual-design",
+                                 "audio-sync", "review", "package")
+                })
+                for route in routes:
+                    self.assertIn(route, entries)
+                    text = archive.read(prefix + str(route)).decode()
+                    for link in re.findall(r"\]\(([^)#]+)(?:#[^)]*)?\)", text):
+                        if "://" not in link:
+                            self.assertIn(Path(posixpath.normpath(route.parent / link)), entries)
 
 
 if __name__ == "__main__":

@@ -1,111 +1,29 @@
 ---
 name: manim-video-pipeline
-description: Design and render educational videos in Manim Community Edition from a brief, lesson, or optional notebook. Use for 3Blue1Brown reference study, visual storyboards, animation prototypes, OpenAI or ElevenLabs narration, and final renders.
+description: Plan, design, render, review, or caption educational Manim videos from a brief, script, or optional Jupyter notebook. Use for script-only work, 3Blue1Brown reference study, a single scene, narration and sync, subtitle edits, or an entire video.
 ---
 
 # Manim video pipeline
 
-Use this workflow from the repository root when a user asks in natural language to make or edit a video. Execute the setup, project creation, and render steps with your tools. Return the MP4 path and summarize the visual idea, including the reference moment you adapted and any viewing limitations. Ask the user only for input or setup you cannot supply, such as their lesson or chosen voice provider credentials.
+Use the requested deliverable to choose a playbook. Read that playbook first and open its supporting references as needed. An explicit scope such as “only,” “first,” or a numbered scene takes precedence over the broader project. For a request covering several named tasks, run just those playbooks and stop at the last requested deliverable.
 
-## Prepare the preview environment
+| The user asks for | Playbook | Deliver |
+|---|---|---|
+| “Write the script first” / “대본만” | [Script](playbooks/script.md) | The requested draft or revised narration |
+| “Find a 3Blue1Brown reference” / “Show me the key visual” | [Visual design](playbooks/visual-design.md) | Reference notes, storyboard, or a requested prototype |
+| “Generate the narration” / “Match this scene to the voice” | [Audio and sync](playbooks/audio-sync.md) | MP3 and timing file, with a synced render when requested |
+| “Rerender scene 3” / “장면 하나만” | [Single scene](playbooks/scene.md) | The selected scene and its render result |
+| “Review this cut” / “Check the transitions” | [Review](playbooks/review.md) | Timestamped findings and any requested review frames |
+| “Fix the subtitles only” / “자막만” | [Captions](playbooks/captions.md) | The revised timestamped SRT |
+| “Assemble these existing scenes” | [Package](playbooks/package.md) | The assembled MP4, thumbnail, and SRT when narrated |
+| “Make the full video” / “영상 전체를 만들어줘” | [Full video](playbooks/full-video.md) | The requested review checkpoint or a verified final cut |
 
-For the demo or a standalone video, check the video-only environment. Set it up if missing, then use its interpreter for the commands below.
+A request to try the skill is a demo. Make a small preview for the requested topic. If the user leaves the topic open, use binary search and render the supplied scene when available. Follow the single-scene playbook and return the preview.
 
-```bash
-bash scripts/setup_environment.sh --video-only --check
-# Run this when the video-only environment needs setup:
-bash scripts/setup_environment.sh --video-only
-```
+## Shared project conventions
 
-Use `.venv-video/bin/python` for the demo and standalone projects. For an existing Causal Studio scene with additional datasets or assets, use the project's environment with those dependencies and check the scene's imports and asset paths. Python 3.11 or 3.12 and Manim CE are sufficient for the demo. Narration, frame review, and publishing also need FFmpeg and ffprobe.
-
-If the user asks to try the pipeline and `videos/binary_search/en/project.toml` exists, render the supplied example and return the resulting MP4.
-
-```bash
-.venv-video/bin/python video.py render videos/binary_search/en
-```
-
-In a skill-only checkout, initialize a topic and follow the design steps below. For a demo without a topic, use binary search as the brief.
-
-## Start or resume a project
-
-```bash
-.venv-video/bin/python video.py init videos/my_topic --lang en --brief "Explain binary search to a beginner"
-.venv-video/bin/python video.py init videos/my_topic --lang ko --source path/to/lesson.ipynb
-```
-
-Choose one input. `--source` accepts Markdown, plain text, or an existing notebook. A short prompt can serve as the entire brief. Generate a notebook only when the user requests one. If the project already exists, read its `project.toml` for the source path, the default scene file, and the Manim class. Paths in the manifest are relative to the language edition. The `source` command prints the lesson, including notebook code cells as text. It never executes notebook cells.
-
-Use `videos/<topic_slug>/<language>/` for every video, including single-language videos. Use lowercase topic slugs with underscores, such as `binary_search`. Each edition has its own `project.toml`, `scene_plan.md`, `scenes/`, and optional `narration/`. Name each scene `scenes/scene_NN_name.py` and its script `narration/NN_name.txt`, with the same number and name across editions of the same scene. A silent scene can omit its script.
-
-Set the target duration, language, and aspect ratio before storyboarding. Use landscape 16:9 for lessons and tutorials by default and portrait 9:16 for a short explicitly intended for a vertical feed. Follow a requested aspect ratio and render every scene in the edition to the same frame dimensions at the chosen quality.
-
-Keep reusable Python helpers in the topic's `shared/`, SVGs and images in topic or edition `assets/`, and thumbnails or production tools in `tools/`. Write audio, raw renders, and final MP4s under the edition's `build/audio/`, `build/manim/`, and `build/final/`. Pass the edition path to `video.py source`, `video.py render`, and `video.py check`. Before handing off a new or moved video, run `video.py check videos/my_topic/en` to catch missing plans, bad paths, and mismatched scene and narration names. Read `references/causal-studio.md` when working on an existing Causal Studio lesson.
-
-## Plan a multi-scene lesson
-
-Plan the whole story and draft the complete script before producing individual scenes. Render a short prototype of the hardest explanation, then validate a narrated sample when timing or delivery needs a check. Once the story and visual approach are clear, generate narration by scene, use measured timing to implement the animations, and review every scene before checking the assembled video end to end. Agree on review checkpoints if the user requests approvals. See the [long-form workflow and team roles](references/long-form-production.md) for lessons from a notebook and parallel scene production.
-
-## Choose how to show the idea
-
-When designing or revising a visual explanation, prepare the local source and SVG assets in both the full repo and a fresh skill-only checkout.
-
-```bash
-bash scripts/setup_video_assets.sh --ensure
-```
-
-1. **Start with what the viewer sees.** Pick one concrete example and one visual subject that can carry the explanation. Before writing on-screen copy, sketch the subject at the opening, the revealing movement, and the held result. Put the example in the first shot. Use the [scene plan template](templates/scene_plan.md) to make these decisions visible.
-2. **Study a complete reference passage and trace its source.** Start with a clip the user supplied, then find a 3Blue1Brown passage that solves the same visual problem. Watch the setup, the move, and the hold. For each state, map the focal point, scale, unused space, contrast, and when labels enter and leave. Trace layout, palette, and timing in the official source. Record the clip range, code permalink, and the decisions you will adapt. When the exact source is unavailable, identify any related implementation as a separate reference. When playback is unavailable, try a playable clip from the official lesson and record what you could inspect. Follow [reference study and adaptation](references/manim-code-patterns.md#reference-study-and-adaptation).
-3. **Storyboard the movement before adding text.** Carry the same object, viewpoint, or coordinate system across related beats. When reframing, specify the object the eye follows, where it lands, and what the new view reveals. Give dense comparisons a steady view and the result time to read. Leave the corners empty by default. Each label needs a reason, an object or comparison it identifies, and a cue to enter and leave. Keep explanatory sentences in audio and captions. Follow [camera movement](references/manim-code-patterns.md#camera-movement-and-reframing).
-4. **Review the passage against the reference.** Render the opening, hardest move, and result before producing the full video. Use `video.py review` to compare the frames at the intended viewing size and play the passage muted at normal speed. For a portrait video, check it at phone width. If the focal point is ambiguous, the relationship is unclear, or a header carries the meaning, revise the composition and render again. Save what changed in the scene plan. Follow [the visual review guide](references/manim-code-patterns.md#review-the-motion).
-
-### Work with specialist agents
-
-When collaboration is requested and the host supports delegation, let the lead own `scene_plan.md`, scene edits, and final delivery. Give the visual designer and reference researcher the same audience, question, and source constraints. Start their work in parallel when possible.
-
-- **Visual designer:** Sketch the opening, the key movement, and the held result. Specify the visual anchor, framing, labels, and how the frame fits the target screen.
-- **Reference researcher:** Verify the actual passage, trace its source, and return timestamped observations and one or two changes the designer can apply.
-- **Independent reviewer:** Give this agent the rendered preview and target screen, withholding the intended reveal on its first pass. Have it watch once muted at normal speed, report what changed and why, and mark any break in attention or comprehension with a timestamp. Then share the plan and reference for comparison. For narrated output, review again with sound to catch mistimed cues or a claim the picture overstates.
-
-The lead merges the design and research, tests the hardest transition as a short silent preview, and rerenders the affected scene or beat after review. For a simple video, the lead can handle design and use separate agents for research and review. When delegation is unavailable, run the same passes in sequence and describe the review accurately.
-
-## Implement and review scenes
-
-1. Read the source and locate the smallest coherent teaching unit. Preserve the source's numbers, definitions, observed and unobserved values, and examples. Check the prior scene's last line and the new scene's first line when continuing a series.
-2. Map each planned beat to the final words and labels. For narration, use one short paragraph per beat, separated by a blank line. Read the [narration guide](references/script-writing-guide.md).
-3. For a narrated scene, review the narration, then generate the MP3 and its adjacent `*.timings.json`. Read and listen to both before locking animation timing. For a silent preview, use provisional beat lengths. See [narration and sync](references/narration-sync.md).
-4. Read the [Manim code patterns](references/manim-code-patterns.md) before writing code. Give the visual idea most of the frame, keep its colors and geometry stable across related beats, and reserve clearance where captions may appear. Clear obsolete objects before shrinking any labels.
-5. Review each scene preview at normal speed with the narration when present. Check that each event lands on the words that give it meaning. Compare frames directly before and after cuts between scenes. When a composition carries through a cut, preserve its position, scale, style, and visible labels. Verify that any jump has a clear job. Use selectable subtitles for narrated videos and short, local cues for silent videos.
-
-```bash
-.venv-video/bin/python video.py render videos/my_topic/en --json
-```
-
-To render a different scene in isolation, select its file and class.
-
-```bash
-.venv-video/bin/python video.py render videos/my_topic/en \
-  --file videos/my_topic/en/scenes/scene_02_comparison.py --scene Scene02 --json
-```
-
-Use the `video`, `duration`, and `log` fields from the render result. Each attempt has its own log under `build/logs/`. On `ok: false`, open the log, fix the reported scene or timing error, and rerender that scene. Use the returned MP4 paths from successful attempts to review or assemble the video.
-
-## Review transitions and assemble the video
-
-Use the scene-relative start and end of the animation you want to inspect. Repeat `--transition` for more than one change. Open the contact sheet and correct any overlap, clipping, or abrupt change before proceeding.
-
-```bash
-.venv-video/bin/python video.py review "$SCENE_MP4" --transition 2.1 3.4 \
-  --output videos/my_topic/en/build/review/01_intro
-```
-
-For narration, connect each measured chunk to its matching Manim beat and keep at least 0.5 seconds of visual tail after the audio. Review hand-tuned waits against the new timeline. Pass the successful render paths in playback order, with the narration MP3 after each narrated scene. Each MP3 uses its adjacent `*.timings.json` for subtitle timing. Pass a video path alone for a silent scene.
-
-```bash
-.venv-video/bin/python video.py package \
-  --scene "$SCENE_1_MP4" videos/my_topic/en/build/audio/01_intro.mp3 \
-  --scene "$SCENE_2_MP4" videos/my_topic/en/build/audio/02_comparison.mp3 \
-  --output videos/my_topic/en/build/final/my_topic.mp4 --thumbnail-at 8.5
-```
-
-`package` returns the MP4, thumbnail PNG, and SRT paths. It splits long narration into cues of up to two lines and estimates their timing within each measured beat. Review the cue changes against the audio before delivery. `--thumbnail-at` uses time in the assembled video and defaults to its midpoint. Silent projects receive the MP4 and PNG. Open the assembled review frames and confirm the focal subject, the purpose of each visible label, continuity across cuts, and subtitle clearance. Rerender any beat that fails this review before delivering the generated links. See [FFmpeg recipes](references/ffmpeg-recipes.md) for separate muxing, subtitle embedding, and background music.
+- Accept a short topic, an existing Markdown or text file, or a Jupyter notebook. Read notebook cells and saved outputs without executing the notebook. Create a notebook when the user asks for one.
+- Use 16:9 for a new lesson and 9:16 for a short explicitly intended for a vertical feed. Use the requested aspect ratio or keep the existing project's dimensions for revisions.
+- Use `videos/<topic_slug>/<language>/` for a video project. Read its `project.toml` for the source, default scene file, and Manim class. Number matching files as `scenes/scene_NN_name.py` and `narration/NN_name.txt`. A silent scene can omit its narration. Keep the storyboard in `scene_plan.md` and shared code under the topic's `shared/`.
+- Write rendered media under the edition's `build/`. When editing an existing Causal Studio lesson in the full repository, read `references/causal-studio.md`.
+- For Manim renders, use the project's working environment or the video-only Python environment described in the [single-scene playbook](playbooks/scene.md). Run project setup and invoke render or audio tools only when needed by the selected playbook.

@@ -27,7 +27,7 @@ If you have a script or Jupyter notebook, include its path in your prompt. A not
 
 The skill studies the reference video and Manim source, then records the script, camera framing, and staged reveal in `scene_plan.md`. The agent renders the most important transition as a silent preview and inspects frames from before, during, and after the move. If you find a bad crop, overlap, or awkward pause, name the scene and ask it to revise that render.
 
-For a more involved video, you can ask for separate reference research, design, and independent review when your agent supports delegation.
+Ask for only a script, a scene revision, or an SRT when that is all you need. The full-video workflow delegates research, scene production, and independent review when sub-agents are available.
 
 > In scene 3, hold the click-rate comparison a little longer and render that scene again.
 

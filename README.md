@@ -46,7 +46,7 @@ You can render the initial preview without a voice API key.
 2. **Preview key transitions.** Inspect frames before, during, and after major transitions. Ask the agent to fix any clipping, overlapping text, or jarring motion and re-render only that scene.
 3. **Add narration and export.** OpenAI or ElevenLabs turns your script into voiceover audio. The agent uses `*.timings.json` to sync the final animation and outputs an MP4, thumbnail, and SRT subtitles (when narrated). [Voice setup](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it)
 
-If your tool supports sub-agent delegation, you can ask the agent to split reference research, scene design, and visual review across separate agents.
+Ask the same skill for just a script, a scene revision, or an SRT. For a full video, it delegates research, scene production, and independent review when sub-agents are available.
 
 ## Project structure and scene revisions
 

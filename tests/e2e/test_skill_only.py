@@ -104,9 +104,11 @@ class SkillOnlyE2E(unittest.TestCase):
             edition = f"{topic}/en"
             brief = "Explain how a button color A/B test compares click rates."
             subprocess.run([*launcher, "init", topic, "--lang", "en", "--brief", brief], cwd=checkout, env=env, check=True)
+            project = checkout / edition
+            initial_paths = sorted(project.rglob("*"))
             lesson = subprocess.check_output([*launcher, "source", edition], cwd=checkout, env=env, text=True)
             self.assertIn(brief, lesson)
-            project = checkout / edition
+            self.assertEqual(sorted(project.rglob("*")), initial_paths)
             self.assertFalse(list(project.glob("*.ipynb")))
             self.assertEqual(
                 (project / "scene_plan.md").read_bytes(),
@@ -136,6 +138,18 @@ class SkillOnlyE2E(unittest.TestCase):
             self.assertIn("RuntimeError: Intentional Manim failure", Path(result["log"]).read_text())
             self.assertEqual(preview.read_bytes(), original)
             scene_file.write_text(SCENE, encoding="utf-8")
+
+            second_scene = project / "scenes/scene_02_comparison.py"
+            second_scene.write_text(SCENE.replace("Scene01", "Scene02").replace("01_intro", "02_comparison"),
+                                    encoding="utf-8")
+            single = json.loads(subprocess.check_output(
+                [*render, "--scene", "Scene02"], cwd=checkout, env=env,
+            ))
+            selected = Path(single["video"])
+            self.assertEqual(selected.name, "Scene02.mp4")
+            self.assertEqual(preview.read_bytes(), original)
+            self.assertFalse((project / "build/audio").exists())
+            self.assertFalse((project / "build/final").exists())
 
             review = json.loads(subprocess.check_output(
                 [*launcher, "review", str(preview), "--transition", "0.08", "0.55"], cwd=checkout, env=env,
@@ -181,24 +195,44 @@ class SkillOnlyE2E(unittest.TestCase):
             self.assertGreater(duration, preview_duration)
             self.assertAlmostEqual(duration - timing["totalDuration"], 0.5, delta=0.08)
 
+            scene_args = ["--scene", str(preview), str(audio), "--scene", str(selected),
+                          "--scene", str(preview), str(audio)]
             packaged = json.loads(subprocess.check_output(
-                [*launcher, "package", "--scene", str(preview), str(audio), "--scene", str(preview),
-                 "--scene", str(preview), str(audio), "--output", str(project / "build/final/lesson.mp4"),
+                [*launcher, "package", *scene_args, "--output", str(project / "build/final/lesson.mp4"),
                  "--thumbnail-at", "1.1"], cwd=checkout, env=env,
             ))
             self.assertEqual(probe_video(Path(packaged["video"]))["streams"], media["streams"])
             self.assertTrue(Path(packaged["thumbnail"]).read_bytes().startswith(b"\x89PNG"))
             scene_length = math.ceil(narrated["duration"] * 30 - 0.0001) / 30
-            self.assertAlmostEqual(packaged["duration"], scene_length * 3, delta=0.034)
+            silent_length = math.ceil(single["duration"] * 30 - 0.0001) / 30
+            self.assertAlmostEqual(packaged["duration"], scene_length * 2 + silent_length, delta=0.034)
             cues = [block.splitlines() for block in Path(packaged["captions"]).read_text().strip().split("\n\n")]
             self.assertTrue(all(1 <= len(cue[2:]) <= 2 for cue in cues))
             self.assertTrue(all(len(line) <= 38 for cue in cues for line in cue[2:]))
             self.assertEqual(" ".join(" ".join(cue[2:]) for cue in cues), " ".join(paragraphs * 2))
-            later = round(2 * scene_length * 1000)
+            later = round((scene_length + silent_length) * 1000)
             seconds, millis = divmod(later, 1000)
             second_scene_index = len(cues) // 2
             self.assertGreater(second_scene_index, len(paragraphs))
             self.assertTrue(cues[second_scene_index][1].startswith(f"00:00:{seconds:02d},{millis:03d} -->"))
+
+            existing = {path: path.read_bytes() for path in (preview, selected, audio, timing_path, final)}
+            captions = project / "build/captions/lesson.srt"
+            caption_command = [sys.executable, "video.py", "captions"]
+            exported = json.loads(subprocess.check_output(
+                [*caption_command, *scene_args, "--output", str(captions)], cwd=checkout, env=env,
+            ))
+            self.assertEqual(Path(exported["captions"]), captions.resolve())
+            self.assertEqual(captions.read_bytes(), Path(packaged["captions"]).read_bytes())
+            self.assertEqual(list(captions.parent.iterdir()), [captions])
+            self.assertTrue(all(path.read_bytes() == data for path, data in existing.items()))
+            silent_export = subprocess.run(
+                [*caption_command, "--scene", str(selected), "--output", str(captions)],
+                cwd=checkout, env=env, text=True, capture_output=True,
+            )
+            self.assertNotEqual(silent_export.returncode, 0)
+            self.assertIn("Supply at least one scene with a narration file", silent_export.stderr)
+            self.assertEqual(captions.read_bytes(), Path(packaged["captions"]).read_bytes())
 
             silent = json.loads(subprocess.check_output(
                 [*launcher, "package", "--scene", str(preview), "--output", str(project / "build/final/silent.mp4")],
