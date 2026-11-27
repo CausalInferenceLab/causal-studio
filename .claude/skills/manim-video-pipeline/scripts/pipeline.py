@@ -6,11 +6,12 @@ import os
 from pathlib import Path
 import subprocess
 import sys
-from tempfile import TemporaryDirectory
+from tempfile import NamedTemporaryFile, TemporaryDirectory
 import tomllib
 
 from project_layout import LANGUAGE_TAG, SOURCE_TYPES, TOPIC_SLUG, check_project, resolve_project, scene_classes
 from speech import add_audio_arguments, generate_audio, media_duration
+from video_outputs import package, review, video_info
 
 
 ROOT = Path(__file__).resolve().parents[4]
@@ -68,7 +69,7 @@ def read_source(path):
     return "\n\n".join(parts)
 
 
-def render(args, project, config):
+def select_scene_file(args, project, config):
     file = args.file.resolve() if args.file else project / config["scene_file"]
     if args.file is None and args.scene and args.scene != config["scene_class"]:
         matches = [p for p in (project / "scenes").glob("scene_*.py") if args.scene in scene_classes(p)]
@@ -76,16 +77,72 @@ def render(args, project, config):
             raise ValueError(f"Found {args.scene} in multiple files. Select one with --file.")
         if matches:
             file = matches[0]
+    return file
+
+
+def render(args, project):
     scripts = Path(__file__).resolve().parent
     pythonpath = os.pathsep.join(filter(None, (str(scripts), str(ROOT), os.environ.get("PYTHONPATH"))))
-    subprocess.run(
-        [sys.executable, "-m", "manim", f"-q{args.quality}", "--disable_caching",
-         "--media_dir", str(project / "build" / "manim"),
-         str(file), args.scene or config["scene_class"]],
-        cwd=project,
-        env={**os.environ, "PYTHONPATH": pythonpath},
-        check=True,
-    )
+    result = {"ok": False, "scene": args.scene, "log": None}
+    try:
+        if not project.is_dir():
+            raise ValueError(f"Video project not found: {project}")
+        media = project / "build/manim"
+        logs = project / "build/logs"
+        media.mkdir(parents=True, exist_ok=True)
+        logs.mkdir(parents=True, exist_ok=True)
+        with (NamedTemporaryFile(mode="w", encoding="utf-8", prefix="render-", suffix=".log",
+                                 dir=logs, delete=False) as log,
+              TemporaryDirectory(prefix=".render-", dir=media) as stage):
+            stage = Path(stage)
+            result["log"] = log.name
+            try:
+                with (project / "project.toml").open("rb") as manifest:
+                    config = tomllib.load(manifest)
+                scene = args.scene or config["scene_class"]
+                if not scene.isidentifier():
+                    raise ValueError(f"Use a Python class name for the scene: {scene}")
+                result["scene"] = scene
+                file = select_scene_file(args, project, config)
+                command = [sys.executable, "-m", "manim", f"-q{args.quality}", "--disable_caching",
+                           "--media_dir", str(stage), "--format", "mp4", "-o", scene, str(file), scene]
+                log.write(f"Rendering {scene} from {file}\n")
+                with subprocess.Popen(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                                      text=True, errors="replace", cwd=project,
+                                      env={**os.environ, "PYTHONPATH": pythonpath}) as process:
+                    for line in process.stdout:
+                        log.write(line)
+                        log.flush()
+                        if not args.json:
+                            print(line, end="", file=sys.stderr)
+                    result["exit_code"] = process.wait()
+                if result["exit_code"]:
+                    raise RuntimeError(f"Manim exited with status {result['exit_code']}")
+                candidates = [path for path in stage.rglob(f"{scene}.mp4")
+                              if "partial_movie_files" not in path.relative_to(stage).parts]
+                if len(candidates) != 1:
+                    raise RuntimeError(f"Expected one fresh MP4 for {scene}, found {len(candidates)}")
+                rendered = candidates[0]
+                duration, *_ = video_info(rendered)
+                destination = media / rendered.relative_to(stage)
+                destination.parent.mkdir(parents=True, exist_ok=True)
+                rendered.replace(destination)
+                result.update(ok=True, video=str(destination), duration=round(duration, 6))
+            except (OSError, ValueError, KeyError, RuntimeError, SyntaxError) as error:
+                log.write(f"\nError: {error}\n")
+                raise
+    except (OSError, ValueError, KeyError, RuntimeError, SyntaxError) as error:
+        result["error"] = str(error)
+
+    if args.json:
+        print(json.dumps(result, ensure_ascii=False))
+    elif result["ok"]:
+        print(f"Rendered {result['video']} ({result['duration']:.3f}s)\nRender log: {result['log']}")
+    else:
+        log_hint = f"\nRender log: {result['log']}" if result["log"] else ""
+        print(f"Error: {result['error']}{log_hint}", file=sys.stderr)
+    if not result["ok"]:
+        sys.exit(1)
 
 
 def mux(args):
@@ -128,6 +185,17 @@ def main():
     preview.add_argument("--file", type=Path, help="Override the scene file (relative to the working directory)")
     preview.add_argument("--scene", help="Override the Manim class")
     preview.add_argument("--quality", choices=("l", "m", "h", "p", "k"), default="l")
+    preview.add_argument("--json", action="store_true", help="Print the result and log path as JSON")
+    frames = commands.add_parser("review", help="Extract before, during, and after frames for transitions")
+    frames.add_argument("video", type=Path)
+    frames.add_argument("--transition", type=float, nargs=2, action="append", required=True,
+                        metavar=("START", "END"), help="Transition time range in seconds. Repeat for more transitions.")
+    frames.add_argument("--output", type=Path, help="Directory for the PNG frames and contact sheet")
+    publish = commands.add_parser("package", help="Assemble a final MP4, thumbnail, and narration SRT")
+    publish.add_argument("--scene", type=Path, nargs="+", action="append", required=True,
+                         metavar="FILE", help="VIDEO [NARRATION.mp3]. Repeat in playback order.")
+    publish.add_argument("--output", type=Path, required=True, help="Output MP4 path")
+    publish.add_argument("--thumbnail-at", type=float, help="Thumbnail time in seconds. Defaults to the middle.")
     add_audio_arguments(commands.add_parser("audio", help="Generate MP3 and beat timings"), ROOT)
     combine = commands.add_parser("mux", help="Attach narration and preserve the visual tail")
     for field in ("video", "audio", "output"):
@@ -143,14 +211,17 @@ def main():
         generate_audio(args)
     elif args.action == "mux":
         mux(args)
+    elif args.action == "review":
+        print(json.dumps(review(args.video, args.transition, args.output), ensure_ascii=False))
+    elif args.action == "package":
+        print(json.dumps(package(args.scene, args.output, args.thumbnail_at), ensure_ascii=False))
+    elif args.action == "render":
+        render(args, resolve_project(args.project.resolve()))
     else:
         project = resolve_project(args.project.resolve())
         with (project / "project.toml").open("rb") as manifest:
             config = tomllib.load(manifest)
-        if args.action == "source":
-            print(read_source(project / config["source"]))
-        else:
-            render(args, project, config)
+        print(read_source(project / config["source"]))
 
 
 if __name__ == "__main__":

@@ -31,7 +31,7 @@ You can preview a key scene without a voice API key.
 
 1. **Plan the scenes and draft the script.** The skill finds relevant 3Blue1Brown scenes and their Manim code to decide what each scene should show and how to present it. Edit the draft or ask the agent to revise it.
 2. **Add narration.** If you want a voice, the agent generates an MP3 for each scene with OpenAI or ElevenLabs and records paragraph timing in `*.timings.json`. Copy `.env.example` to `.env` for first-time setup, then fill in your provider’s settings and name the provider in your request.
-3. **Animate in Manim and render the MP4.** The agent writes the Manim code and refines the framing and motion after reviewing the renders. It syncs any narration and joins the scenes into one MP4.
+3. **Animate, review, and export.** The agent writes the Manim code, reviews frames from before, during, and after key transitions, and syncs any narration. Ask for the finished MP4, a thumbnail PNG, and an SRT if the video has narration.
 
 ## Files and scene revisions
 
@@ -57,10 +57,13 @@ videos/ab_test/en/
 │   └── scene_05_decision.py
 └── build/
     ├── audio/             # Scene MP3s and timing files
+    ├── logs/              # One log for each render attempt
     ├── manim/             # Manim renders
-    └── final/             # Individual scenes with audio
+    ├── review/            # Transition frames and contact sheets
+    └── final/
         ├── ab_test.mp4        # Complete video
-        └── ab_test.ko.srt     # Optional subtitles
+        ├── ab_test.png        # Thumbnail
+        └── ab_test.srt        # Subtitles when there is narration
 ```
 
 To revise a scene, tell Claude Code or Codex its number and what to change.
