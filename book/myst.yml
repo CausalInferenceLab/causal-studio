@@ -73,7 +73,6 @@ project:
 
     - title: 🎬 Videos
       file: videos_en.md
-      hidden: true
     - title: 🎬 영상 목록
       file: videos_ko.md
       hidden: true
