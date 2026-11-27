@@ -12,76 +12,67 @@
 </p>
 
 <p align="center">
-  <a href="https://www.youtube.com/watch?v=65C9J1yJwhc">
-    <picture>
-      <source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/rdd-preview.jpg">
-      <img src="./docs/assets/rdd-animation.gif" width="820" alt="장학금 기준인 370점 양쪽에 GPA 산점도와 회귀선이 차례로 나타나고, 두 회귀선의 차이를 표시하는 애니메이션.">
-    </picture>
-  </a><br>
-  <sub><a href="https://www.youtube.com/watch?v=65C9J1yJwhc">예시 영상 보기</a> · 회귀불연속설계</sub>
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/did-preview.jpg">
+    <img src="./docs/assets/did-animation.gif" width="820" alt="두 도시의 예금액 추세를 같은 출발점에 맞춰 광고 후 성장 폭의 차이를 보여주는 애니메이션.">
+  </picture><br>
+  <sub>차분의 차분 · 옥외광고 사례</sub>
 </p>
 
 ## 첫 영상 만들기
 
-1. 영상 제작 도구가 들어 있는 `skill-only` 브랜치를 받으세요.
+1. `skill-only` 브랜치를 클론하세요.
 
    ```bash
    git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
    ```
 
-2. Claude Code나 Codex에서 받은 `causal-studio` 폴더를 열고 이렇게 요청하세요.
+2. Claude Code나 Codex에서 폴더를 열고 영상을 요청하세요.
 
    ```text
-   manim-video-pipeline으로 1분 15초짜리 A/B 테스트 입문 영상을 만들어줘.
-   버튼 색을 바꾼 사례로 전후 비교의 함정, 무작위 배정, 클릭률 차이,
-   신뢰구간 해석, 새 버튼의 적용 기준을 다섯 장면으로 설명해줘.
+   manim-video-pipeline 스킬로 A/B 테스트에 왜 무작위 배정이 필요한지
+   45초짜리 영상으로 만들어줘. 티켓을 사러 온 손님이 한쪽 결제 화면에 더 많이
+   배정된 결과, 손님마다 동전을 던져 배정하는 과정, 배정 후 결과를 세 장면으로 보여줘.
    ```
 
-영상에 반영할 대본이나 Jupyter Notebook이 있다면 파일 경로를 함께 알려주세요. 설명과 그래프를 정리해 둔 노트북을 바탕으로 영상의 순서와 화면을 잡을 수 있습니다. [RDD 노트북 예시](./book/rdd/01_rdd_basic_ko.ipynb)
+영상에 참고할 대본이나 설명·그래프를 정리한 Jupyter 노트북이 있다면 파일 경로를 함께 알려주세요. 주제 한 줄로도 시작할 수 있습니다. [노트북 예시](./book/rdd/01_rdd_basic_ko.ipynb)
 
-음성 API 키 없이도 핵심 장면의 미리보기를 만들 수 있습니다.
+첫 미리보기는 음성 API 키 없이 렌더링할 수 있습니다.
 
 ## 영상 제작 흐름
 
-![대본을 쓰고 음성을 만든 뒤, Manim 영상과 합쳐 MP4로 완성하는 순서](./docs/assets/manim-workflow-ko.png)
+1. **화면과 대본을 잡습니다.** 주제에 맞는 3Blue1Brown 영상과 Manim 코드를 참고합니다. 카메라가 무엇을 따라가고, 움직임이 끝난 화면에서 무엇이 새로 보일지 정합니다.
+2. **핵심 전환을 먼저 확인합니다.** 전환 전·중·후 화면에서 그래프나 글자가 겹치거나 잘리는 곳을 찾습니다. 설명이 끊기는 부분이 있으면 그 장면만 고쳐 다시 렌더링합니다.
+3. **음성을 맞추고 내보냅니다.** 내레이션을 원하면 OpenAI나 ElevenLabs로 내레이션을 만들고, `*.timings.json`에 기록된 시간에 맞춰 최종 애니메이션을 만듭니다. MP4와 썸네일, 내레이션이 있는 영상에는 SRT 자막도 제공됩니다. [음성 설정](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it)
 
-1. **장면을 설계하고 대본을 씁니다.** 스킬이 주제와 비슷한 3Blue1Brown 영상과 Manim 코드를 찾아 참고할 연출을 고릅니다. 장면마다 무엇을 보여줄지 정하고 대본을 씁니다. 대본은 직접 고치거나 AI에 수정을 요청할 수 있습니다.
-2. **내레이션을 추가합니다.** 음성을 원하면 OpenAI나 ElevenLabs로 장면별 MP3를 만들고, 문단별 시작과 종료 시간을 `*.timings.json`에 기록합니다. [환경 변수 예시](./.env.example) · [음성 설정 가이드](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it)
-3. **Manim으로 구현하고 MP4로 완성합니다.** Manim 코드로 장면을 만들고, 렌더링 결과를 보며 구도와 움직임을 다듬습니다. 내레이션이 있으면 화면을 음성에 맞춥니다. 완성한 장면을 한 편의 MP4로 합칩니다.
+에이전트 분업을 지원하는 환경에서는 레퍼런스 조사, 화면 설계, 독립 시사 검수를 나눠 맡겨 달라고 요청할 수 있습니다.
 
 ## 결과물과 장면 수정
 
-장면마다 대본과 Manim 코드가 따로 저장됩니다. A/B 테스트 영상을 만들면 다음과 같은 구조로 정리할 수 있습니다.
+장면별로 Manim 코드와 대본을 확인할 수 있습니다. 내레이션 대본은 음성을 넣을 때 사용합니다.
 
 ```text
 videos/ab_test/ko/
-├── project.toml           # 참고 자료와 기본 렌더 장면
-├── lesson.md              # 주제 한 줄로 시작할 때 만드는 제작 메모
-├── scene_plan.md          # 참고 장면과 영상 구성
-├── assets/                # 영상에 쓰는 아이콘과 이미지
-├── narration/             # 장면별 대본
+├── project.toml              # 참고 자료와 기본 렌더 장면
+├── lesson.md                 # 주제로 시작할 때 작성하는 제작 메모
+├── scene_plan.md             # 레퍼런스, 구도, 장면 순서
+├── narration/                # 장면별 대본
 │   ├── 01_question.txt
 │   ├── 02_assignment.txt
-│   ├── 03_rates.txt
-│   ├── 04_interval.txt
-│   └── 05_decision.txt
-├── scenes/                # 장면별 Manim 코드
+│   └── 03_comparison.txt
+├── scenes/                   # 장면별 Manim 코드
 │   ├── scene_01_question.py
 │   ├── scene_02_assignment.py
-│   ├── scene_03_rates.py
-│   ├── scene_04_interval.py
-│   └── scene_05_decision.py
+│   └── scene_03_comparison.py
 └── build/
-    ├── audio/             # 장면별 MP3와 타이밍
-    ├── manim/             # Manim 렌더
-    └── final/             # 음성을 붙인 장면별 MP4
-        ├── ab_test.mp4        # 전체 영상
-        └── ab_test.ko.srt     # 선택 자막
+    ├── audio/                # MP3와 타이밍 파일
+    ├── logs/                 # 렌더 시도별 로그
+    ├── manim/                # 렌더링한 장면
+    ├── review/               # 전환 프레임과 비교 이미지
+    └── final/                # MP4, 썸네일 PNG, 음성이 있다면 SRT
 ```
 
-수정하고 싶은 장면의 번호와 바꿀 내용을 Claude Code나 Codex에 알려주세요.
-
-> 3번 장면에서 두 막대의 클릭률 차이를 조금 더 오래 보여줘. 그 장면만 다시 렌더링해줘.
+> 2번 장면에서 배정이 바뀌는 동안 첫 그룹이 화면에 남게 해줘. 그 장면만 다시 렌더링해줘.
 
 ## Causal Studio 둘러보기
 

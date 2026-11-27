@@ -19,17 +19,19 @@ Copy this prompt to try the included demo.
 
 Or start with your own topic.
 
-> Use `manim-video-pipeline` to make a 75-second introduction to A/B testing. In five scenes, use a button color experiment to show why a before-and-after comparison can mislead, how to assign visitors at random, how to compare click rates, what the confidence interval tells us, and how to decide whether to switch.
+> Use `manim-video-pipeline` to explain why A/B tests randomize in a 45-second video. Use ticket checkouts and three scenes to show the initial result, a coin flip for each shopper, and the comparison after assignment.
 
 If you have a script or Jupyter notebook, include its path in your prompt. A notebook with explanations and plots can guide what appears on screen and in what order. [Example RDD notebook](https://github.com/CausalInferenceLab/causal-studio/blob/main/book/rdd/01_rdd_basic_en.ipynb)
 
 ## 3. Review and add narration if you want it
 
-The skill finds relevant 3Blue1Brown scenes and their Manim code to plan what to show in `scene_plan.md`. The agent then writes Manim code for a key scene and renders a silent preview to refine its framing and motion. Each scene has its own script and Manim file, so you can ask for changes by scene number.
+The skill studies the reference video and Manim source, then records the script, camera framing, and staged reveal in `scene_plan.md`. The agent renders the most important transition as a silent preview and inspects frames from before, during, and after the move. If you find a bad crop, overlap, or awkward pause, name the scene and ask it to revise that render.
+
+For a more involved video, you can ask for separate reference research, design, and independent review when your agent supports delegation.
 
 > In scene 3, hold the click-rate comparison a little longer and render that scene again.
 
-Edit the draft script yourself or ask the agent to revise it. The revised script guides the narration and what appears on screen. To add a voice, the agent turns the script into an MP3 and records when each passage is spoken in `*.timings.json`. It uses those times to line up the graphics with the narration, then saves them together in the final MP4.
+Edit the draft script yourself or ask the agent to revise it. The revised script guides the narration and what appears on screen. To add a voice, the agent turns the script into an MP3 and records when each passage is spoken in `*.timings.json`. It uses those times to line up the graphics with the narration. The export includes the MP4, a thumbnail PNG, and an SRT when the video has narration.
 
 > Add ElevenLabs narration, review the key transitions, and export the finished MP4, thumbnail, and SRT. Make the script one paragraph per visual beat and use the measured timings to align the animation.
 

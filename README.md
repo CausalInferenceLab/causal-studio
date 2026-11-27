@@ -12,77 +12,68 @@
 </p>
 
 <p align="center">
-  <a href="https://www.youtube.com/watch?v=Rpd3k6Boftk">
-    <picture>
-      <source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/rdd-preview.jpg">
-      <img src="./docs/assets/rdd-animation.gif" width="820" alt="An animated scatter plot draws fitted GPA trends on each side of the 370-point scholarship cutoff and highlights the gap between them.">
-    </picture>
-  </a><br>
-  <sub><a href="https://www.youtube.com/watch?v=Rpd3k6Boftk">Watch the example</a> · Regression discontinuity</sub>
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="./docs/assets/did-preview.jpg">
+    <img src="./docs/assets/did-animation.gif" width="820" alt="Two city deposit trends move to a shared baseline, revealing the difference in growth.">
+  </picture><br>
+  <sub>Difference-in-differences · Billboard campaign example</sub>
 </p>
 
 ## Make your first video
 
-1. Clone the `skill-only` branch to get the video tools.
+1. Clone the `skill-only` branch.
 
    ```bash
    git clone -b skill-only https://github.com/CausalInferenceLab/causal-studio
    ```
 
-2. Open the `causal-studio` folder in Claude Code or Codex and try this prompt.
+2. Open the folder in Claude Code or Codex and ask for a video.
 
    ```text
-   Use manim-video-pipeline to make a 75-second introduction to A/B testing.
-   In five scenes, use a button color experiment to show why a before-and-after comparison
-   can mislead, how to assign visitors at random, how to compare click rates, what the
-   confidence interval tells us, and how to decide whether to switch.
+   Use manim-video-pipeline to explain why A/B tests randomize in a 45-second video.
+   Show two ticket checkouts that start with different mixes of shoppers ready to buy.
+   Use three scenes to show the initial result, a coin flip for each shopper,
+   and the comparison after assignment.
    ```
 
-If you have a script or Jupyter notebook, include its path in your prompt. A notebook with explanations and plots can guide what appears on screen and in what order. [Example RDD notebook](./book/rdd/01_rdd_basic_en.ipynb)
+If you have a script or a Jupyter notebook with explanations and plots, give the agent its path. A topic alone is enough to start. [Example notebook](./book/rdd/01_rdd_basic_en.ipynb)
 
-You can preview a key scene without a voice API key.
+You can render the first preview without a voice API key.
 
 ## How the video comes together
 
-![Write the script, generate narration, then finish the MP4 with Manim animation and audio](./docs/assets/manim-workflow.png)
+1. **Plan the explanation.** The agent studies a relevant 3Blue1Brown passage and its Manim code, drafts the script, and decides what to follow with the camera and what each move reveals.
+2. **Preview the key transition.** Review frames before, during, and after the move. Ask the agent to fix any clipping, overlap, or confusing motion and render that scene again.
+3. **Add a voice and finish.** OpenAI or ElevenLabs turns the script into narration. The agent uses `*.timings.json` to sync the final animation and delivers an MP4, thumbnail, and SRT when there is narration. [Voice setup](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it)
 
-1. **Plan the scenes and draft the script.** The skill finds relevant 3Blue1Brown scenes and their Manim code to decide what each scene should show and how to present it. Edit the draft or ask the agent to revise it.
-2. **Add narration.** If you want a voice, the agent generates an MP3 for each scene with OpenAI or ElevenLabs and records paragraph timing in `*.timings.json`. [Environment variables](./.env.example) · [Voice setup guide](./docs/manim-starter.md#3-review-and-add-narration-if-you-want-it)
-3. **Animate in Manim and render the MP4.** The agent writes the Manim code and refines the framing and motion after reviewing the renders. It syncs any narration and joins the scenes into one MP4.
+You can ask the agent to split reference research, design, and a first-view review among agents when your tool supports delegation.
 
 ## Files and scene revisions
 
-Each scene has its own script and Manim file. An A/B testing video can be organized like this.
+Each scene has its own Manim file and, when narrated, a script.
 
 ```text
 videos/ab_test/en/
-├── project.toml           # Lesson source and default scene
-├── lesson.md              # Lesson notes created when you start with a topic
-├── scene_plan.md          # Visual references and storyboard
-├── assets/                # Icons and other visual assets, if used
-├── narration/
+├── project.toml              # Source and default scene
+├── lesson.md                 # Brief when you start from a topic
+├── scene_plan.md             # References, framing, and storyboard
+├── narration/                # Scene scripts
 │   ├── 01_question.txt
 │   ├── 02_assignment.txt
-│   ├── 03_rates.txt
-│   ├── 04_interval.txt
-│   └── 05_decision.txt
-├── scenes/
+│   └── 03_comparison.txt
+├── scenes/                   # Manim files
 │   ├── scene_01_question.py
 │   ├── scene_02_assignment.py
-│   ├── scene_03_rates.py
-│   ├── scene_04_interval.py
-│   └── scene_05_decision.py
+│   └── scene_03_comparison.py
 └── build/
-    ├── audio/             # Scene MP3s and timing files
-    ├── manim/             # Manim renders
-    └── final/             # Individual scenes with audio
-        ├── ab_test.mp4        # Complete video
-        └── ab_test.ko.srt     # Optional subtitles
+    ├── audio/                # MP3s and timing files
+    ├── logs/                 # One log per render attempt
+    ├── manim/                # Rendered scenes
+    ├── review/               # Transition frames and contact sheets
+    └── final/                # MP4, thumbnail PNG, and optional SRT
 ```
 
-To revise a scene, tell Claude Code or Codex its number and what to change.
-
-> In scene 3, hold the click-rate comparison a little longer and render that scene again.
+> In scene 2, leave the first group in view while the assignment changes. Render that scene again.
 
 ## Explore Causal Studio
 
