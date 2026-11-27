@@ -17,7 +17,7 @@ bash scripts/setup_environment.sh --video-only --check
 bash scripts/setup_environment.sh --video-only
 ```
 
-Use `.venv-video/bin/python` for the demo and standalone projects. For an existing Causal Studio scene with additional datasets or assets, use the project's environment with those dependencies and check the scene's imports and asset paths. Python 3.11 or 3.12 and Manim CE are sufficient for the demo. Narration and muxing also need FFmpeg/ffprobe.
+Use `.venv-video/bin/python` for the demo and standalone projects. For an existing Causal Studio scene with additional datasets or assets, use the project's environment with those dependencies and check the scene's imports and asset paths. Python 3.11 or 3.12 and Manim CE are sufficient for the demo. Narration, frame review, and publishing also need FFmpeg and ffprobe.
 
 If the user asks to try the pipeline and `videos/binary_search/en/project.toml` exists, render the supplied example and return the resulting MP4.
 
@@ -48,10 +48,20 @@ When designing or revising a visual explanation, prepare the local source and SV
 bash scripts/setup_video_assets.sh --ensure
 ```
 
-1. **Find the visual question.** Write what a first-time viewer should understand by the end. Pick one concrete example or contrast that makes that insight visible. Sketch the opening state, the change, and the result. For an existing project, use the [scene plan template](templates/scene_plan.md) to fill gaps in its plan.
-2. **Study the whole 3Blue1Brown passage and its source.** Search for a sequence that explains the same kind of relationship. Watch the setup, the key change, and how the result is framed and held. Record what draws the eye in those frames, how the layout evolves, and what the background, accent colors, and text are doing. Follow the official lesson's source link or search `3b1b/` for the scene, then trace the helpers that set the layout, camera, and palette as well as the animation. Save the video range and code permalinks in `scene_plan.md`. If playback fails, try another sequence or official lesson visuals and record what you inspected. If asset setup fails, use the upstream source. Follow [reference study and adaptation](references/manim-code-patterns.md#reference-study-and-adaptation).
-3. **Set the visual direction and storyboard.** Choose the first focal point, the space supporting labels and diagrams need, and the color roles and text hierarchy that will carry across scenes. Mark where the composition needs to change to make the next idea visible. Carry an object or relationship from one beat to the next, and let a concrete example produce its result before introducing the general rule. Map each action to a narration cue or the corresponding cue in a silent video.
-4. **Prototype a complete teaching passage.** Render the setup, hardest transition, and result with provisional timing and the planned colors and layout. Compare those frames with the reference and play the passage muted at phone width and normal speed. Check where the eye lands first, what stays legible during the change, and whether the result reads clearly. Fix the first point where attention or understanding breaks, rerender it, and note the revision before full production. Follow [the visual review guide](references/manim-code-patterns.md#review-the-motion).
+1. **Start with what the viewer sees.** Pick one concrete example and one visual subject that can carry the explanation. Before writing on-screen copy, sketch the subject at the opening, the revealing movement, and the held result. Put the example in the first shot. Use the [scene plan template](templates/scene_plan.md) to make these decisions visible.
+2. **Study a complete reference passage and trace its source.** Start with a clip the user supplied, then find a 3Blue1Brown passage that solves the same visual problem. Watch the setup, the move, and the hold. For each state, map the focal point, scale, unused space, contrast, and when labels enter and leave. Trace layout, palette, and timing in the official source. Record the clip range, code permalink, and the decisions you will adapt. When the exact source is unavailable, identify any related implementation as a separate reference. When playback is unavailable, try a playable clip from the official lesson and record what you could inspect. Follow [reference study and adaptation](references/manim-code-patterns.md#reference-study-and-adaptation).
+3. **Storyboard the movement before adding text.** Carry the same object, viewpoint, or coordinate system across related beats. When reframing, specify the object the eye follows, where it lands, and what the new view reveals. Give dense comparisons a steady view and the result time to read. Leave the corners empty by default. Each label needs a reason, an object or comparison it identifies, and a cue to enter and leave. Keep explanatory sentences in audio and captions. Follow [camera movement](references/manim-code-patterns.md#camera-movement-and-reframing).
+4. **Review the passage against the reference.** Render the opening, hardest move, and result before producing the full video. Use `video.py review` to compare the frames at phone width and play the passage muted at normal speed. If the focal point is ambiguous, the relationship is unclear, or a header carries the meaning, revise the composition and render again. Save what changed in the scene plan. Follow [the visual review guide](references/manim-code-patterns.md#review-the-motion).
+
+### Work with specialist agents
+
+When collaboration is requested and the host supports delegation, let the lead own `scene_plan.md`, scene edits, and final delivery. Give the visual designer and reference researcher the same audience, question, and source constraints. Start their work in parallel when possible.
+
+- **Visual designer:** Sketch the opening, the key movement, and the held result. Specify the visual anchor, framing, labels, and how the frame fits the target screen.
+- **Reference researcher:** Verify the actual passage, trace its source, and return timestamped observations and one or two changes the designer can apply.
+- **Independent reviewer:** Give this agent the rendered preview and target screen, withholding the intended reveal on its first pass. Have it watch once muted at normal speed, report what changed and why, and mark any break in attention or comprehension with a timestamp. Then share the plan and reference for comparison. For narrated output, review again with sound to catch mistimed cues or a claim the picture overstates.
+
+The lead merges the design and research, tests the hardest transition as a short silent preview, and rerenders the affected scene or beat after review. For a simple video, the lead can handle design and use separate agents for research and review. When delegation is unavailable, run the same passes in sequence and describe the review accurately.
 
 ## Work one scene at a time
 
@@ -59,17 +69,37 @@ bash scripts/setup_video_assets.sh --ensure
 2. Map each planned beat to the final words and labels. For narration, use one short paragraph per beat, separated by a blank line. Read the [narration guide](references/script-writing-guide.md).
 3. For a narrated scene, review the narration, then generate the MP3 and its adjacent `*.timings.json`. Read and listen to both before locking animation timing. For a silent preview, use provisional beat lengths. See [narration and sync](references/narration-sync.md).
 4. Read the [Manim code patterns](references/manim-code-patterns.md) before writing code. Give the visual idea most of the frame, keep its colors and geometry stable across related beats, and reserve clearance where captions may appear. Clear obsolete objects before shrinking any labels.
-5. Review the assembled preview at normal speed with the narration when present. Check whether each visual event lands on the words that give it meaning and whether the result stays long enough to read. At each cut, verify that shared objects, positions, and colors still make sense. Use selectable subtitles for narrated videos when captions are needed and short on-screen cues for silent videos.
+5. Review the assembled preview at normal speed with the narration when present. Check that each event lands on the words that give it meaning. Compare frames directly before and after cuts. When a composition carries through a cut, preserve its position, scale, style, and visible labels. Verify that any jump has a clear job. Use selectable subtitles for narrated videos and short, local cues for silent videos.
 
 ```bash
-.venv-video/bin/python video.py render videos/my_topic/en
+.venv-video/bin/python video.py render videos/my_topic/en --json
 ```
 
 To render a different scene in isolation, select its file and class.
 
 ```bash
 .venv-video/bin/python video.py render videos/my_topic/en \
-  --file videos/my_topic/en/scenes/scene_02_comparison.py --scene Scene02
+  --file videos/my_topic/en/scenes/scene_02_comparison.py --scene Scene02 --json
 ```
 
-For narrated output, connect each measured chunk to its matching Manim beat. Put the animation on the key phrase, leave enough reading time, and keep at least 0.5 seconds of visual tail after the audio. For existing scenes with hand-tuned waits, review those waits against the new timeline before changing them. Finish with the commands in [FFmpeg recipes](references/ffmpeg-recipes.md).
+Use the `video`, `duration`, and `log` fields from the render result. Each attempt has its own log under `build/logs/`. On `ok: false`, open the log, fix the reported scene or timing error, and rerender that scene. Use the returned MP4 paths from successful attempts to review or assemble the video.
+
+## Review transitions and assemble the video
+
+Use the scene-relative start and end of the animation you want to inspect. Repeat `--transition` for more than one change. Open the contact sheet and correct any overlap, clipping, or abrupt change before proceeding.
+
+```bash
+.venv-video/bin/python video.py review "$SCENE_MP4" --transition 2.1 3.4 \
+  --output videos/my_topic/en/build/review/01_intro
+```
+
+For narration, connect each measured chunk to its matching Manim beat and keep at least 0.5 seconds of visual tail after the audio. Review hand-tuned waits against the new timeline. Pass the successful render paths in playback order, with the narration MP3 after each narrated scene. Each MP3 uses its adjacent `*.timings.json` for subtitle timing. Pass a video path alone for a silent scene.
+
+```bash
+.venv-video/bin/python video.py package \
+  --scene "$SCENE_1_MP4" videos/my_topic/en/build/audio/01_intro.mp3 \
+  --scene "$SCENE_2_MP4" videos/my_topic/en/build/audio/02_comparison.mp3 \
+  --output videos/my_topic/en/build/final/my_topic.mp4 --thumbnail-at 8.5
+```
+
+`package` returns the MP4, thumbnail PNG, and SRT paths. `--thumbnail-at` uses time in the assembled video and defaults to its midpoint. Silent projects receive the MP4 and PNG. Open the assembled review frames and confirm the focal subject, the purpose of each visible label, continuity across cuts, and subtitle clearance. Rerender any beat that fails this review before delivering the generated links. See [FFmpeg recipes](references/ffmpeg-recipes.md) for separate muxing, subtitle embedding, and background music.

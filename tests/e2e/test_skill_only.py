@@ -1,6 +1,7 @@
 """Render and narrate a first scene from a clean clone of the skill-only export."""
 
 import json
+import math
 import os
 from pathlib import Path
 import subprocess
@@ -111,16 +112,39 @@ class SkillOnlyE2E(unittest.TestCase):
                 (project / "scene_plan.md").read_bytes(),
                 (ROOT / ".claude/skills/manim-video-pipeline/templates/scene_plan.md").read_bytes(),
             )
-            (project / "scenes/scene_01_intro.py").write_text(SCENE, encoding="utf-8")
-            subprocess.run([*launcher, "render", edition], cwd=checkout, env=env, check=True)
-
-            previews = list((project / "build/manim/videos").glob("**/Scene01.mp4"))
-            self.assertEqual(len(previews), 1)
-            preview = previews[0]
+            scene_file = project / "scenes/scene_01_intro.py"
+            scene_file.write_text(SCENE, encoding="utf-8")
+            render = [*launcher, "render", edition, "--json"]
+            result = json.loads(subprocess.check_output(render, cwd=checkout, env=env))
+            self.assertTrue(result["ok"])
+            preview = Path(result["video"])
+            self.assertEqual(preview, (project / "build/manim/videos/scene_01_intro/480p15/Scene01.mp4").resolve())
+            self.assertIn("Rendered Scene01", Path(result["log"]).read_text())
             media = probe_video(preview)
             self.assertEqual(media["streams"], [{"codec_type": "video", "height": 480}])
             preview_duration = float(media["format"]["duration"])
             self.assertGreater(preview_duration, 0)
+            self.assertAlmostEqual(result["duration"], preview_duration, delta=0.002)
+
+            original = preview.read_bytes()
+            scene_file.write_text(SCENE.replace("        timing_path =", "        raise RuntimeError('Intentional Manim failure')\n        timing_path ="))
+            failure = subprocess.run(render, cwd=checkout, env=env, capture_output=True)
+            self.assertNotEqual(failure.returncode, 0)
+            result = json.loads(failure.stdout)
+            self.assertFalse(result["ok"])
+            self.assertNotIn("video", result)
+            self.assertIn("RuntimeError: Intentional Manim failure", Path(result["log"]).read_text())
+            self.assertEqual(preview.read_bytes(), original)
+            scene_file.write_text(SCENE, encoding="utf-8")
+
+            review = json.loads(subprocess.check_output(
+                [*launcher, "review", str(preview), "--transition", "0.08", "0.55"], cwd=checkout, env=env,
+            ))
+            self.assertTrue(Path(review["sheet"]).read_bytes().startswith(b"\x89PNG"))
+            frames, = review["transitions"]
+            self.assertEqual([frame["position"] for frame in frames], ["before", "during", "after"])
+            self.assertTrue(frames[0]["seconds"] < frames[1]["seconds"] < frames[2]["seconds"])
+            self.assertEqual(len({Path(frame["path"]).read_bytes() for frame in frames}), 3)
 
             script = project / "narration/01_intro.txt"
             paragraphs = ["Assign visitors to two groups at random.", "Compare the click rates."]
@@ -137,7 +161,8 @@ class SkillOnlyE2E(unittest.TestCase):
             self.assertEqual([chunk["text"] for chunk in timing["chunks"]], paragraphs)
             first, second = timing["chunks"]
             self.assertAlmostEqual(second["start"] - first["end"], 0.2, places=2)
-            subprocess.run([*launcher, "render", edition], cwd=checkout, env=env, check=True)
+            narrated = json.loads(subprocess.check_output(render, cwd=checkout, env=env))
+            self.assertEqual(Path(narrated["video"]), preview)
             final = project / "build/final/01_intro.mp4"
             subprocess.run([*launcher, "mux", str(preview), str(audio), str(final)],
                            cwd=checkout, env=env, check=True)
@@ -151,6 +176,28 @@ class SkillOnlyE2E(unittest.TestCase):
             duration = float(media["format"]["duration"])
             self.assertGreater(duration, preview_duration)
             self.assertAlmostEqual(duration - timing["totalDuration"], 0.5, delta=0.08)
+
+            packaged = json.loads(subprocess.check_output(
+                [*launcher, "package", "--scene", str(preview), str(audio), "--scene", str(preview),
+                 "--scene", str(preview), str(audio), "--output", str(project / "build/final/lesson.mp4"),
+                 "--thumbnail-at", "1.1"], cwd=checkout, env=env,
+            ))
+            self.assertEqual(probe_video(Path(packaged["video"]))["streams"], media["streams"])
+            self.assertTrue(Path(packaged["thumbnail"]).read_bytes().startswith(b"\x89PNG"))
+            scene_length = math.ceil(narrated["duration"] * 30 - 0.0001) / 30
+            self.assertAlmostEqual(packaged["duration"], scene_length * 3, delta=0.034)
+            captions = Path(packaged["captions"]).read_text()
+            self.assertEqual(" ".join(captions.split()).count(paragraphs[0]), 2)
+            later = round(2 * scene_length * 1000)
+            seconds, millis = divmod(later, 1000)
+            self.assertIn(f"3\n00:00:{seconds:02d},{millis:03d} -->", captions)
+
+            silent = json.loads(subprocess.check_output(
+                [*launcher, "package", "--scene", str(preview), "--output", str(project / "build/final/silent.mp4")],
+                cwd=checkout, env=env,
+            ))
+            self.assertIsNone(silent["captions"])
+            self.assertEqual(probe_video(Path(silent["video"]))["streams"], [{"codec_type": "video", "height": 480}])
 
 
 if __name__ == "__main__":

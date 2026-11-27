@@ -38,18 +38,38 @@ In the [dice simulation at 6:15–6:42](https://www.youtube.com/watch?v=zeJD6dqJ
 
 - Use that order when it fits the concept. In an A/B test, show a worked pair of click counts and move their computed difference onto the axis. Give the first example a hold before the repetitions accelerate. When teaching binary search, carry the same sorted row through each comparison and eliminate the rejected half in place. This lets the viewer see where the next search range comes from.
 - Where a single parameter changes the outcome, show the old and new states on the same scale. For example, keep the observed difference fixed as a larger sample pulls both confidence interval endpoints inward. Show the new values after the movement, with a brief hold to compare them.
+- When an overall rate changes with the mix of groups, show the within-group rates and the group shares in separate visual positions. Reveal the rates that explain the difference before changing the mix. Give viewers time to see which groups are more common and which have higher rates.
 - Inspect the transition at its actual pace. If the viewer can't tell where a result came from, stage one concrete example more slowly. Keep quantitative motion, color, text, and camera changes tied to what the viewer should notice.
 
 ## Staging and text
 
-- Start close to the object or comparison the narration opens with. Give it enough space to read on a small screen. Reveal a second object only when there is something to compare. Arrange related beats around the same positions or axis so the audience keeps its bearings at the cut.
-- Let the opening pose a concrete question with a visible example. Introduce names or formulas when the viewer has a reason to use them. Save camera moves, SVG icons, and highlights for actions that reveal a relationship or guide the eye.
-- Move the object that creates the next result. For example, keep the colored parts of two count bars, move them onto a percentage axis, then draw a bracket between their heights. Show the value when the bracket lands. Hold the result long enough to read it before the next change.
-- Put labels next to what they identify. A bar can carry `13%`, a dot can identify the estimate, and an interval can carry its endpoints. Use one typographic hierarchy for quantities, labels, and ticks. Remove repeated scene titles, boxed captions, and prose that restates what the viewer hears. Retain a short question, definition, or formula when the viewer needs to read it.
+- Open on the example at a size that reads on a phone. Establish where to look, then introduce the comparison. Keep the frame free of running headers, topic badges, progress labels, and boxed summaries. Use an occasional heading when it helps the viewer orient during a subject change, then clear it.
+- Give each beat a visible action and a held result. Use one focal movement at a time, with supporting motions tied to it. For example, lift a marked copy of a comparison line, hold it in its new position, and put the derived value at its endpoint. Tie the timing of an accent to the result becoming visible.
+- Treat a scene file as a production boundary. When consecutive scenes share a visual subject, compose the ending and opening as a pair. Reuse objects in code within a scene and use the same construction, positions, and styles across files. Reserve reframing for a change the viewer needs to see.
+- Keep quantities and local names beside their marks. Reveal a label once its object is identifiable, and remove it when the next thing needs that space. Let the viewer read an equation after its quantities have appeared in the visual. Review the exact words on screen for each beat and move explanatory sentences into narration or captions.
+
+### Camera movement and reframing
+
+- Give each move a destination and a reason. Choose a visible anchor, place it deliberately in the destination frame, and identify the relationship that comes into view. A mark seen up close can become a corner, endpoint, or member of a larger comparison as the view widens.
+- Hold the camera during precise comparisons when a stable frame helps viewers read the change. Start the move once the anchor is recognizable, combine pan and zoom in one continuous move when they share a destination, and ease to a stop before asking viewers to read the result. Separate the camera move from competing motion or text unless the changes have the same focal point.
+- In [The lattice bacteria puzzle, 18–23s](https://www.youtube.com/watch?v=d0ai33oqqDE&t=18s), a steady grid helps viewers track local arrows. [At 31–35s](https://www.youtube.com/watch?v=d0ai33oqqDE&t=31s), the view widens around a familiar bacterium until it marks the corner of a newly visible box. Transfer that sequence to a point becoming the endpoint of a trend, a cell becoming part of a table, or one group becoming part of a wider comparison. For a comparable camera implementation, see [3Blue1Brown's cross-entropy scene](https://github.com/3b1b/videos/blob/31f8ffe785e860477a6051fde983c02c7d165bc2/_2026/cross_entropy/entropy.py#L951-L979).
+- In Manim CE, `MovingCameraScene` provides a 2D camera frame. For an overview, compute its destination from the complete group, including its labels. For portraits, check vertical as well as horizontal fit at the start, during the move, and after it ends.
+
+```python
+# In MovingCameraScene.construct(), with `detail` and `overview` already laid out:
+frame = self.camera.frame
+frame.move_to(detail).set(width=detail.width * 1.25)
+aspect = frame.width / frame.height
+overview_width = max(overview.width, overview.height * aspect) * 1.15
+self.play(frame.animate.move_to(overview).set(width=overview_width), rate_func=smooth, run_time=1.4)
+self.wait(0.5)
+```
 
 ### Review the motion
 
-Compare the preview's opening, key change, and result frames to the reference's visual hierarchy. Play the passage at normal speed and phone width with the sound off. Check where your eye goes, where text loses contrast or room, and how the frame changes when the idea advances. Use the first failure to choose what to change.
+Compare opening, key change, and held result with the reference frames. Check the focal point, relative size of the subject, quiet space around it, and the moment each annotation appears. Play at normal speed and phone width with the sound off. A first-time viewer should be able to see what changed and where the result came from. Repair the first beat where the visual explanation breaks and render it again.
+
+For a camera move, watch through the entire transition. Check that the anchor stays traceable, the view lands before the comparison or label needs to be read, and essential content clears frame edges and caption or platform overlays throughout. Use transition frames to pinpoint a jump or a crop and play the revised clip again to judge the pace.
 
 | What a viewer needs to see | If it is hard to follow |
 |---|---|
@@ -58,7 +78,7 @@ Compare the preview's opening, key change, and result frames to the reference's 
 | What changed and what stayed fixed | Keep shared axes, scale, and color meanings stable during the comparison. Bring in new labels when their values become readable. |
 | Why the change answers the opening question | Hold both the result and the relevant comparison. Use the same example to lead into the general rule. |
 
-Review the assembled video with sound at normal speed. Check motion against the words it illustrates, hold results through the relevant phrase, and play across cuts. For subtitles, check that they leave essential labels clear.
+Use `video.py review` on ranges around the main transitions and on either side of assembled cuts that carry through a visual subject. Compare the actual frames for unwanted resets, stray text, emphasis changes, and overlap. With the sound on, check that the object changes on the relevant phrase and the result holds long enough to read. Check subtitle clearance separately.
 
 ## Layout and caption safe area
 
@@ -131,21 +151,18 @@ self.wait(0.8)                            # 표준 호흡
 ### Beat 설계 전 체크 (코드 작성 전 주석으로 남길 것)
 
 ```
-# 남는 요소: T_i 라벨 (상단)
-# 새로 등장: Y_1i 박스 (좌), Y_0i 박스 (우)
-# 비워 두는 영역: 하단
+# Anchor: the observed endpoint stays on its axis.
+# Main move: the comparison line shifts to the observed starting point.
+# Text: show the estimated value at the new endpoint once the move lands.
 ```
 
 동시 노출 핵심 그룹: **원칙 1개, 최대 2개**. 3개 이상이면 Beat 분리.
 
-### 화면 구획
+### Local labels
 
 ```python
-title.to_edge(UP)
-formula.to_edge(DOWN)
-left_group.to_edge(LEFT, buff=1)
-right_group.to_edge(RIGHT, buff=1)
-label.to_corner(UR)
+endpoint_label.next_to(endpoint, RIGHT, buff=0.18)
+difference_label.next_to(difference_bracket, RIGHT, buff=0.16)
 ```
 
 ### 정렬
@@ -252,7 +269,7 @@ class Scene{NN}(ThreeDScene):
         self.wait(3)
         self.stop_ambient_camera_rotation()
 
-        self.add_fixed_in_frame_mobjects(label)  # HUD 요소
+        self.add_fixed_in_frame_mobjects(axis_unit)  # Preserve a unit label during camera movement.
 ```
 
 ## 8. 데이터 시각화

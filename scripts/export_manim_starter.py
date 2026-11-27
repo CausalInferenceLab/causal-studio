@@ -22,6 +22,7 @@ SKILL_ONLY_FILES = (
     "scripts/pipeline.py",
     "scripts/project_layout.py",
     "scripts/speech.py",
+    "scripts/video_outputs.py",
     "templates/scene_plan.md",
 )
 CODEX_ENTRY = """---

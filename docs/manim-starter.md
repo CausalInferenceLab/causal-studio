@@ -31,7 +31,7 @@ The skill finds relevant 3Blue1Brown scenes and their Manim code to plan what to
 
 Edit the draft script yourself or ask the agent to revise it. The revised script guides the narration and what appears on screen. To add a voice, the agent turns the script into an MP3 and records when each passage is spoken in `*.timings.json`. It uses those times to line up the graphics with the narration, then saves them together in the final MP4.
 
-> Add ElevenLabs narration. Make the script one paragraph per visual beat, use the measured timings to align the animation, and give me the merged MP4.
+> Add ElevenLabs narration, review the key transitions, and export the finished MP4, thumbnail, and SRT. Make the script one paragraph per visual beat and use the measured timings to align the animation.
 
 If you’re setting up narration for the first time, copy `.env.example` to `.env` in the repository root. For ElevenLabs, fill in `ELEVENLABS_API_KEY` and `ELEVENLABS_VOICE_ID`. For OpenAI, fill in `OPENAI_API_KEY` and ask for OpenAI narration. The agent can render a silent preview before you set up narration.
 
