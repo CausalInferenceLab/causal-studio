@@ -4,6 +4,14 @@
 
 [Watch on YouTube](https://www.youtube.com/@CausalStudio) · [Read the Causal Studio book](https://causalinferencelab.github.io/causal-studio/)
 
+<p align="center">
+  <picture>
+    <source media="(prefers-reduced-motion: reduce)" srcset="https://raw.githubusercontent.com/CausalInferenceLab/causal-studio/main/docs/assets/did-preview.jpg">
+    <img src="https://raw.githubusercontent.com/CausalInferenceLab/causal-studio/main/docs/assets/did-animation.gif" width="820" alt="Two city deposit trends align to a shared baseline, revealing the difference in post-campaign growth.">
+  </picture><br>
+  <sub>Difference-in-differences · Billboard campaign example</sub>
+</p>
+
 ## Make your first video
 
 1. Clone the `skill-only` branch.
